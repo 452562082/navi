@@ -13,20 +13,20 @@ import (
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
-	"github.com/docker/libkv/store/zookeeper"
+	"github.com/docker/libkv/store/etcd"
 	metrics "github.com/rcrowley/go-metrics"
 )
 
 func init() {
-	zookeeper.Register()
+	//etcd.Register()
 }
 
-// ZooKeeperRegister implements zookeeper registry.
-type ZooKeeperRegister struct {
+// EtcdRegister implements etcd registry.
+type EtcdRegister struct {
 	// service address, for example, tcp@127.0.0.1:8972, quic@127.0.0.1:1234
 	ServiceAddress string
-	// zookeeper addresses
-	ZooKeeperServers []string
+	// etcd addresses
+	EtcdServers []string
 	// base path for rpcx server, for example com/example/rpcx
 	BasePath string
 	Metrics  metrics.Registry
@@ -40,25 +40,20 @@ type ZooKeeperRegister struct {
 	kv      store.Store
 }
 
-// Start starts to connect zookeeper cluster
-func (p *ZooKeeperRegister) Start() error {
+// Start starts to connect etcd cluster
+func (p *EtcdRegister) Start() error {
 	if p.kv == nil {
-		kv, err := libkv.NewStore(store.ZK, p.ZooKeeperServers, p.Options)
+		kv, err := libkv.NewStore(store.ETCD, p.EtcdServers, p.Options)
 		if err != nil {
-			log.Errorf("cannot create zk registry: %v", err)
+			log.Errorf("cannot create etcd registry: %v", err)
 			return err
 		}
 		p.kv = kv
 	}
 
-
-	if p.BasePath[0] == '/' {
-		p.BasePath = p.BasePath[1:]
-	}
-
 	err := p.kv.Put(p.BasePath, []byte("navi_path"), &store.WriteOptions{IsDir: true})
-	if err != nil {
-		log.Errorf("cannot create zk path %s: %v", p.BasePath, err)
+	if err != nil && !strings.Contains(err.Error(), "Not a file") {
+		log.Errorf("cannot create etcd path %s: %v", p.BasePath, err)
 		return err
 	}
 
@@ -77,7 +72,7 @@ func (p *ZooKeeperRegister) Start() error {
 				//set this same metrics for all services at this server
 				for _, name := range p.Services {
 					nodePath := fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
-					kvPaire, err := p.kv.Get(nodePath)
+					kvPair, err := p.kv.Get(nodePath)
 					if err != nil {
 						log.Infof("can't get data of node: %s, because of %v", nodePath, err.Error())
 
@@ -87,10 +82,11 @@ func (p *ZooKeeperRegister) Start() error {
 
 						err = p.kv.Put(nodePath, []byte(meta), &store.WriteOptions{TTL: p.UpdateInterval * 3})
 						if err != nil {
-							log.Errorf("cannot re-create zookeeper path %s: %v", nodePath, err)
+							log.Errorf("cannot re-create etcd path %s: %v", nodePath, err)
 						}
+
 					} else {
-						v, _ := url.ParseQuery(string(kvPaire.Value))
+						v, _ := url.ParseQuery(string(kvPair.Value))
 						v.Set("tps", string(data))
 						p.kv.Put(nodePath, []byte(v.Encode()), &store.WriteOptions{TTL: p.UpdateInterval * 3})
 					}
@@ -104,7 +100,7 @@ func (p *ZooKeeperRegister) Start() error {
 }
 
 // HandleConnAccept handles connections from clients
-func (p *ZooKeeperRegister) HandleConnAccept(conn net.Conn) (net.Conn, bool) {
+func (p *EtcdRegister) HandleConnAccept(conn net.Conn) (net.Conn, bool) {
 	if p.Metrics != nil {
 		clientMeter := metrics.GetOrRegisterMeter("clientMeter", p.Metrics)
 		clientMeter.Mark(1)
@@ -114,42 +110,42 @@ func (p *ZooKeeperRegister) HandleConnAccept(conn net.Conn) (net.Conn, bool) {
 
 // Register handles registering event.
 // this service is registered at BASE/serviceName/thisIpAddress node
-func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, metadata string) (err error) {
+func (p *EtcdRegister) Register(name string, rcvr interface{}, metadata string) (err error) {
 	if "" == strings.TrimSpace(name) {
 		err = errors.New("Register service `name` can't be empty")
 		return
 	}
 
 	if p.kv == nil {
-		zookeeper.Register()
-		kv, err := libkv.NewStore(store.ZK, p.ZooKeeperServers, nil)
+		etcd.Register()
+		kv, err := libkv.NewStore(store.ETCD, p.EtcdServers, nil)
 		if err != nil {
-			log.Errorf("cannot create zk registry: %v", err)
+			log.Errorf("cannot create etcd registry: %v", err)
 			return err
 		}
 		p.kv = kv
 	}
 
-	if p.BasePath[0] == '/' {
-		p.BasePath = p.BasePath[1:]
-	}
+	log.Debugf("nodePath Register in etcd 2 %s", p.BasePath)
 	err = p.kv.Put(p.BasePath, []byte("navi_path"), &store.WriteOptions{IsDir: true})
-	if err != nil {
-		log.Errorf("cannot create zk path %s: %v", p.BasePath, err)
+	if err != nil && !strings.Contains(err.Error(), "Not a file") {
+		log.Errorf("cannot create etcd path %s: %v", p.BasePath, err)
 		return err
 	}
 
 	nodePath := fmt.Sprintf("%s/%s", p.BasePath, name)
+	log.Debugf("nodePath Register in etcd 2 %s", nodePath)
 	err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
-	if err != nil {
-		log.Errorf("cannot create zk path %s: %v", nodePath, err)
+	if err != nil && !strings.Contains(err.Error(), "Not a file") {
+		log.Errorf("cannot create etcd path %s: %v", nodePath, err)
 		return err
 	}
 
 	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
+	log.Debugf("nodePath Register in etcd 3 %s", nodePath)
 	err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: p.UpdateInterval * 2})
 	if err != nil {
-		log.Errorf("cannot create zk path %s: %v", nodePath, err)
+		log.Errorf("cannot create etcd path %s: %v", nodePath, err)
 		return err
 	}
 
@@ -164,17 +160,17 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, metadata str
 	return
 }
 
-func (p *ZooKeeperRegister) UnRegister(name string) (err error) {
+func (p *EtcdRegister) UnRegister(name string) (err error) {
 	if "" == strings.TrimSpace(name) {
-		err = errors.New("Register service `name` can't be empty")
+		err = errors.New("UnRegister service `name` can't be empty")
 		return
 	}
 
 	if p.kv == nil {
-		zookeeper.Register()
-		kv, err := libkv.NewStore(store.ZK, p.ZooKeeperServers, nil)
+		etcd.Register()
+		kv, err := libkv.NewStore(store.ETCD, p.EtcdServers, nil)
 		if err != nil {
-			log.Errorf("cannot create zk registry: %v", err)
+			log.Errorf("cannot create etcd registry: %v", err)
 			return err
 		}
 		p.kv = kv
@@ -183,23 +179,23 @@ func (p *ZooKeeperRegister) UnRegister(name string) (err error) {
 	if p.BasePath[0] == '/' {
 		p.BasePath = p.BasePath[1:]
 	}
-	err = p.kv.Put(p.BasePath, []byte("rpcx_path"), &store.WriteOptions{IsDir: true})
-	if err != nil {
-		log.Errorf("cannot create zk path %s: %v", p.BasePath, err)
-		return err
-	}
+	//err = p.kv.Put(p.BasePath, []byte("navi_path"), &store.WriteOptions{IsDir: true})
+	//if err != nil {
+	//	log.Errorf("cannot create etcd path %s: %v", p.BasePath, err)
+	//	return err
+	//}
+	//
+	//nodePath := fmt.Sprintf("%s/%s", p.BasePath, name)
+	//err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
+	//if err != nil {
+	//	log.Errorf("cannot create etcd path %s: %v", nodePath, err)
+	//	return err
+	//}
 
-	nodePath := fmt.Sprintf("%s/%s", p.BasePath, name)
-	err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
-	if err != nil {
-		log.Errorf("cannot create zk path %s: %v", nodePath, err)
-		return err
-	}
-
-	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
+	nodePath := fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
 	err = p.kv.Delete(nodePath)
 	if err != nil {
-		log.Errorf("cannot delete zk path %s: %v", nodePath, err)
+		log.Errorf("cannot delete etcd path %s: %v", nodePath, err)
 		return err
 	}
 

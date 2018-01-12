@@ -5,19 +5,19 @@ import (
 	"sync"
 	"time"
 
-	"git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
-	"github.com/docker/libkv/store/zookeeper"
+	//"github.com/docker/libkv/store/etcd"
+	"github.com/smallnest/rpcx/log"
 )
 
 func init() {
-	zookeeper.Register()
+	//etcd.Register()
 }
 
-// ZookeeperDiscovery is a zoopkeer service discovery.
-// It always returns the registered servers in zookeeper.
-type ZookeeperDiscovery struct {
+// EtcdDiscovery is a etcd service discovery.
+// It always returns the registered servers in etcd.
+type EtcdDiscovery struct {
 	basePath string
 	kv       store.Store
 	pairs    []*KVPair
@@ -30,68 +30,62 @@ type ZookeeperDiscovery struct {
 	stopCh chan struct{}
 }
 
-// NewZookeeperDiscovery returns a new ZookeeperDiscovery.
-func NewZookeeperDiscovery(basePath string, servicePath string, zkAddr []string, options *store.Config) (ServiceDiscovery, error) {
-	if basePath[0] == '/' {
-		basePath = basePath[1:]
+// NewEtcdDiscovery returns a new EtcdDiscovery.
+func NewEtcdDiscovery(basePath string, servicePath string, etcdAddr []string, options *store.Config) (ServiceDiscovery, error) {
+	kv, err := libkv.NewStore(store.ETCD, etcdAddr, options)
+	if err != nil {
+		log.Errorf("cannot create store: %v", err)
+		return nil, err
 	}
 
+	return NewEtcdDiscoveryStore(basePath+"/"+servicePath, kv)
+}
+
+// NewEtcdDiscoveryStore return a new EtcdDiscovery with specified store.
+func NewEtcdDiscoveryStore(basePath string, kv store.Store) (ServiceDiscovery, error) {
 	if len(basePath) > 1 && strings.HasSuffix(basePath, "/") {
 		basePath = basePath[:len(basePath)-1]
 	}
 
-	kv, err := libkv.NewStore(store.ZK, zkAddr, options)
-	if err != nil {
-		log.Infof("cannot create store: %v", err)
-		return nil, err
-	}
-
-	return NewZookeeperDiscoveryWithStore(basePath+"/"+servicePath, kv)
-}
-
-// NewZookeeperDiscoveryWithStore returns a new ZookeeperDiscovery with specified store.
-func NewZookeeperDiscoveryWithStore(basePath string, kv store.Store) (ServiceDiscovery, error) {
-	if basePath[0] == '/' {
-		basePath = basePath[1:]
-	}
-	d := &ZookeeperDiscovery{basePath: basePath, kv: kv}
+	d := &EtcdDiscovery{basePath: basePath, kv: kv}
 	d.stopCh = make(chan struct{})
 
 	ps, err := kv.List(basePath)
 	if err != nil {
-		log.Infof("cannot get services of from registry: %v", basePath, err)
+		log.Errorf("cannot get services of from registry: %v", basePath, err)
 		return nil, err
 	}
-
 	var pairs = make([]*KVPair, 0, len(ps))
+	prefix := d.basePath + "/"
 	for _, p := range ps {
-		pairs = append(pairs, &KVPair{Key: p.Key, Value: string(p.Value)})
+		k := strings.TrimPrefix(p.Key, prefix)
+		pairs = append(pairs, &KVPair{Key: k, Value: string(p.Value)})
 	}
 	d.pairs = pairs
 	d.RetriesAfterWatchFailed = -1
-	go d.watch()
 
+	go d.watch()
 	return d, nil
 }
 
 // Clone clones this ServiceDiscovery with new servicePath.
-func (d ZookeeperDiscovery) Clone(servicePath string) (ServiceDiscovery, error) {
-	return NewZookeeperDiscoveryWithStore(d.basePath+"/"+servicePath, d.kv)
+func (d EtcdDiscovery) Clone(servicePath string) (ServiceDiscovery, error) {
+	return NewEtcdDiscoveryStore(d.basePath+"/"+servicePath, d.kv)
 }
 
 // GetServices returns the servers
-func (d ZookeeperDiscovery) GetServices() []*KVPair {
+func (d EtcdDiscovery) GetServices() []*KVPair {
 	return d.pairs
 }
 
 // WatchService returns a nil chan.
-func (d *ZookeeperDiscovery) WatchService() chan []*KVPair {
+func (d *EtcdDiscovery) WatchService() chan []*KVPair {
 	ch := make(chan []*KVPair, 10)
 	d.chans = append(d.chans, ch)
 	return ch
 }
 
-func (d *ZookeeperDiscovery) RemoveWatcher(ch chan []*KVPair) {
+func (d *EtcdDiscovery) RemoveWatcher(ch chan []*KVPair) {
 	d.mu.Lock()
 	d.mu.Unlock()
 
@@ -107,7 +101,7 @@ func (d *ZookeeperDiscovery) RemoveWatcher(ch chan []*KVPair) {
 	d.chans = chans
 }
 
-func (d *ZookeeperDiscovery) watch() {
+func (d *EtcdDiscovery) watch() {
 	for {
 		var err error
 		var c <-chan []*store.KVPair
@@ -128,7 +122,7 @@ func (d *ZookeeperDiscovery) watch() {
 				if max := 30 * time.Second; tempDelay > max {
 					tempDelay = max
 				}
-				log.Errorf("can not watchtree (with retry %d, sleep %v): %s: %v", retry, tempDelay, d.basePath, err)
+				log.Warnf("can not watchtree (with retry %d, sleep %v): %s: %v", retry, tempDelay, d.basePath, err)
 				time.Sleep(tempDelay)
 				continue
 			}
@@ -151,12 +145,14 @@ func (d *ZookeeperDiscovery) watch() {
 					break readChanges
 				}
 				var pairs []*KVPair // latest servers
+				prefix := d.basePath + "/"
 				for _, p := range ps {
-					pairs = append(pairs, &KVPair{Key: p.Key, Value: string(p.Value)})
+					k := strings.TrimPrefix(p.Key, prefix)
+					pairs = append(pairs, &KVPair{Key: k, Value: string(p.Value)})
 				}
 				d.pairs = pairs
 
-				for _, ch := range d. chans {
+				for _, ch := range d.chans {
 					ch := ch
 					go func() {
 						defer func() {
@@ -164,6 +160,7 @@ func (d *ZookeeperDiscovery) watch() {
 
 							}
 						}()
+
 						select {
 						case ch <- pairs:
 						case <-time.After(time.Minute):
@@ -178,6 +175,6 @@ func (d *ZookeeperDiscovery) watch() {
 	}
 }
 
-func (d *ZookeeperDiscovery) Close() {
+func (d *EtcdDiscovery) Close() {
 	close(d.stopCh)
 }

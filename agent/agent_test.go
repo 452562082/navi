@@ -19,11 +19,11 @@ func TestAgent_Serve(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := &registry.ZooKeeperRegister{
-		ServiceAddress:   typ + "@" + address,
-		ZooKeeperServers: []string{"192.168.1.16:2181"},
-		BasePath:         "/rpcx_test",
-		Metrics:          metrics.NewRegistry(),
+	r := &registry.EtcdRegister{
+		ServiceAddress: typ + "@" + address,
+		EtcdServers:    []string{"127.0.0.1:2379"},
+		BasePath:       "/navi-test",
+		Metrics:        metrics.NewRegistry(),
 	}
 
 	err = r.Start()

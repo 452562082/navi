@@ -51,5 +51,8 @@ service naviService {
 	
     string Ping(),
 
-    string Service()
+    string ServiceName(),
+
+    string ServiceType()
+
 }
