@@ -275,7 +275,7 @@ enum EXCCODE {
 }
 
 # 这是经过泛化后的Apache Thrift接口
-service naviService {
+service {{.ServiceName}} {
         string Ping(),
 
         string ServiceName(),
