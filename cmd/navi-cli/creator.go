@@ -425,15 +425,15 @@ func TProcessor() thrift.TProcessor {
 type {{.ServiceName}} struct {
 }
 
-func (s {{.ServiceName}}) Ping() (s string, err error) {
+func (s {{.ServiceName}}) Ping() (str string, err error) {
 	return "ping",nil
 }
 
-func (s {{.ServiceName}}) ServiceName() (s string, err error) {
+func (s {{.ServiceName}}) ServiceName() (str string, err error) {
 	return "serviceName",nil
 }
 
-func (s {{.ServiceName}}) ServiceType() (s string, err error) {
+func (s {{.ServiceName}}) ServiceType() (str string, err error) {
 	return "ServiceType",nil
 }
 
