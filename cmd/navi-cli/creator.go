@@ -439,7 +439,7 @@ func (s {{.ServiceName}}) ServiceType() (str string, err error) {
 
 // SayHello is an example entry point
 func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
-	return &gen.Response{ResponseCode: _200, ResponserJson: []byte("{name: [thrift server]Hello, " + yourName + "}")}, nil
+	return &gen.Response{ResponseCode: RESCODE._200, ResponseJson: []byte("{name: [thrift server]Hello, " + yourName + "}")}, nil
 }
 `,
 	)
