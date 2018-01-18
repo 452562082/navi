@@ -17,13 +17,13 @@ import (
 	"strconv"
 	"strings"
 
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
-	"git.oschina.net/kuaishangtong/common/utils/log"
 )
 
 type switcher func(s Servable, methodName string, resp http.ResponseWriter, req *http.Request) (interface{}, error)
@@ -482,7 +482,7 @@ func BuildRequest(s Servable, v proto.Message, req *http.Request) error {
 func BuildThriftRequest(s Servable, args interface{}, req *http.Request, buildStructArg func(s Servable, typeName string, req *http.Request) (v reflect.Value, err error)) ([]reflect.Value, error) {
 	var err error
 	var params []reflect.Value
-	if contentTypes, ok := req.Header["Content-Type"]; ok && contentTypes[0] == "application/json" {
+	if contentTypes, ok := req.Header["Content-Type"]; ok && strings.Contains(contentTypes[0], "application/json") {
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(req.Body)
 		v := reflect.New(reflect.ValueOf(args).Elem().Type()).Interface()
@@ -511,7 +511,7 @@ func BuildThriftRequest(s Servable, args interface{}, req *http.Request, buildSt
 		}
 
 	} else {
-		params, err = BuildArgs(s, reflect.TypeOf(args), reflect.ValueOf(args), req, buildStructArg)
+		params, err = BuildArgs(s, reflect.TypeOf(args).Elem(), reflect.ValueOf(args).Elem(), req, buildStructArg)
 	}
 	return params, err
 }
