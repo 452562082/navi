@@ -426,8 +426,8 @@ type {{.ServiceName}} struct {
 }
 
 // SayHello is an example entry point
-func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.SayHelloResponse, err error) {
-	return &gen.SayHelloResponse{Message: "[thrift server]Hello, " + yourName}, nil
+func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
+	return &gen.Response{responseCode: _200, responserJson: []byte("{name: [thrift server]Hello, " + yourName + "}")}, nil
 }
 `,
 	)
