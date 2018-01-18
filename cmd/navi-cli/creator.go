@@ -275,7 +275,7 @@ enum EXCCODE {
 }
 
 # 这是经过泛化后的Apache Thrift接口
-service naviService {
+service {{.ServiceName}} {
         string Ping(),
 
         string ServiceName(),
@@ -425,9 +425,21 @@ func TProcessor() thrift.TProcessor {
 type {{.ServiceName}} struct {
 }
 
+func (s {{.ServiceName}}) Ping() (str string, err error) {
+	return "ping",nil
+}
+
+func (s {{.ServiceName}}) ServiceName() (str string, err error) {
+	return "serviceName",nil
+}
+
+func (s {{.ServiceName}}) ServiceType() (str string, err error) {
+	return "ServiceType",nil
+}
+
 // SayHello is an example entry point
-func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.SayHelloResponse, err error) {
-	return &gen.SayHelloResponse{Message: "[thrift server]Hello, " + yourName}, nil
+func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
+	return &gen.Response{ResponseCode: gen.RESCODE__200, ResponseJSON: []byte("{name: [thrift server]Hello, " + yourName + "}")}, nil
 }
 `,
 	)
