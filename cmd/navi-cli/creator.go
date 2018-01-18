@@ -425,6 +425,18 @@ func TProcessor() thrift.TProcessor {
 type {{.ServiceName}} struct {
 }
 
+func (s {{.ServiceName}}) Ping() (s string, err error) {
+	return "ping",nil
+}
+
+func (s {{.ServiceName}}) ServiceName() (s string, err error) {
+	return "serviceName",nil
+}
+
+func (s {{.ServiceName}}) ServiceType() (s string, err error) {
+	return "ServiceType",nil
+}
+
 // SayHello is an example entry point
 func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
 	return &gen.Response{responseCode: _200, responserJson: []byte("{name: [thrift server]Hello, " + yourName + "}")}, nil
