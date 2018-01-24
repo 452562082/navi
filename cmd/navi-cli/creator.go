@@ -713,9 +713,10 @@ func main() {
 		log.Error(err)
 	}
 
+	kv, err := libkv.NewStore(store.ZK, p.ZooKeeperServers, p.Options)
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
-		r.Register(path[1:], nil, "")
+		kv.Put(path[1:], nil, nil)
 	}
 
 	select {
