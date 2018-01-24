@@ -683,6 +683,7 @@ import (
 	"fmt"
 	"net"
 	"git.oschina.net/kuaishangtong/navi/registry"
+	"git.oschina.net/kuaishangtong/common/utils/log"
 )
 
 func main() {
@@ -698,26 +699,23 @@ func main() {
 	//服务注册
 	address, err := getaddr()
 	if err != nil {
-		t.Fatal(err)
+		log.Error(err)
 	}
 
 	r := &registry.ZooKeeperRegister{
 		ServiceAddress: address,
 		ZooKeeperServers:    []string{"127.0.0.1:2181"},
 		BasePath:       "/navi-test",
-		Metrics:        metrics.NewRegistry(),
-		kv:					kv,
 	}
 
 	err = r.Start()
 	if err != nil {
-		t.Fatal(err)
+		log.Error(err)
 	}
 
-	//kv, err := libkv.NewStore(store.ZK, zkhosts, nil)
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
-		r.kv.Put(path, nil, nil)
+		r.Register(path[1:], nil, "")
 	}
 
 	select {
