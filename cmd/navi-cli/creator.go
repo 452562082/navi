@@ -683,6 +683,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 	metrics "github.com/rcrowley/go-metrics"
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"git.oschina.net/kuaishangtong/common/utils/log"
