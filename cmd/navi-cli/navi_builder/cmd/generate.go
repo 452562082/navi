@@ -22,15 +22,16 @@ var generateCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("Usage: generate [package_path] -r [grpc|thrift] -I (absolute_paths_to_proto|thrift_files)")
 		}
-		if RpcType == "" {
-			return errors.New("missing rpctype (-r)")
-		}
-		if RpcType != "grpc" && RpcType != "thrift" {
-			return errors.New("invalid rpctype")
-		}
-		if RpcType == "grpc" && len(FilePaths) == 0 {
-			return errors.New("missing .proto file path (-I)")
-		}
+		//if RpcType == "" {
+		//	return errors.New("missing rpctype (-r)")
+		//}
+		//if RpcType != "grpc" && RpcType != "thrift" {
+		//	return errors.New("invalid rpctype")
+		//}
+		//if RpcType == "grpc" && len(FilePaths) == 0 {
+		//	return errors.New("missing .proto file path (-I)")
+		//}
+		RpcType = "thrift"
 		var options string
 		if RpcType == "grpc" {
 			for _, p := range FilePaths {
@@ -61,6 +62,6 @@ var RpcType string
 
 func init() {
 	RootCmd.AddCommand(generateCmd)
-	generateCmd.Flags().StringVarP(&RpcType, "rpctype", "r", "", "required, (grpc|thrift)")
+	//generateCmd.Flags().StringVarP(&RpcType, "rpctype", "r", "", "required, (grpc|thrift)")
 	generateCmd.Flags().StringArrayVarP(&FilePaths, "include-path", "I", []string{}, "required for grpc, .proto|.thrift file paths(absolute path)")
 }

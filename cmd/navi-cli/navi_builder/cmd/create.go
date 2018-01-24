@@ -24,13 +24,15 @@ var createCmd = &cobra.Command{
 		if navicli.IsNotCamelCase(args[1]) {
 			return errors.New("[" + args[1] + "] is not a CamelCase string")
 		}
-		if len(RpcType) == 0 || (RpcType != "grpc" && RpcType != "thrift") {
-			return errors.New("invalid value for -r, should be grpc or thrift")
-		}
+		//if len(RpcType) == 0 || (RpcType != "grpc" && RpcType != "thrift") {
+		//	return errors.New("invalid value for -r, should be grpc or thrift")
+		//}
+		RpcType = "thrift"
 		g := navicli.Creator{
 			RpcType: RpcType,
 			PkgPath: args[0],
 		}
+
 		g.CreateProject(args[1], force)
 		return nil
 	},
@@ -39,7 +41,7 @@ var createCmd = &cobra.Command{
 var force bool
 
 func init() {
-	createCmd.Flags().StringVarP(&RpcType, "rpctype", "r", "grpc", "[grpc|thrift]")
+	//createCmd.Flags().StringVarP(&RpcType, "rpctype", "r", "grpc", "[grpc|thrift]")
 	createCmd.Flags().BoolVarP(&force, "force", "f", false, "create service and override existing files")
 	RootCmd.AddCommand(createCmd)
 }

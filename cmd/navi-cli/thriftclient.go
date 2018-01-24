@@ -16,6 +16,8 @@ type thriftClient struct {
 	factory       thrift.TProtocolFactory
 }
 
+//var thrift_addr string
+
 func (t *thriftClient) init(addr string, clientCreator func(trans thrift.TTransport, f thrift.TProtocolFactory) interface{}) {
 	if t.thriftService != nil {
 		return
@@ -23,6 +25,7 @@ func (t *thriftClient) init(addr string, clientCreator func(trans thrift.TTransp
 	log.Debugf("connecting thrift addr: %s", addr)
 	t.connect(addr)
 	t.thriftService = clientCreator(t.transport, t.factory)
+	//thrift_addr = addr
 }
 
 func (t *thriftClient) connect(hostPort string) {

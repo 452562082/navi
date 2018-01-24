@@ -32,6 +32,7 @@ var switcherFunc switcher
 
 func router(s Servable) *mux.Router {
 	r := mux.NewRouter()
+
 	for _, v := range s.ServerField().Config.mappings[urlServiceMaps] {
 		httpMethods := strings.Split(v[0], ",")
 		path := v[1]

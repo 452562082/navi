@@ -681,6 +681,8 @@ import (
 	"os"
 	"syscall"
 	"fmt"
+	"net"
+	"git.oschina.net/kuaishangtong/navi/registry"
 )
 
 func main() {
@@ -693,6 +695,31 @@ func main() {
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
 
+	//服务注册
+	address, err := getaddr()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := &registry.ZooKeeperRegister{
+		ServiceAddress: address,
+		ZooKeeperServers:    []string{"127.0.0.1:2181"},
+		BasePath:       "/navi-test",
+		Metrics:        metrics.NewRegistry(),
+		kv:					kv,
+	}
+
+	err = r.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//kv, err := libkv.NewStore(store.ZK, zkhosts, nil)
+	for _, v := range s.Config.UrlMappings() {
+		path := v[1]
+		r.kv.Put(path, nil, nil)
+	}
+
 	select {
 	case <-exit:
 		fmt.Println("Service is stopping...")
@@ -700,5 +727,14 @@ func main() {
 
 	s.Stop()
 	fmt.Println("Service stopped")
+}
+
+func getaddr() (string,error) {
+	conn, err := net.Dial("udp", "www.google.com.hk:80")
+	if err != nil {
+		return "", err
+	}
+	defer conn.Close()
+	return conn.LocalAddr().String(), nil
 }
 `

@@ -162,6 +162,10 @@ func parseSliceStr(valueSliceStr []string) []string {
 	return result
 }
 
+func (c *Config) UrlMappings() [][3]string {
+	return c.mappings[urlServiceMaps]
+}
+
 func (c *Config) Env() string {
 	return c.configs[environment]
 }
