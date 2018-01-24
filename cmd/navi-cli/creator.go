@@ -682,6 +682,9 @@ import (
 	"syscall"
 	"fmt"
 	"net"
+	"strings"
+	"time"
+	metrics "github.com/rcrowley/go-metrics"
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 )
@@ -699,25 +702,32 @@ func main() {
 	//服务注册
 	address, err := getaddr()
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 
+	port := fmt.Sprintf("%d", s.Config.HTTPPort())
+
 	r := &registry.ZooKeeperRegister{
-		ServiceAddress: address,
+		ServiceAddress: address+":"+port,
 		ZooKeeperServers:    []string{"127.0.0.1:2181"},
-		BasePath:       "/navi-test",
+
+		BasePath:       "/navi-test/servicelist",
+		Metrics:          metrics.NewRegistry(),
+		UpdateInterval:   2 * time.Second,
 	}
 
 	err = r.Start()
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
+
 
 	kv, err := libkv.NewStore(store.ZK, p.ZooKeeperServers, p.Options)
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
 		kv.Put(path[1:], nil, nil)
 	}
+
 
 	select {
 	case <-exit:
@@ -734,6 +744,6 @@ func getaddr() (string,error) {
 		return "", err
 	}
 	defer conn.Close()
-	return conn.LocalAddr().String(), nil
+	return strings.Split(conn.LocalAddr().String(),":")[0], nil
 }
 `
