@@ -683,6 +683,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	metrics "github.com/rcrowley/go-metrics"
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 )
@@ -709,6 +710,8 @@ func main() {
 		ServiceAddress: address+":"+port,
 		ZooKeeperServers:    []string{"127.0.0.1:2181"},
 		BasePath:       "/navi-test/servicelist",
+		Metrics:          metrics.NewRegistry(),
+		UpdateInterval:   2 * time.Second,
 	}
 
 	err = r.Start()
