@@ -687,6 +687,7 @@ import (
 	metrics "github.com/rcrowley/go-metrics"
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"git.oschina.net/kuaishangtong/common/utils/log"
+	"github.com/docker/libkv/store"
 )
 
 func main() {
