@@ -688,6 +688,7 @@ import (
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/docker/libkv/store"
+	"github.com/docker/libkv"
 )
 
 func main() {
