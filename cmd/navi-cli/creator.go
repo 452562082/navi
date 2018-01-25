@@ -145,6 +145,9 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   thrift_service_name: {{.ServiceName}}
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
+  zookeeper_servers_addr: 127.0.0.1:2181
+  zookeeper_service_base_path:/navi-test/servicebase
+  zookeeper_service_list_path:/navi-test/servicelist
 
 urlmapping:
   - GET /hello SayHello
@@ -711,9 +714,9 @@ func main() {
 
 	r := &registry.ZooKeeperRegister{
 		ServiceAddress: address+":"+port,
-		ZooKeeperServers:    []string{"127.0.0.1:2181"},
+		ZooKeeperServers:    s.Config.ZookeeperServersAddr(),
 
-		BasePath:       "/navi-test/servicelist",
+		BasePath:       s.Config.ZookeeperServiceBasePath(),
 		Metrics:          metrics.NewRegistry(),
 		UpdateInterval:   2 * time.Second,
 	}
@@ -727,7 +730,10 @@ func main() {
 	kv, err := libkv.NewStore(store.ZK, r.ZooKeeperServers, nil)
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
-		kv.Put(path[1:], nil, nil)
+		err = kv.Put(s.Config.ZookeeperServiceBasePath() + path, nil, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 
