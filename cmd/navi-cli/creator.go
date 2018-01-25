@@ -737,7 +737,7 @@ func main() {
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
 
-		err = kv.Put(s.Config.ZookeeperServiceBasePath() + path, nil, nil)
+		err = kv.Put(s.Config.ZookeeperServiceListPath() + path, nil, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
