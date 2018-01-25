@@ -725,9 +725,13 @@ func main() {
 
 
 	kv, err := libkv.NewStore(store.ZK, r.ZooKeeperServers, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
-		kv.Put(path[1:], nil, nil)
+		kv.Put("/navi-test/service"+path, nil, nil)
 	}
 
 
