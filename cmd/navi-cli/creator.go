@@ -127,13 +127,17 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
 	type serviceYamlValues struct {
 		ServiceRoot string
 		ServiceName string
+		ZookeeperServiceBasePath string
+		ZookeeperServiceListPath string
 	}
 	if _, err := os.Stat(serviceRootPath + "/" + configFileName + ".yaml"); err == nil {
 		return
 	}
+	zookeeperServiceBasePath := "/navi-test/servicebase"
+	zookeeperServiceListPath := "/navi-test/servicelist"
 	writeFileWithTemplate(
 		serviceRootPath+"/"+configFileName+".yaml",
-		serviceYamlValues{ServiceRoot: serviceRootPath, ServiceName: serviceName},
+		serviceYamlValues{ServiceRoot: serviceRootPath, ServiceName: serviceName, ZookeeperServiceBasePath: zookeeperServiceBasePath, ZookeeperServiceListPath:zookeeperServiceListPath},
 		`config:
   environment: development
   service_root_path: {{.ServiceRoot}}
@@ -146,8 +150,8 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
   zookeeper_servers_addr: 127.0.0.1:2181
-  zookeeper_service_base_path: "/navi-test/servicebase"
-  zookeeper_service_list_path: "/navi-test/servicelist"
+  zookeeper_service_base_path: {{.ZookeeperServiceBasePath}}
+  zookeeper_service_list_path: {{.ZookeeperServiceListPaht}}
 
 urlmapping:
   - GET /hello SayHello
