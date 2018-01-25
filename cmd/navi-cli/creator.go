@@ -146,8 +146,8 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
   zookeeper_servers_addr: 127.0.0.1:2181
-  zookeeper_service_base_path:/navi-test/servicebase
-  zookeeper_service_list_path:/navi-test/servicelist
+  zookeeper_service_base_path: /navi-test/servicebase
+  zookeeper_service_list_path: /navi-test/servicelist
 
 urlmapping:
   - GET /hello SayHello
