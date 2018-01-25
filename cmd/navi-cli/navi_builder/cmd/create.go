@@ -18,12 +18,12 @@ var createCmd = &cobra.Command{
 	Example: "turbo create package/path/to/yourservice YourService -r grpc\n" +
 		"'ServiceName' *MUST* be a CamelCase string",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 2 {
+		if len(args) < 1 {
 			return errors.New("invalid args")
 		}
-		if navicli.IsNotCamelCase(args[1]) {
-			return errors.New("[" + args[1] + "] is not a CamelCase string")
-		}
+		//if navicli.IsNotCamelCase(args[1]) {
+		//	return errors.New("[" + args[1] + "] is not a CamelCase string")
+		//}
 		//if len(RpcType) == 0 || (RpcType != "grpc" && RpcType != "thrift") {
 		//	return errors.New("invalid value for -r, should be grpc or thrift")
 		//}
@@ -33,7 +33,7 @@ var createCmd = &cobra.Command{
 			PkgPath: args[0],
 		}
 
-		g.CreateProject(args[1], force)
+		g.CreateProject(args[0], force)
 		return nil
 	},
 }
