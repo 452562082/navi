@@ -18,6 +18,7 @@ type NaviService interface {
 	Ping() (r string, err error)
 	ServiceName() (r string, err error)
 	ServiceType() (r string, err error)
+
 }
 
 type NaviServiceClient struct {

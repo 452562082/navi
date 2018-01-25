@@ -714,7 +714,9 @@ func main() {
 
 	r := &registry.ZooKeeperRegister{
 		ServiceAddress: address+":"+port,
+
 		ZooKeeperServers:    s.Config.ZookeeperServersAddr(),
+
 
 		BasePath:       s.Config.ZookeeperServiceBasePath(),
 		Metrics:          metrics.NewRegistry(),
@@ -728,8 +730,13 @@ func main() {
 
 
 	kv, err := libkv.NewStore(store.ZK, r.ZooKeeperServers, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
+
 		err = kv.Put(s.Config.ZookeeperServiceBasePath() + path, nil, nil)
 		if err != nil {
 			log.Fatal(err)
