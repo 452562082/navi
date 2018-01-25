@@ -728,6 +728,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = r.Register(s.Config.ThriftServiceName(), nil, "")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	kv, err := libkv.NewStore(store.ZK, r.ZooKeeperServers, nil)
 	if err != nil {
