@@ -22,6 +22,9 @@ const (
 	thriftServiceName             = "thrift_service_name"
 	thriftServiceHost             = "thrift_service_host"
 	thriftServicePort             = "thrift_service_port"
+	zookeeperServersAddr          = "zookeeper_servers_addr"
+	zookeeperServiceBasePath     = "zookeeper_service_base_path"
+	zookeeperServiceListPath     = "zookeeper_service_list_path"
 	httpPort                      = "http_port"
 	filterProtoJson               = "filter_proto_json"
 	filterProtoJsonEmitZeroValues = "filter_proto_json_emit_zerovalues"
@@ -213,6 +216,18 @@ func (c *Config) ThriftServiceHost() string {
 
 func (c *Config) ThriftServicePort() string {
 	return c.configs[thriftServicePort]
+}
+
+func (c *Config) ZookeeperServersAddr() []string {
+	return strings.Split(c.configs[zookeeperServersAddr],";")
+}
+
+func (c *Config) ZookeeperServiceBasePath() string {
+	return c.configs[zookeeperServiceBasePath];
+}
+
+func (c *Config) ZookeeperServiceListPath() string {
+	return c.configs[zookeeperServiceListPath]
 }
 
 func (c *Config) HTTPPort() int64 {
