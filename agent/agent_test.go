@@ -9,25 +9,26 @@ import (
 func TestAgent_Serve(t *testing.T) {
 
 	address := "localhost:9191"
-	a, err := NewAgent(address)
+	typ := "rpc"
+	a, err := NewAgent("mytest", address, "rpc")
 	if err != nil {
 		t.Fatal()
 	}
 
-	typ, err := a.ServiceType()
-	if err != nil {
-		t.Fatal(err)
+	var basePath string
+	switch typ {
+	case "rpc":
+		basePath = "/navi/rpcservice"
+	case "http":
+		basePath = "/navi/httpservice"
 	}
 
 	r := &registry.ZooKeeperRegister{
-		ServiceAddress: typ + "@" + address,
-		ZooKeeperServers:    []string{"127.0.0.1:2181"},
-		BasePath:       "/navi-test",
-		Metrics:        metrics.NewRegistry(),
+		ServiceAddress:   address,
+		ZooKeeperServers: []string{"127.0.0.1:2181"},
+		BasePath:         basePath,
+		Metrics:          metrics.NewRegistry(),
 	}
-
-
-
 
 	err = r.Start()
 	if err != nil {
