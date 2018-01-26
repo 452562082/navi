@@ -28,7 +28,7 @@ func (this *ApiController) Proxy() {
 				req = this.Ctx.Request
 				req.URL.Scheme = "http"
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
-				log.Debugf("service %s api %s, host %s", service, api, host)
+				log.Debugf("service %s api %s, host %s", service, apiurl, host)
 				req.URL.Host = host
 			}
 			proxy := &httputil.ReverseProxy{Director: director}
