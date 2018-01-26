@@ -77,7 +77,7 @@ func singleJoiningSlash(a, b string) string {
 // Director policy.
 func NewSingleHostReverseProxy(target *url.URL) *ReverseProxy {
 	targetQuery := target.RawQuery
-	director := func(req *http.Request) {
+	director := func(req *http.Request) *http.Request {
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
 		req.URL.Path = singleJoiningSlash(target.Path, req.URL.Path)
@@ -90,6 +90,7 @@ func NewSingleHostReverseProxy(target *url.URL) *ReverseProxy {
 			// explicitly disable User-Agent so it's not set to default value
 			req.Header.Set("User-Agent", "")
 		}
+		return req
 	}
 	return &ReverseProxy{Director: director}
 }
