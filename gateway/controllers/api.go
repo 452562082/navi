@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"git.oschina.net/kuaishangtong/common/utils/httplib"
-	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/gateway/api"
+	"git.oschina.net/kuaishangtong/navi/gateway/httpproxy"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"net/http"
@@ -55,18 +54,22 @@ func (this *ApiController) Proxy() {
 	api := api.GlobalApiManager.GetApi(service)
 	if api != nil {
 		if _, ok := api.ServerURLs[apiurl]; ok {
-			director := func(req *http.Request) {
-				req = this.Ctx.Request.WithContext(this.Ctx.Request.Context())
-				log.Debug("1  -->",req)
-				log.Debug("1  URL -->",req.URL.Scheme)
-				req.URL.Scheme = "http"
+			director := func(req *http.Request) *http.Request {
+				var newreq *http.Request
+				newreq = req.WithContext(req.Context())
+				//req = this.Ctx.Request
+				//req.URL.Scheme = "http"
+				//host := api.Cluster.Select(service+"/"+apiurl, req.Method)
+				//req.URL.Host = host
+				//log.Debugf("service %s api %s, host %s", service, apiurl, host)
+				//log.Debug("2  -->", req)
+				//log.Debug("2  URL -->", req.URL.Scheme)
+				newreq.URL.Scheme = "http"
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
-				log.Debugf("service %s api %s, host %s", service, apiurl, host)
-				req.URL.Host = host
-				log.Debug("2  -->",req)
-				log.Debug("2  URL -->",req.URL.Scheme)
+				newreq.URL.Host = host
+				return newreq
 			}
-			proxy := &httplib.ReverseProxy{Director: director}
+			proxy := &httpproxy.ReverseProxy{Director: director}
 			proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 		}
 	}
