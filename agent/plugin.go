@@ -4,6 +4,11 @@ import (
 	"git.oschina.net/kuaishangtong/navi/errors"
 )
 
+type Agenter interface {
+	Ping() (r string, err error)
+	Close() error
+}
+
 //PluginContainer represents a plugin container that defines all methods to manage plugins.
 //And it also defines all extension points.
 type PluginContainer interface {

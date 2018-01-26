@@ -1,32 +1,49 @@
 package agent
 
 import (
+	"fmt"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"time"
 )
 
 type Agent struct {
-	Plugins PluginContainer
-	t       *thrifter
-	address string
+	Plugins    PluginContainer
+	agenter    Agenter
+	servername string
+	address    string
+	typ        string
 }
 
 // NewServer returns a server.
-func NewAgent(address string, options ...OptionFn) (*Agent, error) {
+func NewAgent(servername, address string, typ string, options ...OptionFn) (*Agent, error) {
 	var err error
 
 	a := &Agent{
-		Plugins: &pluginContainer{},
-		address: address,
+		Plugins:    &pluginContainer{},
+		servername: servername,
+		address:    address,
+		typ:        typ,
 	}
 
 	for _, op := range options {
 		op(a)
 	}
 
-	a.t, err = a.NewThrifter()
-	if err != nil {
-		return nil, err
+	switch typ {
+	case "rpc":
+		a.agenter, err = a.NewThriftAgenter()
+		if err != nil {
+			return nil, err
+		}
+
+	case "http":
+		a.agenter, err = a.NewHttpAgenter()
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, fmt.Errorf("unknown server type")
 	}
 
 	return a, nil
@@ -36,22 +53,22 @@ func NewAgent(address string, options ...OptionFn) (*Agent, error) {
 // Serve starts and listens RPC requests.
 func (a *Agent) Serve() (err error) {
 
-	serviceName, err := a.t.ServiceName()
+	//serviceName, err := a.agenter.ServiceName()
+	//if err != nil {
+	//	return err
+	//}
+
+	_, err = a.agenter.Ping()
 	if err != nil {
 		return err
 	}
 
-	_, err = a.t.Ping()
+	err = a.RegisterName(a.servername, nil, a.servername)
 	if err != nil {
 		return err
 	}
 
-	err = a.RegisterName(serviceName, nil, serviceName)
-	if err != nil {
-		return err
-	}
-
-	log.Debugf("register service %s successful", serviceName)
+	log.Infof("register service %s successful", a.servername)
 
 	var service_active bool = true
 
@@ -63,41 +80,58 @@ func (a *Agent) Serve() (err error) {
 
 	for {
 
-		if a.t != nil {
-			a.t.Close()
+		if a.agenter != nil {
+			a.agenter.Close()
 		}
 
-		a.t, err = a.NewThrifter()
-		if err != nil {
+		switch a.typ {
+		case "rpc":
+			a.agenter, err = a.NewThriftAgenter()
+			if err != nil {
+				log.Error(err)
+			}
+
+		case "http":
+			a.agenter, err = a.NewHttpAgenter()
+			if err != nil {
+				log.Error(err)
+			}
+
+		default:
 			log.Error(err)
 		}
 
+		//a.agenter, err = a.NewThrifter()
+		//if err != nil {
+		//	log.Error(err)
+		//}
+
 		select {
 		case <-pingTicker.C:
-			if a.t != nil {
+			if a.agenter != nil {
 
-				_, err = a.t.Ping()
+				_, err = a.agenter.Ping()
 				if err != nil {
 					if service_active {
 						service_active = false
-						err = a.UnRegisterName(serviceName)
+						err = a.UnRegisterName(a.servername)
 						if err != nil {
 							log.Error(err)
 							continue
 						}
-						log.Debugf("unregister service %s successful", serviceName)
+						log.Debugf("unregister service %s successful", a.servername)
 					}
 					continue
 				}
 
 				if !service_active {
-					err = a.RegisterName(serviceName, nil, serviceName)
+					err = a.RegisterName(a.servername, nil, a.servername)
 					if err != nil {
 						log.Error(err)
 						continue
 					} else {
 						service_active = true
-						log.Debugf("register service %s successful", serviceName)
+						log.Debugf("register service %s successful", a.servername)
 					}
 				}
 			}
@@ -106,8 +140,4 @@ func (a *Agent) Serve() (err error) {
 	}
 
 	return nil
-}
-
-func (a *Agent) ServiceType() (string, error) {
-	return a.t.ServiceType()
 }

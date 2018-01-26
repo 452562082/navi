@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (a *Agent) NewThrifter() (t *thrifter, err error) {
+func (a *Agent) NewThriftAgenter() (t *thriftAgenter, err error) {
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 
@@ -21,7 +21,7 @@ func (a *Agent) NewThrifter() (t *thrifter, err error) {
 		return nil, err
 	}
 
-	t = newThrifterFactory(useTransport, protocolFactory)
+	t = newThriftAgenterFactory(useTransport, protocolFactory)
 	if err := transport.Open(); err != nil {
 		transport.Close()
 		useTransport.Close()
@@ -31,8 +31,8 @@ func (a *Agent) NewThrifter() (t *thrifter, err error) {
 	return t, nil
 }
 
-func newThrifterFactory(t thrift.TTransport, f thrift.TProtocolFactory) *thrifter {
-	return &thrifter{Transport: t,
+func newThriftAgenterFactory(t thrift.TTransport, f thrift.TProtocolFactory) *thriftAgenter {
+	return &thriftAgenter{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -40,7 +40,7 @@ func newThrifterFactory(t thrift.TTransport, f thrift.TProtocolFactory) *thrifte
 	}
 }
 
-type thrifter struct {
+type thriftAgenter struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -48,20 +48,20 @@ type thrifter struct {
 	SeqId           int32
 }
 
-func (p *thrifter) Close() error {
+func (p *thriftAgenter) Close() error {
 	p.InputProtocol.Transport().Close()
 	p.OutputProtocol.Transport().Close()
 	return p.Transport.Close()
 }
 
-func (p *thrifter) Ping() (r string, err error) {
+func (p *thriftAgenter) Ping() (r string, err error) {
 	if err = p.sendPing(); err != nil {
 		return
 	}
 	return p.recvPing()
 }
 
-func (p *thrifter) sendPing() (err error) {
+func (p *thriftAgenter) sendPing() (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -81,7 +81,7 @@ func (p *thrifter) sendPing() (err error) {
 	return oprot.Flush()
 }
 
-func (p *thrifter) recvPing() (value string, err error) {
+func (p *thriftAgenter) recvPing() (value string, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -127,14 +127,14 @@ func (p *thrifter) recvPing() (value string, err error) {
 	return
 }
 
-func (p *thrifter) ServiceName() (r string, err error) {
+func (p *thriftAgenter) ServiceName() (r string, err error) {
 	if err = p.sendServiceName(); err != nil {
 		return
 	}
 	return p.recvServiceName()
 }
 
-func (p *thrifter) sendServiceName() (err error) {
+func (p *thriftAgenter) sendServiceName() (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -154,7 +154,7 @@ func (p *thrifter) sendServiceName() (err error) {
 	return oprot.Flush()
 }
 
-func (p *thrifter) recvServiceName() (value string, err error) {
+func (p *thriftAgenter) recvServiceName() (value string, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -200,14 +200,14 @@ func (p *thrifter) recvServiceName() (value string, err error) {
 	return
 }
 
-func (p *thrifter) ServiceType() (r string, err error) {
+func (p *thriftAgenter) ServiceType() (r string, err error) {
 	if err = p.sendServiceType(); err != nil {
 		return
 	}
 	return p.recvServiceType()
 }
 
-func (p *thrifter) sendServiceType() (err error) {
+func (p *thriftAgenter) sendServiceType() (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -227,7 +227,7 @@ func (p *thrifter) sendServiceType() (err error) {
 	return oprot.Flush()
 }
 
-func (p *thrifter) recvServiceType() (value string, err error) {
+func (p *thriftAgenter) recvServiceType() (value string, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
