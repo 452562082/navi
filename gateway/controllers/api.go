@@ -56,7 +56,7 @@ func (this *ApiController) Proxy() {
 	if api != nil {
 		if _, ok := api.ServerURLs[apiurl]; ok {
 			director := func(req *http.Request) {
-				req = this.Ctx.Request
+				req = this.Ctx.Request.WithContext(this.Ctx.Request.Context())
 				log.Debug("1  -->",req)
 				log.Debug("1  URL -->",req.URL.Scheme)
 				req.URL.Scheme = "http"
