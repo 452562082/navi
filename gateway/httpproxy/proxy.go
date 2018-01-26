@@ -187,9 +187,6 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		outreq.Header.Set("X-Forwarded-For", clientIP)
 	}
 
-	log.Debug(outreq)
-	log.Debug(outreq.URL)
-
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
 		log.Errorf("http: proxy error: %v", err)
