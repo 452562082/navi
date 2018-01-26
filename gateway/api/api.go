@@ -25,7 +25,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 
 	var err error
 
-	api.urlDiscovery, err = registry.NewZookeeperDiscovery(constants.ServiceBasePath, name, constants.ZookeeperHosts, nil)
+	api.urlDiscovery, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name, constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 
 	api.Cluster = cluster.NewServiceCluster(name).SetApi(api)
 
-	err = api.Cluster.Discovery(constants.ServiceBasePath, name, constants.ZookeeperHosts, nil)
+	err = api.Cluster.Discovery(constants.URLServicePath, name, constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}

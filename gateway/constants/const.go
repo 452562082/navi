@@ -6,26 +6,26 @@ import (
 )
 
 var ZookeeperHosts []string
-var ServiceBasePath string
-var ServiceListPath string
+var URLServicePath string
+var HTTPServicePath string
 
 func init() {
 	ZookeeperHosts = beego.AppConfig.Strings("zookeeper.hosts")
-	ServiceBasePath = beego.AppConfig.String("zookeeper.service_base_path")
-	ServiceListPath = beego.AppConfig.String("zookeeper.service_list_path")
+	URLServicePath = beego.AppConfig.String("zookeeper.url_service_path")
+	HTTPServicePath = beego.AppConfig.String("zookeeper.http_service_path")
 
 	if len(ZookeeperHosts) == 0 {
 		panic("do not configurate zookeeper.hosts")
 	}
 
-	if len(ServiceBasePath) == 0 {
+	if len(URLServicePath) == 0 {
 		panic("do not configurate zookeeper.service_base_path")
 	}
 
-	ServiceBasePath = strings.Trim(ServiceBasePath, "/")
+	URLServicePath = strings.Trim(URLServicePath, "/")
 
 	if len(ZookeeperHosts) == 0 {
 		panic("do not configurate zookeeper.service_list_path")
 	}
-	ServiceListPath = strings.Trim(ServiceListPath, "/")
+	HTTPServicePath = strings.Trim(HTTPServicePath, "/")
 }

@@ -29,7 +29,7 @@ func newApiManager() (*ApiManager, error) {
 	}
 
 	var err error
-	apiManager.apiDiscovery, err = registry.NewZookeeperDiscovery(constants.ServiceListPath, "", constants.ZookeeperHosts, nil)
+	apiManager.apiDiscovery, err = registry.NewZookeeperDiscovery(constants.HTTPServicePath, "", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}

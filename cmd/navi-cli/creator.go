@@ -145,7 +145,7 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   zookeeper_httpservice_path: /navi/httpservice
 
 urlmapping:
-  - GET /hello SayHello
+  - POST /hello SayHello
 `)
 }
 
@@ -245,9 +245,9 @@ namespace go gen
 # 这个结构体，定义了服务提供者的返回信息
 struct Response {
     # RESCODE 是处理状态代码，是一个枚举类型。例如RESCODE._200表示处理成功
-    1:required  RESCODE responseCode;
+    1:required RESCODE responseCode;
     # 返回的处理结果，同样使用JSON格式进行描述
-    2:required  string responseJSON;
+    2:required string responseJSON;
 }
 
 # 异常描述定义，当服务提供者处理过程出现异常时，向服务调用者返回
