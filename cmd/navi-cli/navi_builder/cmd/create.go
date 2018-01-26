@@ -13,7 +13,7 @@ import (
 )
 
 var createCmd = &cobra.Command{
-	Use:     "create package_path ServiceName",
+	Use:     "create package_path",
 	Aliases: []string{"c"},
 	Short:   "Create a project with runnable HTTP server and thrift server",
 	Example: "navi_builder create package/path/to/Yourservice\n" +
