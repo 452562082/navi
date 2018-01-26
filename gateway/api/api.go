@@ -1,7 +1,6 @@
 package api
 
 import (
-	"git.oschina.net/kuaishangtong/navi/gateway/cluster"
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/lb"
 	"git.oschina.net/kuaishangtong/navi/registry"
@@ -10,7 +9,7 @@ import (
 
 type Api struct {
 	Name         string
-	Cluster      *cluster.ServiceCluster
+	Cluster      *ServiceCluster
 	urlDiscovery registry.ServiceDiscovery
 	ServerURLs   map[string]struct{}
 	closed       bool
@@ -35,7 +34,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 		api.ServerURLs[kv.Key] = struct{}{}
 	}
 
-	api.Cluster = cluster.NewServiceCluster(name).SetApi(api)
+	api.Cluster = NewServiceCluster(name).SetApi(api)
 
 	err = api.Cluster.Discovery(constants.URLServicePath, name, constants.ZookeeperHosts, nil)
 	if err != nil {

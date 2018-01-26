@@ -1,8 +1,7 @@
-package cluster
+package api
 
 import (
 	"context"
-	"git.oschina.net/kuaishangtong/navi/gateway/api"
 	"git.oschina.net/kuaishangtong/navi/lb"
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"github.com/docker/libkv/store"
@@ -10,7 +9,7 @@ import (
 
 type ServiceCluster struct {
 	Name      string
-	Api       *api.Api
+	Api       *Api
 	servers   map[string]string
 	discovery registry.ServiceDiscovery
 	selector  lb.Selector
@@ -24,7 +23,7 @@ func NewServiceCluster(name string) *ServiceCluster {
 	}
 }
 
-func (sc *ServiceCluster) SetApi(api *api.Api) *ServiceCluster {
+func (sc *ServiceCluster) SetApi(api *Api) *ServiceCluster {
 	sc.Api = api
 	return sc
 }
