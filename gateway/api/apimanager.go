@@ -52,7 +52,6 @@ func (this *ApiManager) init() error {
 			return err
 		}
 		this.AddApi(kv.Key, api)
-		log.Infof("Add service %s", kv.Key)
 	}
 
 	go this.watch()
@@ -100,6 +99,7 @@ func (this *ApiManager) watch() {
 func (this *ApiManager) AddApi(name string, api *Api) {
 	this.lock.Lock()
 	this.apis[name] = api
+	log.Infof("Add service [%s]", name)
 	this.lock.Unlock()
 }
 
@@ -111,6 +111,7 @@ func (this *ApiManager) DelApi(name string) {
 
 	this.lock.Lock()
 	delete(this.apis, name)
+	log.Infof("Del service [%s]", name)
 	this.lock.Unlock()
 }
 

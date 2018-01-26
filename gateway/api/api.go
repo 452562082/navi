@@ -33,7 +33,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 	pairs := api.urlDiscovery.GetServices()
 	for _, kv := range pairs {
 		api.ServerURLs[kv.Key] = struct{}{}
-		log.Infof("service %s add api %s", name, kv.Key)
+		log.Infof("service [%s] add api [/%s]", name, kv.Key)
 	}
 
 	api.Cluster = NewServiceCluster(name).SetApi(api)
