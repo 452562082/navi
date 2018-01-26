@@ -25,7 +25,7 @@ type Generator struct {
 // Generate proto/thrift code
 func (g *Generator) Generate() {
 	if g.RpcType != "grpc" && g.RpcType != "thrift" {
-		panic("Invalid server type, should be (grpc|thrift)")
+		panic("Invalid server type, should be (thrift)")
 	}
 	g.c = NewConfig(g.RpcType, GOPATH()+"/src/"+g.PkgPath+"/"+g.ConfigFileName+".yaml")
 	if g.RpcType == "grpc" {

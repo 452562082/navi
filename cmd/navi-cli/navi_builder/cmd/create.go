@@ -9,14 +9,15 @@ import (
 	"errors"
 	"github.com/spf13/cobra"
 	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"strings"
 )
 
 var createCmd = &cobra.Command{
 	Use:     "create package_path ServiceName",
 	Aliases: []string{"c"},
-	Short:   "Create a project with runnable HTTP server and gRPC/thrift server",
-	Example: "turbo create package/path/to/yourservice YourService -r grpc\n" +
-		"'ServiceName' *MUST* be a CamelCase string",
+	Short:   "Create a project with runnable HTTP server and thrift server",
+	Example: "navi_builder create package/path/to/Yourservice\n" +
+		"'Yourservice' *MUST* be a CamelCase string",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("invalid args")
@@ -24,8 +25,10 @@ var createCmd = &cobra.Command{
 		//if navicli.IsNotCamelCase(args[1]) {
 		//	return errors.New("[" + args[1] + "] is not a CamelCase string")
 		//}
-		if navicli.IsNotCamelCase(args[0]) {
-			return errors.New("[" + args[1] + "] is not a CamelCase string")
+		tempStr := strings.Trim(args[0],"/")
+		servicename := tempStr[strings.LastIndex(tempStr,"/") + 1:]
+		if navicli.IsNotCamelCase(servicename) {
+			return errors.New("[" + servicename + "] is not a CamelCase string")
 		}
 		//if len(RpcType) == 0 || (RpcType != "grpc" && RpcType != "thrift") {
 		//	return errors.New("invalid value for -r, should be grpc or thrift")
@@ -36,7 +39,7 @@ var createCmd = &cobra.Command{
 			PkgPath: args[0],
 		}
 
-		g.CreateProject(args[0], force)
+		g.CreateProject(servicename, force)
 		return nil
 	},
 }
