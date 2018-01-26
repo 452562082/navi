@@ -8,9 +8,11 @@ import (
 )
 
 var createCmd = &cobra.Command{
-	Use:     "create ServiceName",
+
+	Use:     "create package_path",
 	Aliases: []string{"c"},
 	Short:   "Create a project with runnable HTTP server and thrift server",
+
 	Example: "navi_builder create package/path/to/YourService\n" +
 		"'YourService' *MUST* be a CamelCase string",
 	RunE: func(cmd *cobra.Command, args []string) error {

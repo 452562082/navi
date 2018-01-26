@@ -58,5 +58,5 @@ var RpcType string
 func init() {
 	RootCmd.AddCommand(generateCmd)
 	//generateCmd.Flags().StringVarP(&RpcType, "rpctype", "r", "", "required, (grpc|thrift)")
-	generateCmd.Flags().StringArrayVarP(&FilePaths, "include-path", "I", []string{}, "required for grpc, .proto|.thrift file paths(absolute path)")
+	generateCmd.Flags().StringArrayVarP(&FilePaths, "include-path", "I", []string{}, "required for .thrift file paths(absolute path)")
 }
