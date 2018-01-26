@@ -1,8 +1,3 @@
-/*
- * Copyright © 2017 Xiao Zhang <zzxx513@gmail.com>.
- * Use of this source code is governed by an MIT-style
- * license that can be found in the LICENSE file.
- */
 package navicli
 
 import (
@@ -36,8 +31,6 @@ const (
 	rPostprocessor
 	rHijacker
 )
-
-// Interceptor -----------------
 
 // Interceptor intercepts requests, can run a func before and after a request
 type Interceptor interface {

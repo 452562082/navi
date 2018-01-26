@@ -1,16 +1,10 @@
-/*
- * Copyright © 2017 Xiao Zhang <zzxx513@gmail.com>.
- * Use of this source code is governed by an MIT-style
- * license that can be found in the LICENSE file.
- */
 package navicli
 
 import (
-	"errors"
-	// TODO support logging levels, log file path, etc.
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -487,24 +481,13 @@ func BuildThriftRequest(s Servable, args interface{}, req *http.Request, buildSt
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(req.Body)
 		v := reflect.New(reflect.ValueOf(args).Elem().Type()).Interface()
-		//reflect.New(reflect.ValueOf(args).Field(0).Type().Elem()).Interface()
 		err := json.Unmarshal(buf.Bytes(), v)
-		// TODO [2] refactor error, define own errors?
 		if err != nil {
-			// TODO use fmt.Errorf()
 			return params, errors.New(fmt.Sprintf("turbo: failed to BuildThriftRequest for json api, "+
 				"request body: %s, error: %s", buf.String(), err))
 		}
-		setPathParams(reflect.TypeOf(v).Elem(), reflect.ValueOf(v).Elem(), req)
-		//params = make([]reflect.Value, 1)
-		//params[0] = reflect.ValueOf(v)
 
-		//err := json.Unmarshal(buf.Bytes(), args)
-		//if err != nil {
-		//  return params, errors.New(fmt.Sprintf("turbo: failed to BuildThriftRequest for json api, "+
-		//    "request body: %s, error: %s", buf.String(), err))
-		//}
-		//setPathParams(reflect.TypeOf(args).Elem(), reflect.ValueOf(args).Elem(), req)
+		setPathParams(reflect.TypeOf(v).Elem(), reflect.ValueOf(v).Elem(), req)
 		numFields := reflect.TypeOf(v).Elem().NumField()
 		params = make([]reflect.Value, numFields)
 		for i := 0; i < numFields; i++ {
@@ -516,31 +499,6 @@ func BuildThriftRequest(s Servable, args interface{}, req *http.Request, buildSt
 	}
 	return params, err
 }
-
-//
-//func BuildThriftRequest(s Servable, args interface{}, req *http.Request, buildStructArg func(s Servable, typeName string, req *http.Request) (v reflect.Value, err error)) ([]reflect.Value, error) {
-//	var err error
-//	var params []reflect.Value
-//	if contentTypes, ok := req.Header["Content-Type"]; ok && contentTypes[0] == "application/json" {
-//		buf := new(bytes.Buffer)
-//		buf.ReadFrom(req.Body)
-//		reflect.ValueOf(args).String()
-//		v := reflect.New(reflect.ValueOf(args).Field(0).Type().Elem()).Interface()
-//		err := json.Unmarshal(buf.Bytes(), v)
-//		// TODO [2] refactor error, define own errors?
-//		if err != nil {
-//			// TODO use fmt.Errorf()
-//			return params, errors.New(fmt.Sprintf("turbo: failed to BuildThriftRequest for json api, "+
-//				"request body: %s, error: %s", buf.String(), err))
-//		}
-//		setPathParams(reflect.TypeOf(v).Elem(), reflect.ValueOf(v).Elem(), req)
-//		params = make([]reflect.Value, 1)
-//		params[0] = reflect.ValueOf(v)
-//	} else {
-//		params, err = BuildArgs(s, reflect.TypeOf(args), reflect.ValueOf(args), req, buildStructArg)
-//	}
-//	return params, err
-//}
 
 func setPathParams(theType reflect.Type, theValue reflect.Value, req *http.Request) {
 	fieldNum := theType.NumField()

@@ -1,8 +1,3 @@
-/*
- * Copyright © 2017 Xiao Zhang <zzxx513@gmail.com>.
- * Use of this source code is governed by an MIT-style
- * license that can be found in the LICENSE file.
- */
 package navicli
 
 import (
@@ -442,7 +437,7 @@ func (s {{.ServiceName}}) ServiceType() (str string, err error) {
 
 // SayHello is an example entry point
 func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
-	return &gen.Response{ResponseCode: gen.RESCODE__200, ResponseJSON: "{name: [thrift server]Hello, " + yourName + "}"}, nil
+	return &gen.Response{ResponseCode: gen.RESCODE__200, ResponseJSON: "{name: Hello, " + yourName + "}"}, nil
 }
 `,
 	)
@@ -643,8 +638,6 @@ import (
 	"{{.PkgPath}}/gen"
 	gcomponent "{{.PkgPath}}/grpcapi/component"
 	gimpl "{{.PkgPath}}/grpcservice/impl"
-	//tcomponent "{{.PkgPath}}/thriftapi/component"
-	//timpl "{{.PkgPath}}/thriftservice/impl"
 	"os/signal"
 	"os"
 	"syscall"
@@ -654,9 +647,6 @@ import (
 func main() {
 	s := navicli.NewGrpcServer(&gcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
 	s.Start(gcomponent.GrpcClient, gen.GrpcSwitcher, gimpl.RegisterServer)
-
-	//s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	//s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, timpl.TProcessor)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)

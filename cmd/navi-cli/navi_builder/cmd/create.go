@@ -1,8 +1,3 @@
-/*
- * Copyright © 2017 Xiao Zhang <zzxx513@gmail.com>.
- * Use of this source code is governed by an MIT-style
- * license that can be found in the LICENSE file.
- */
 package cmd
 
 import (
@@ -30,9 +25,7 @@ var createCmd = &cobra.Command{
 		if navicli.IsNotCamelCase(servicename) {
 			return errors.New("[" + servicename + "] is not a CamelCase string")
 		}
-		//if len(RpcType) == 0 || (RpcType != "grpc" && RpcType != "thrift") {
-		//	return errors.New("invalid value for -r, should be grpc or thrift")
-		//}
+
 		RpcType = "thrift"
 		g := navicli.Creator{
 			RpcType: RpcType,

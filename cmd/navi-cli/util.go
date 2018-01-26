@@ -1,8 +1,3 @@
-/*
- * Copyright © 2017 Xiao Zhang <zzxx513@gmail.com>.
- * Use of this source code is governed by an MIT-style
- * license that can be found in the LICENSE file.
- */
 package navicli
 
 import (
@@ -15,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	sjson "github.com/bitly/go-simplejson"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
-	"git.oschina.net/kuaishangtong/common/utils/log"
 )
 
 func logErrorIf(err error) {
