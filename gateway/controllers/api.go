@@ -25,21 +25,12 @@ func (this *ApiController) Proxy() {
 	if api != nil {
 		if _, ok := api.ServerURLs[apiurl]; ok {
 			director := func(req *http.Request) *http.Request {
-				//var newreq *http.Request
-				//newreq = req.WithContext(req.Context())
 				req = this.Ctx.Request
 				req.URL.Scheme = "http"
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
 				req.URL.Host = host
 				req.URL.Path = "/" + apiurl
-				log.Debugf("proxy service %s api /%s to host %s", service, apiurl, host)
-				//log.Debug("2  -->", req)
-				//log.Debug("2  URL -->", req.URL.Scheme)
-				//newreq.URL.Scheme = "http"
-				//host := api.Cluster.Select(service+"/"+apiurl, req.Method)
-				//newreq.URL.Host = host
-				//newreq.URL.Path = "/" + apiurl
-				//log.Debug("URL -->", newreq.URL)
+				log.Infof("remote %s, proxy service %s api /%s to host %s", this.Ctx.Request.RemoteAddr, service, apiurl, host)
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}
