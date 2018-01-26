@@ -58,11 +58,13 @@ func (this *ApiController) Proxy() {
 			director := func(req *http.Request) {
 				req = this.Ctx.Request
 				log.Debug("1  -->",req)
+				log.Debug("1  URL -->",req.URL)
 				req.URL.Scheme = "http"
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
 				log.Debugf("service %s api %s, host %s", service, apiurl, host)
 				req.URL.Host = host
 				log.Debug("2  -->",req)
+				log.Debug("2  URL -->",req.URL)
 			}
 			proxy := &httplib.ReverseProxy{Director: director}
 			proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
