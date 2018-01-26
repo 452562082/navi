@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/gateway/api"
 	"git.oschina.net/kuaishangtong/navi/gateway/httpproxy"
 	"github.com/astaxie/beego"
@@ -67,6 +68,8 @@ func (this *ApiController) Proxy() {
 				newreq.URL.Scheme = "http"
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
 				newreq.URL.Host = host
+				newreq.URL.Path = "/" + apiurl
+				log.Debug("URL -->", newreq.URL)
 				return newreq
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}
