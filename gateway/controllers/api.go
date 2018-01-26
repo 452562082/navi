@@ -57,6 +57,7 @@ func (this *ApiController) Proxy() {
 		if _, ok := api.ServerURLs[apiurl]; ok {
 			director := func(req *http.Request) {
 				req = this.Ctx.Request
+				log.Debug(req.URL.Scheme)
 				req.URL.Scheme = "http"
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
 				log.Debugf("service %s api %s, host %s", service, apiurl, host)
