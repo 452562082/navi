@@ -1,6 +1,7 @@
 package api
 
 import (
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/lb"
 	"git.oschina.net/kuaishangtong/navi/registry"
@@ -32,6 +33,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 	pairs := api.urlDiscovery.GetServices()
 	for _, kv := range pairs {
 		api.ServerURLs[kv.Key] = struct{}{}
+		log.Infof("service %s add api %s", name, kv.Key)
 	}
 
 	api.Cluster = NewServiceCluster(name).SetApi(api)

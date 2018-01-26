@@ -52,7 +52,7 @@ func (this *ApiManager) init() error {
 			return err
 		}
 		this.AddApi(kv.Key, api)
-		log.Infof("Add api %s", kv.Key)
+		log.Infof("Add service %s", kv.Key)
 	}
 
 	go this.watch()
