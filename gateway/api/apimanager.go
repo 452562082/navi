@@ -33,6 +33,7 @@ func newApiManager() (*ApiManager, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("Discovery service list in %s", constants.HTTPServicePath)
 
 	err = apiManager.init()
 	if err != nil {
@@ -51,6 +52,7 @@ func (this *ApiManager) init() error {
 			return err
 		}
 		this.AddApi(kv.Key, api)
+		log.Infof("Add api %s", kv.Key)
 	}
 
 	go this.watch()
