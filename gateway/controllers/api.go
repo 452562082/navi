@@ -1,12 +1,12 @@
 package controllers
 
 import (
+	"git.oschina.net/kuaishangtong/common/utils/httplib"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/gateway/api"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"net/http"
-	"net/http/httputil"
 )
 
 type ApiController struct {
@@ -62,7 +62,7 @@ func (this *ApiController) Proxy() {
 				log.Debugf("service %s api %s, host %s", service, apiurl, host)
 				req.URL.Host = host
 			}
-			proxy := &httputil.ReverseProxy{Director: director}
+			proxy := &httplib.ReverseProxy{Director: director}
 			proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 		}
 	}
