@@ -146,8 +146,8 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
   zookeeper_servers_addr: 127.0.0.1:2181
-  zookeeper_service_base_path: /navi/service
-  zookeeper_service_list_path: /navi/httpservice
+  zookeeper_url_service_path: /navi/service
+  zookeeper_httpservice_path: /navi/httpservice
 
 urlmapping:
   - GET /hello SayHello
@@ -676,8 +676,6 @@ var rootMainThrift string = `package main
 import (
 	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/gen"
-	//gcomponent "{{.PkgPath}}/grpcapi/component"
-	//gimpl "{{.PkgPath}}/grpcservice/impl"
 	tcomponent "{{.PkgPath}}/thriftapi/component"
 	timpl "{{.PkgPath}}/thriftservice/impl"
 	"os/signal"
@@ -695,8 +693,6 @@ import (
 )
 
 func main() {
-	//s := navicli.NewGrpcServer(&gcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	//s.Start(gcomponent.GrpcClient, gen.GrpcSwitcher, gimpl.RegisterServer)
 
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
 	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, timpl.TProcessor)
@@ -712,15 +708,12 @@ func main() {
 
 	port := fmt.Sprintf("%d", s.Config.HTTPPort())
 
-	r := &registry.ZooKeeperRegister{
+	r := &registry.ZooKeeperRegister {
 		ServiceAddress: address+":"+port,
-
-		ZooKeeperServers:    s.Config.ZookeeperServersAddr(),
-
-
-		BasePath:       s.Config.ZookeeperServiceBasePath(),
-		Metrics:          metrics.NewRegistry(),
-		UpdateInterval:   2 * time.Second,
+		ZooKeeperServers:   s.Config.ZookeeperServersAddr(),
+		BasePath:       	s.Config.ZookeeperHttpServicePath(),
+		Metrics:         	metrics.NewRegistry(),
+		UpdateInterval:   	2 * time.Second,
 	}
 
 	err = r.Start()
@@ -742,7 +735,7 @@ func main() {
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
 
-		key := strings.Trim(s.Config.ZookeeperServiceListPath(),"/") + "/" + s.Config.ThriftServiceName() + path
+		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + path
 		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
 		err = kv.Put(key, nil, nil)
 		if err != nil {
