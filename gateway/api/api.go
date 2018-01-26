@@ -36,7 +36,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 
 	api.Cluster = NewServiceCluster(name).SetApi(api)
 
-	err = api.Cluster.Discovery(constants.URLServicePath, name, constants.ZookeeperHosts, nil)
+	err = api.Cluster.Discovery(constants.HTTPServicePath, name, constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
