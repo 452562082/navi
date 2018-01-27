@@ -799,6 +799,8 @@ import (
 	//metrics "github.com/rcrowley/go-metrics"
 )
 
+
+
 func main() {
 
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
