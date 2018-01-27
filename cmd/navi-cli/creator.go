@@ -677,9 +677,6 @@ func main() {
 	s := navicli.NewThriftServer(&component.ServiceInitializer{}, "{{.ConfigFilePath}}")
 	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher)
 
-	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	s.Start(gen.ThriftSwitcher)
-
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
 
@@ -805,7 +802,7 @@ import (
 func main() {
 
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	s.Start(gen.ThriftSwitcher)
+	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, timpl.TProcessor)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
