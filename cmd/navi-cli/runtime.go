@@ -99,9 +99,11 @@ func doRequest(s Servable, methodName string, resp http.ResponseWriter, req *htt
 	}
 	serviceResp, err := switcherFunc(s, methodName, resp, req)
 	if err != nil {
+		log.Info("request RemoteAddr: " + req.Header.Get("RemoteAddr") + ", request error: " + err.Error() + "\n")
 		components(req).errorHandlerFunc()(resp, req, err)
 		return
 	}
+	log.Info("request RemoteAddr: " + req.Header.Get("RemoteAddr") + ", request success.\n")
 	doPostprocessor(s, resp, req, serviceResp, err)
 }
 
