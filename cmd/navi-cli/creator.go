@@ -720,19 +720,12 @@ import (
 	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/gen"
 	tcomponent "{{.PkgPath}}/thriftapi/component"
-	timpl "{{.PkgPath}}/thriftservice/impl"
+	//timpl "{{.PkgPath}}/thriftservice/impl"
 	"os/signal"
 	"os"
 	"syscall"
 	"fmt"
-	"net"
-	"strings"
-	"time"
-	metrics "github.com/rcrowley/go-metrics"
-	"git.oschina.net/kuaishangtong/navi/registry"
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"github.com/docker/libkv/store"
-	"github.com/docker/libkv"
+	//metrics "github.com/rcrowley/go-metrics"
 )
 
 func main() {
