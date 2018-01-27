@@ -645,12 +645,16 @@ func (c *Creator) generateThriftHTTPMain() {
 
 import (
 	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"git.oschina.net/kuaishangtong/common/utils/log"
+	metrics "github.com/rcrowley/go-metrics"
 	"{{.PkgPath}}/gen"
 	"{{.PkgPath}}/thriftapi/component"
 	"os/signal"
 	"os"
+	"strings"
 	"syscall"
-	"fmt"
+	"net"
+	"time"
 )
 
 func getaddr() (string,error) {
@@ -714,11 +718,11 @@ func main() {
 
 	select {
 	case <-exit:
-		fmt.Println("Service is stopping...")
+		log.Info("Service is stopping...")
 	}
 
 	s.Stop()
-	fmt.Println("Service stopped")
+	log.Info("Service stopped")
 }
 `,
 	)
