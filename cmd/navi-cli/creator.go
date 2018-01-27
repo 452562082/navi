@@ -466,6 +466,14 @@ import (
 	"os"
 	"syscall"
 	"fmt"
+	"net"
+	"time"
+	"strings"
+	"git.oschina.net/kuaishangtong/common/utils/log"
+	"github.com/docker/libkv"
+	"github.com/docker/libkv/store"
+	"git.oschina.net/kuaishangtong/navi/registry"
+	metrics "github.com/rcrowley/go-metrics"
 )
 
 func getaddr() (string,error) {
