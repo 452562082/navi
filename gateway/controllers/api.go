@@ -30,11 +30,16 @@ func (this *ApiController) Proxy() {
 				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
 				req.URL.Host = host
 				req.URL.Path = "/" + apiurl
+				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
 				log.Infof("remote %s, proxy service %s api /%s to host %s", this.Ctx.Request.RemoteAddr, service, apiurl, host)
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}
 			proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
+			return
 		}
 	}
+
+	respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
+	this.Ctx.ResponseWriter.Write([]byte(respstr))
 }
