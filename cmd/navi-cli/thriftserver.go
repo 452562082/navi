@@ -25,7 +25,7 @@ func NewThriftServer(initializer Initializable, configFilePath string) *ThriftSe
 			reloadConfig: make(chan bool),
 			Initializer:  initializer,
 		},
-		//tClient: new(thriftClient),
+		tClient: new(thriftClient),
 	}
 	s.initChans()
 	//initLogger(s.Config)
@@ -35,11 +35,13 @@ func NewThriftServer(initializer Initializable, configFilePath string) *ThriftSe
 type thriftClientCreator func(trans thrift.TTransport, f thrift.TProtocolFactory) interface{}
 
 // Start starts both HTTP server and Thrift service
+
 func (s *ThriftServer) Start(clientCreator thriftClientCreator, sw switcher) {
 	log.Info("Starting navi-cli...")
 	s.Initializer.InitService(s)
-	//s.thriftServer = s.startThriftServiceInternal(registerTProcessor, false)
+
 	time.Sleep(time.Second * 1)
+
 	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
 	watchConfigReload(s)
 }
@@ -47,6 +49,7 @@ func (s *ThriftServer) Start(clientCreator thriftClientCreator, sw switcher) {
 // StartHTTPServer starts a HTTP server which sends requests via Thrift
 func (s *ThriftServer) StartHTTPServer(clientCreator thriftClientCreator, sw switcher) {
 	s.Initializer.InitService(s)
+
 	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
 	watchConfigReload(s)
 }
@@ -60,6 +63,7 @@ func (s *ThriftServer) StartThriftService(registerTProcessor func() thrift.TProc
 func (s *ThriftServer) startThriftHTTPServerInternal(clientCreator thriftClientCreator, sw switcher) *http.Server {
 	log.Info("Starting HTTP Server...")
 	switcherFunc = sw
+
 	s.tClient.init(s.Config.ThriftServiceHost()+":"+s.Config.ThriftServicePort(), clientCreator)
 	return startHTTPServer(s)
 }
