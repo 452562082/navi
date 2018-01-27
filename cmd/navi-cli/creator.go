@@ -644,17 +644,24 @@ func (c *Creator) generateThriftHTTPMain() {
 		`package main
 
 import (
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"fmt"
+	"net"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
+	
 	"git.oschina.net/kuaishangtong/common/utils/log"
+	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"git.oschina.net/kuaishangtong/navi/registry"
+	"github.com/docker/libkv"
+	"github.com/docker/libkv/store"
 	metrics "github.com/rcrowley/go-metrics"
 	"{{.PkgPath}}/gen"
 	"{{.PkgPath}}/thriftapi/component"
-	"os/signal"
-	"os"
-	"strings"
-	"syscall"
-	"net"
-	"time"
+	
+
 )
 
 func getaddr() (string,error) {
