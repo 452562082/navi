@@ -261,9 +261,10 @@ exception ServiceException {
 
 # 这个枚举结构，描述各种服务提供者的响应代码
 enum RESCODE {
-    _200=200;
-    _500=500;
-    _400=400;
+    SUCCESS = 200;
+	FORBIDDEN = 403;
+	NOTFOUND = 404;
+    BADGATEWAY = 502;
 }
 
 # 这个枚举结构，描述各种服务提供者的异常种类
@@ -437,7 +438,7 @@ func (s {{.ServiceName}}) ServiceType() (str string, err error) {
 
 // SayHello is an example entry point
 func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
-	return &gen.Response{ResponseCode: gen.RESCODE__200, ResponseJSON: "{name: Hello, " + yourName + "}"}, nil
+	return &gen.Response{ResponseCode: gen.RESCODE_SUCCESS, ResponseJSON: "{name: Hello, " + yourName + "}"}, nil
 }
 `,
 	)
@@ -791,12 +792,11 @@ import (
 	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/gen"
 	tcomponent "{{.PkgPath}}/thriftapi/component"
-	//timpl "{{.PkgPath}}/thriftservice/impl"
+	timpl "{{.PkgPath}}/thriftservice/impl"
 	"os/signal"
 	"os"
 	"syscall"
 	"fmt"
-	//metrics "github.com/rcrowley/go-metrics"
 )
 
 
@@ -804,54 +804,10 @@ import (
 func main() {
 
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher)
+	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, timpl.TProcessor)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
-
-	////服务注册
-	//address, err := getaddr()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//port := fmt.Sprintf("%d", s.Config.HTTPPort())
-	//
-	//r := &registry.ZooKeeperRegister {
-	//	ServiceAddress: address+":"+port,
-	//	ZooKeeperServers:   s.Config.ZookeeperServersAddr(),
-	//	BasePath:       	s.Config.ZookeeperHttpServicePath(),
-	//	Metrics:         	metrics.NewRegistry(),
-	//	UpdateInterval:   	2 * time.Second,
-	//}
-	//
-	//err = r.Start()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//log.Infof("Register %s host to Registry", s.Config.ThriftServiceName())
-	//err = r.Register(s.Config.ThriftServiceName(), nil, "")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//kv, err := libkv.NewStore(store.ZK, r.ZooKeeperServers, nil)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//for _, v := range s.Config.UrlMappings() {
-	//	path := v[1]
-	//
-	//	key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + path
-	//	log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
-	//	err = kv.Put(key, nil, nil)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//}
-
 
 	select {
 	case <-exit:
@@ -862,12 +818,4 @@ func main() {
 	fmt.Println("Service stopped")
 }
 
-//func getaddr() (string,error) {
-//	conn, err := net.Dial("udp", "www.google.com.hk:80")
-//	if err != nil {
-//		return "", err
-//	}
-//	defer conn.Close()
-//	return strings.Split(conn.LocalAddr().String(),":")[0], nil
-//}
 `
