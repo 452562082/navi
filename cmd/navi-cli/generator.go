@@ -374,7 +374,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 			return nil, err
 		}
 
-		return conn.(*engine.Conn).{{$.ServiceName}}Client).{{$MethodName}}({{index $.Parameters $i}})
+		return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
 {{end}}
 	default:
 		return nil, errors.New("No such method[" + methodName + "]")
