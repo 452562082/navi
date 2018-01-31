@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	"git.oschina.net/kuaishangtong/common/utils/log"
 )
 
 // TODO use dep
@@ -117,7 +117,7 @@ func startHTTPServer(s Servable) *http.Server {
 	}
 	go func() {
 		if err := hs.ListenAndServe(); err != nil {
-			log.Errorf("HTTP Server failed to serve: %v", err)
+			log.Fatalf("HTTP Server failed to serve: %v", err)
 		}
 	}()
 	log.Info("HTTP Server started")
@@ -189,10 +189,10 @@ func stop(s Servable, httpServer *http.Server, grpcServer *grpc.Server, thriftSe
 		log.Info("Grpc Server stopped")
 	}
 	if thriftServer != nil {
-		s.(*ThriftServer).tClient.close()
 		thriftServer.Stop()
 		log.Info("Grpc Server stopped")
 	}
+
 	s.ServerField().Initializer.StopService(s)
 }
 
