@@ -353,6 +353,7 @@ package gen
 import (
 	"{{.PkgPath}}/gen/thrift/gen-go/gen"
 	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"{{.PkgPath}}/thriftapi/engine"
 	"reflect"
 	"net/http"
 	"errors"
@@ -373,7 +374,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 			return nil, err
 		}
 
-		return conn.(*gen.{{$.ServiceName}}Client).{{$MethodName}}({{index $.Parameters $i}})
+		return conn.(*engine.Conn).{{$.ServiceName}}Client).{{$MethodName}}({{index $.Parameters $i}})
 {{end}}
 	default:
 		return nil, errors.New("No such method[" + methodName + "]")
