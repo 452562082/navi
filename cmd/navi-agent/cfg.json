@@ -15,7 +15,9 @@
       "127.0.0.1:2181"
     ],
     // zk 服务发现监听节点
-    "zookeeper_service_base_path": "/navi/rpcservice/"
+    "zookeeper_rpc_service_base_path": "/navi/rpcservice/",
+    "zookeeper_url_service_path": "/navi/service/",
+    "zookeeper_http_service_path": "/navi/httpservice/"
   },
   // log 日志相关配置
   "log": {

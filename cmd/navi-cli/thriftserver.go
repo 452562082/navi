@@ -10,7 +10,7 @@ import (
 
 type ThriftServer struct {
 	*Server
-	tClient      *thriftClient
+	connpool     ConnPool
 	thriftServer *thrift.TSimpleServer
 }
 
@@ -25,7 +25,7 @@ func NewThriftServer(initializer Initializable, configFilePath string) *ThriftSe
 			reloadConfig: make(chan bool),
 			Initializer:  initializer,
 		},
-		tClient: new(thriftClient),
+		//tClient: new(thriftClient),
 	}
 	s.initChans()
 	return s
@@ -34,20 +34,22 @@ func NewThriftServer(initializer Initializable, configFilePath string) *ThriftSe
 type thriftClientCreator func(trans thrift.TTransport, f thrift.TProtocolFactory) interface{}
 
 // Start starts both HTTP server and Thrift service
-func (s *ThriftServer) Start(clientCreator thriftClientCreator, sw switcher,
+func (s *ThriftServer) Start(clientCreator thriftClientCreator, sw switcher, connpool ConnPool,
 	registerTProcessor func() thrift.TProcessor) {
 	log.Infof("Starting %s...", s.Config.ThriftServiceName())
 	s.Initializer.InitService(s)
 	s.thriftServer = s.startThriftServiceInternal(registerTProcessor, false)
 	time.Sleep(time.Second * 1)
 	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
+	s.connpool = connpool
 	watchConfigReload(s)
 }
 
 // StartHTTPServer starts a HTTP server which sends requests via Thrift
-func (s *ThriftServer) StartHTTPServer(clientCreator thriftClientCreator, sw switcher) {
+func (s *ThriftServer) StartHTTPServer(clientCreator thriftClientCreator, sw switcher, connpool ConnPool) {
 	s.Initializer.InitService(s)
 	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
+	s.connpool = connpool
 	watchConfigReload(s)
 }
 
@@ -60,17 +62,20 @@ func (s *ThriftServer) StartThriftService(registerTProcessor func() thrift.TProc
 func (s *ThriftServer) startThriftHTTPServerInternal(clientCreator thriftClientCreator, sw switcher) *http.Server {
 	log.Info("Starting HTTP Server...")
 	switcherFunc = sw
-	s.tClient.init(s.Config.ThriftServiceHost()+":"+s.Config.ThriftServicePort(), clientCreator)
 	return startHTTPServer(s)
 }
 
 func (s *ThriftServer) startThriftServiceInternal(registerTProcessor func() thrift.TProcessor, alone bool) *thrift.TSimpleServer {
 	port := s.Config.ThriftServicePort()
 	log.Infof("Starting Thrift Service at :%s...", port)
+
+	var transportFactory thrift.TTransportFactory
+	transportFactory = thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
+
 	transport, err := thrift.NewTServerSocket(":" + port)
 	logPanicIf(err)
 	server := thrift.NewTSimpleServer4(registerTProcessor(), transport,
-		thrift.NewTTransportFactory(), thrift.NewTBinaryProtocolFactoryDefault())
+		transportFactory, thrift.NewTBinaryProtocolFactoryDefault())
 	go server.Serve()
 	log.Info("Thrift Service started")
 	return server
@@ -79,10 +84,7 @@ func (s *ThriftServer) startThriftServiceInternal(registerTProcessor func() thri
 // ThriftService returns a Thrift client instance,
 // example: client := turbo.ThriftService().(proto.YourServiceClient)
 func (s *ThriftServer) Service() interface{} {
-	if s == nil || s.tClient == nil || s.tClient.thriftService == nil {
-		log.Fatal("thrift connection not initiated!")
-	}
-	return s.tClient.thriftService
+	return s.connpool
 }
 
 func (s *ThriftServer) ServerField() *Server { return s.Server }

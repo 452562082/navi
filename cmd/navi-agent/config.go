@@ -30,7 +30,9 @@ type Config struct {
 
 type zookeeprConf struct {
 	ZookeeperHosts           []string `json:"zookeeper_hosts"`
-	ZookeeperServiceBasePath string   `json:"zookeeper_service_base_path"`
+	ZookeeperRPCServicePath  string   `json:"zookeeper_rpc_service_path"`
+	ZookeeperHTTPServicePath string   `json:"zookeeper_http_service_path"`
+	ZookeeperURLServicePath  string   `json:"zookeeper_url_service_path"`
 }
 
 type logConf struct {

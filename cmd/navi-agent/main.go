@@ -4,6 +4,8 @@ import (
 	"git.oschina.net/kuaishangtong/common/utils/daemon"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/agent"
+	"git.oschina.net/kuaishangtong/navi/registry"
+	metrics "github.com/rcrowley/go-metrics"
 )
 
 func main() {
@@ -45,11 +47,38 @@ func main() {
 		}
 
 		go func() {
+			var basePath string
+
+			if defaultConfig.Server.ServerType == "rpc" {
+				basePath = defaultConfig.Zookeeper.ZookeeperRPCServicePath
+			} else if defaultConfig.Server.ServerType == "http" {
+				basePath = defaultConfig.Zookeeper.ZookeeperHTTPServicePath
+			}
+
+			r := &registry.ZooKeeperRegister{
+				ServiceAddress:   defaultConfig.Server.ServerHosts[i],
+				ZooKeeperServers: defaultConfig.Zookeeper.ZookeeperHosts,
+				BasePath:         basePath,
+				Metrics:          metrics.NewRegistry(),
+			}
+
+			err = r.Start()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			agents[i].Plugins.Add(r)
+
 			err = agents[i].Serve()
 			if err != nil {
 				log.Fatal(err)
 			}
 		}()
+	}
+
+	// 为 http 服务添加url注册信息
+	if defaultConfig.Server.ServerType == "http" {
+
 	}
 
 	select {}
