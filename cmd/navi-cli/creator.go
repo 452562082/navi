@@ -961,7 +961,7 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 				log.Error(err)
 				return err
 			}
-			c.servers[key] = host
+			XEngine.servers[key] = host
 			log.Infof("Engine add conn host in %s", key)
 	}
 
