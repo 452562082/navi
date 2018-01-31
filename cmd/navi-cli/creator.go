@@ -953,7 +953,19 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 
 	selecter := lb.NewSelector(lb.RoundRobin, nil)
 
-	selecter.UpdateServer(XEngine.getServices())
+	initserver := XEngine.getServices()
+	
+	for key, _ := range initserver {
+			host, err := newServerHost(key, gMaxConns)
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+			c.servers[key] = host
+			log.Infof("Engine add conn host in %s", key)
+	}
+
+	selecter.UpdateServer(initserver)
 
 	XEngine.selector = selecter
 
