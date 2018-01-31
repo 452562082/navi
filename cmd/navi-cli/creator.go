@@ -952,6 +952,7 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 	log.Infof("Engine NewZookeeperDiscovery in /%s/%s", basePath, servicePath)
 
 	selecter := lb.NewSelector(lb.RoundRobin, nil)
+
 	selecter.UpdateServer(XEngine.getServices())
 
 	XEngine.selector = selecter
@@ -1015,6 +1016,7 @@ func (c *Engine) getServices() map[string]string {
 	servers := make(map[string]string)
 	for _, p := range kvpairs {
 		servers[p.Key] = p.Value
+		log.Debugf("Engine getServices in %s : %s", p.Key, p.Value)
 	}
 	return servers
 }
