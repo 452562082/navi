@@ -949,6 +949,8 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 		return
 	}
 
+	log.Infof("Engine NewZookeeperDiscovery in /%s/%s", basePath, servicePath)
+
 	selecter := lb.NewSelector(lb.RoundRobin, nil)
 	selecter.UpdateServer(XEngine.getServices())
 
@@ -1022,8 +1024,8 @@ func (c *Engine) GetConn() (interface{}, error) {
 }
 
 func (c *Engine) getConn() (*Conn, error) {
-	host := c.selector.Select(context.Background(), "", "", nil)
-	if host, ok := c.servers[host]; ok {
+	h := c.selector.Select(context.Background(), "", "", nil)
+	if host, ok := c.servers[h]; ok {
 		conn := host.getConn()
 		if conn == nil {
 			return nil, fmt.Errorf("can not find available conn in %s", host)
@@ -1031,7 +1033,7 @@ func (c *Engine) getConn() (*Conn, error) {
 		return conn, nil
 	}
 
-	return nil, fmt.Errorf("can not find available conn")
+	return nil, fmt.Errorf("can not find available conn in %s", h)
 }
 `,
 	)
