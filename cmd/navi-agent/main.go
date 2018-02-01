@@ -46,7 +46,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		go func() {
+		go func(index int) {
 			var basePath string
 
 			if defaultConfig.Server.ServerType == "rpc" {
@@ -56,7 +56,7 @@ func main() {
 			}
 
 			r := &registry.ZooKeeperRegister{
-				ServiceAddress:   defaultConfig.Server.ServerHosts[i],
+				ServiceAddress:   defaultConfig.Server.ServerHosts[index],
 				ZooKeeperServers: defaultConfig.Zookeeper.ZookeeperHosts,
 				BasePath:         basePath,
 				Metrics:          metrics.NewRegistry(),
@@ -73,7 +73,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-		}()
+		}(i)
 	}
 
 	// 为 http 服务添加url注册信息
