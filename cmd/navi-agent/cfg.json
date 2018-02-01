@@ -2,10 +2,10 @@
   // server 相关配置
   "server": {
     "server_type": "rpc",
-    "server_name": "test",
-    // kafka 服务节点
+    "server_name": "AsrService",
+    // server 服务节点
     "server_hosts": [
-      "192.168.1.16:9191"
+      "192.168.1.16:9595"
     ]
   },
   // zk 相关配置
@@ -15,9 +15,9 @@
       "127.0.0.1:2181"
     ],
     // zk 服务发现监听节点
-    "zookeeper_rpc_service_path": "/navi/rpcservice/",
-    "zookeeper_url_service_path": "/navi/service/",
-    "zookeeper_http_service_path": "/navi/httpservice/"
+    "zookeeper_rpc_service_path": "/navi/rpcservice",
+    "zookeeper_url_service_path": "/navi/service",
+    "zookeeper_http_service_path": "/navi/httpservice"
   },
   // log 日志相关配置
   "log": {
