@@ -25,6 +25,9 @@ func NewAgent(servername, address string, typ string, options ...OptionFn) (*Age
 		typ:        typ,
 	}
 
+	//if options!=nil{
+	//
+	//}
 	for _, op := range options {
 		op(a)
 	}

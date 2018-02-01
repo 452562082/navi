@@ -29,7 +29,7 @@ func router(s Servable) *mux.Router {
 
 	for _, v := range s.ServerField().Config.mappings[urlServiceMaps] {
 		httpMethods := strings.Split(v[0], ",")
-		path := v[1]
+		path := strFirstToUpper(v[1])
 		methodName := v[2]
 		r.HandleFunc(path, handler(s, methodName)).Methods(httpMethods...)
 	}

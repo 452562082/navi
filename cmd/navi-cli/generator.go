@@ -351,9 +351,7 @@ func methodNames(urlServiceMaps [][3]string) []string {
 func strFirstToUpper(str string) string {
 
 	var upperStr string
-	//for y := 0; y < len(temp); y++ {
 	vv := []rune(str)
-	//if y != 0 {
 	for i := 0; i < len(vv); i++ {
 		if i == 0 {
 			if vv[i] >= 97 && vv[i] <= 122 {
@@ -364,8 +362,6 @@ func strFirstToUpper(str string) string {
 			upperStr += string(vv[i])
 		}
 	}
-	//}
-	//}
 	return upperStr
 }
 

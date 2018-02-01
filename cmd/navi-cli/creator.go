@@ -721,7 +721,7 @@ func main() {
 	}
 
 	for _, v := range s.Config.UrlMappings() {
-		path := v[1]
+		path := strFirstToUpper(v[1])
 
 		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + path
 		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
@@ -739,7 +739,23 @@ func main() {
 	s.Stop()
 	log.Info("Service stopped")
 }
-`,
+
+func strFirstToUpper(str string) string {
+
+	var upperStr string
+	vv := []rune(str)
+	for i := 0; i < len(vv); i++ {
+		if i == 0 {
+			if vv[i] >= 97 && vv[i] <= 122 {
+				vv[i] -= 32
+			}
+			upperStr += string(vv[i]) // + string(vv[i+1])
+		} else {
+			upperStr += string(vv[i])
+		}
+	}
+	return upperStr
+}`,
 	)
 }
 
