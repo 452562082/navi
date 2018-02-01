@@ -41,7 +41,7 @@ func main() {
 
 	var agents []*agent.Agent = make([]*agent.Agent, len(defaultConfig.Server.ServerHosts), len(defaultConfig.Server.ServerHosts))
 	for i := 0; i < len(defaultConfig.Server.ServerHosts); i++ {
-		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, defaultConfig.Server.ServerHosts[i], defaultConfig.Server.ServerType, nil)
+		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, defaultConfig.Server.ServerHosts[i], defaultConfig.Server.ServerType)
 		if err != nil {
 			log.Fatal(err)
 		}
