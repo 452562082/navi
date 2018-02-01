@@ -39,8 +39,10 @@ func main() {
 			logSet.MaxDays)
 	}
 
-	var agents []*agent.Agent = make([]*agent.Agent, len(defaultConfig.Server.ServerHosts), len(defaultConfig.Server.ServerHosts))
-	for i := 0; i < len(defaultConfig.Server.ServerHosts); i++ {
+	serverCount := len(defaultConfig.Server.ServerHosts)
+
+	var agents []*agent.Agent = make([]*agent.Agent, serverCount, serverCount)
+	for i := 0; i < serverCount; i++ {
 		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, defaultConfig.Server.ServerHosts[i], defaultConfig.Server.ServerType)
 		if err != nil {
 			log.Fatal(err)
@@ -67,9 +69,9 @@ func main() {
 				log.Fatal(err)
 			}
 
-			agents[i].Plugins.Add(r)
+			agents[index].Plugins.Add(r)
 
-			err = agents[i].Serve()
+			err = agents[index].Serve()
 			if err != nil {
 				log.Fatal(err)
 			}
