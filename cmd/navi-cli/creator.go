@@ -832,7 +832,7 @@ func (c *Conn) check() {
 
 				newClient, err1 := c.connect()
 				if err1 != nil {
-					log.Error(err)
+					log.Error(err1)
 					continue
 				} else {
 					c.close()

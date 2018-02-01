@@ -100,6 +100,7 @@ func (a *Agent) Serve() (err error) {
 
 		if err != nil {
 			log.Error(err)
+			a.agenter = nil
 			//time.Sleep(time.Second)
 			//continue
 		}
