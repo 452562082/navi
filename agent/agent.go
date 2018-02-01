@@ -90,24 +90,19 @@ func (a *Agent) Serve() (err error) {
 		switch a.typ {
 		case "rpc":
 			a.agenter, err = a.NewThriftAgenter()
-			if err != nil {
-				log.Error(err)
-			}
 
 		case "http":
 			a.agenter, err = a.NewHttpAgenter()
-			if err != nil {
-				log.Error(err)
-			}
 
 		default:
-			log.Error(err)
+			err = fmt.Errorf("unknown service type")
 		}
 
-		//a.agenter, err = a.NewThrifter()
-		//if err != nil {
-		//	log.Error(err)
-		//}
+		if err != nil {
+			log.Error(err)
+			//time.Sleep(time.Second)
+			//continue
+		}
 
 		select {
 		case <-pingTicker.C:
