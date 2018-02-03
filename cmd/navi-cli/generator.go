@@ -369,12 +369,56 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 			return nil, err
 		}{{end}}
 
-		conn, err := s.Service().(navicli.ConnPool).GetConn()
-		if err != nil {
-			return nil, err
+		//conn, err := s.Service().(navicli.ConnPool).GetConn()
+		//if err != nil {
+		//	return nil, err
+		//}
+
+		//return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+
+		s.Service().(navicli.ConnPool).ClearInvalidHost()
+		switch s.Service().(navicli.ConnPool).FailMode {
+		//case lb.Failtry:
+		//	retries := c.Retries
+		//	conn, err := s.Service().(navicli.ConnPool).GetConn()
+		//	if err != nil {
+		//		return nil, err
+		//	}
+		//	for retries > 0 {
+		//		retries--
+		//
+		//		serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+		//		if err == nil {
+		//			return
+		//		}
+		//		//重建连接
+		//	}
+		case lb.Failover:
+			retries := c.Retries
+			for retries > 0 {
+				retries--
+				conn, err := s.Service().(navicli.ConnPool).GetConn()
+				if err != nil {
+					return nil, err
+				}
+
+				serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+				if err == nil {
+					return
+				}
+				s.Service().(navicli.ConnPool).AddInvalidHost(conn.getHost())
+			}
+			return
+
+		default: //Failfast
+			conn, err := s.Service().(navicli.ConnPool).GetConn()
+			if err != nil {
+				return nil, err
+			}
+			serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+			return
 		}
 
-		return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
 {{end}}
 	default:
 		return nil, errors.New("No such method[" + methodName + "]")

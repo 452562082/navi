@@ -433,7 +433,6 @@ func (s {{.ServiceName}}) Ping() (str string, err error) {
 
 func (s {{.ServiceName}}) ServiceName() (str string, err error) {
 	return "serviceName",nil
-	return "serviceName",nil
 }
 
 func (s {{.ServiceName}}) ServiceType() (str string, err error) {
@@ -830,6 +829,10 @@ func (c *Conn) check() {
 	}
 }
 
+func (c *Conn) getHost() (string) {
+	return c.host
+}
+
 func (c *Conn) connect() (*t.{{.ServiceName}}Client, error) {
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
@@ -935,6 +938,8 @@ type Engine struct {
 	servers   map[string]*ServerHost
 	discovery registry.ServiceDiscovery
 	selector  lb.Selector
+	FailMode 	lb.FailMode
+	invalidHost []string
 }
 
 func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, maxConns int) (err error) {
@@ -1037,8 +1042,29 @@ func (c *Engine) GetConn() (interface{}, error) {
 	return c.getConn()
 }
 
+func (c *Engine) ClearInvalidHost() {
+	c.invalidHost = c.invalidHost[:0]
+}
+
+func (c *Engine) AddInvalidHost(host string) {
+	c.invalidHost = append(c.invalidHost, host)
+}
+
 func (c *Engine) getConn() (*Conn, error) {
-	h := c.selector.Select(context.Background(), "", "", nil)
+	for{
+		h := c.selector.Select(context.Background(), "", "", nil)
+		isExist := false
+		for _, host := range c.invalidHost {
+			if h == host {
+				isExist = true
+			}
+		}
+
+		if !isExist {
+			break
+		}
+	}
+
 	if host, ok := c.servers[h]; ok {
 		conn := host.getConn()
 		if conn == nil {
