@@ -396,7 +396,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 		/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
 
 		s.Service().(navicli.ConnPool).ClearInvalidHost()
-		switch s.Service().(navicli.ConnPool).FailMode {
+		switch s.Service().(navicli.ConnPool).GetFailMode() {
 		//case lb.Failtry:
 		//	retries := c.Retries
 		//	conn, err := s.Service().(navicli.ConnPool).GetConn()

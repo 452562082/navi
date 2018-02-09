@@ -955,7 +955,7 @@ type Engine struct {
 	servers   map[string]*ServerHost
 	discovery registry.ServiceDiscovery
 	selector  lb.Selector
-	FailMode 	lb.FailMode
+	failMode 	lb.FailMode
 	invalidHost []string
 	lock  *sync.RWMutex
 }
@@ -1058,6 +1058,10 @@ func (c *Engine) getServices() map[string]string {
 
 func (c *Engine) GetConn() (interface{}, error) {
 	return c.getConn()
+}
+
+func (c *Engine) GetFailMode() (lb.FailMode) {
+	return c.failMode
 }
 
 func (c *Engine) ClearInvalidHost() {
