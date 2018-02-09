@@ -1068,6 +1068,7 @@ func (c *Engine) AddInvalidHost(host string) {
 }
 
 func (c *Engine) getConn() (*Conn, error) {
+	var h string
 	for{
 		h := c.selector.Select(context.Background(), "", "", nil)
 		isExist := false
