@@ -413,7 +413,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 		//		//重建连接
 		//	}
 		case lb.Failover:
-			retries := c.Retries
+			retries := c.GetRetries()
 			for retries > 0 {
 				retries--
 				conn, err := s.Service().(navicli.ConnPool).GetConn()

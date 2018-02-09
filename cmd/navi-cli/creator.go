@@ -666,6 +666,7 @@ import (
 	"{{.PkgPath}}/gen"
 	"{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
+	"git.oschina.net/kuaishangtong/navi/lb"
 )
 
 func getaddr() (string,error) {
@@ -679,7 +680,7 @@ func getaddr() (string,error) {
 
 func main() {
 	s := navicli.NewThriftServer(&component.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15)
+	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -958,13 +959,17 @@ type Engine struct {
 	failMode 	lb.FailMode
 	invalidHost []string
 	lock  *sync.RWMutex
+
+	// Retries retries to send
+	retries int
 }
 
-func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, maxConns int) (err error) {
+func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, maxConns int, failMode lb.FailMode) (err error) {
 	gTimeout = timeout
 	gMaxConns = maxConns
 	XEngine = &Engine{
 		servers: make(map[string]*ServerHost),
+		failMode: failMode
 	}
 
 	XEngine.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
@@ -991,6 +996,9 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 	selecter.UpdateServer(initserver)
 
 	XEngine.selector = selecter
+
+	XEngine.lock = new(sync.RWMutex)
+	XEngine.retries = 3
 
 	return
 }
@@ -1061,7 +1069,17 @@ func (c *Engine) GetConn() (interface{}, error) {
 }
 
 func (c *Engine) GetFailMode() (lb.FailMode) {
-	return c.failMode
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	failMode = c.failMode
+	return failMode
+}
+
+func (c *Engine) GetRetries() (int) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	retries = c.retries
+	return retries
 }
 
 func (c *Engine) ClearInvalidHost() {

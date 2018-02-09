@@ -7,5 +7,6 @@ type ConnPool interface {
 	AddInvalidHost(string)
 	ClearInvalidHost()
 	GetFailMode() (lb.FailMode)
+	GetRetries() (int)
 	Close()
 }
