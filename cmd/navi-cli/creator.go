@@ -1071,7 +1071,7 @@ func (c *Engine) GetConn() (interface{}, error) {
 	return c.getConn()
 }
 
-func (c *Engine) GetFailMode() (lb.FailMode) {
+func (c *Engine) GetFailMode() (interface{}) {
 	return c.failMode
 }
 
