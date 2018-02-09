@@ -17,6 +17,7 @@ const (
 	thriftServiceName             = "thrift_service_name"
 	thriftServiceHost             = "thrift_service_host"
 	thriftServicePort             = "thrift_service_port"
+	serviceVersion 				 = "service_version"
 	zookeeperServersAddr          = "zookeeper_servers_addr"
 	zookeeperURLServicePath       = "zookeeper_url_service_path"
 	zookeeperHttpServicePath      = "zookeeper_http_service_path"
@@ -212,6 +213,10 @@ func (c *Config) ThriftServiceHost() string {
 
 func (c *Config) ThriftServicePort() string {
 	return c.configs[thriftServicePort]
+}
+
+func (c *Config) ServiceVersion() string {
+	return c.configs[serviceVersion]
 }
 
 func (c *Config) ZookeeperServersAddr() []string {

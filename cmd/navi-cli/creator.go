@@ -142,6 +142,7 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   thrift_service_name: {{.ServiceName}}
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
+  service_version: 1.0
   zookeeper_servers_addr: 127.0.0.1:2181
   zookeeper_url_service_path: /navi/service
   zookeeper_http_service_path: /navi/httpservice
@@ -722,7 +723,7 @@ func main() {
 	for _, v := range s.Config.UrlMappings() {
 		path := v[1]
 
-		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + path
+		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersion() + "/" + path
 		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
 		err = kv.Put(key, nil, nil)
 		if err != nil {
@@ -1143,10 +1144,11 @@ import (
 	"fmt"
 )
 
-
+var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePath")
 
 func main() {
-	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, "{{.ConfigFilePath}}")
+	flag.Parse()
+	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, *configFilePath)
 	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15)
 	if err != nil {
 		log.Fatal(err)
