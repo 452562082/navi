@@ -14,7 +14,7 @@ func NewWeightedICMPSelector(servers map[string]string) Selector {
 	return &weightedICMPSelector{servers: ss}
 }
 
-func (s weightedICMPSelector) Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string {
+func (s weightedICMPSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	ss := s.servers
 	if len(ss) == 0 {
 		return ""
