@@ -1187,6 +1187,8 @@ import (
 	tcomponent "{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
 	timpl "{{.PkgPath}}/thriftservice/impl"
+	"git.oschina.net/kuaishangtong/common/utils/log"
+	"git.oschina.net/kuaishangtong/navi/lb"
 	"os/signal"
 	"os"
 	"syscall"
