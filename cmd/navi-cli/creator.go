@@ -1088,14 +1088,10 @@ func (c *Engine) ClearInvalidHost() {
 	c.invalidHost = c.invalidHost[:0]
 }
 
-func (c *Engine) AddInvalidHost(host string) {
+func (c *Engine) AddInvalidHost(conn interface{}) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	c.invalidHost = append(c.invalidHost, host)
-}
-
-func (c *Engine) GetConn() (interface{}, error) {
-	return c.getConn()
+	c.invalidHost = append(c.invalidHost, conn.(*Conn).getHost())
 }
 
 func (c *Engine) getConn() (*Conn, error) {

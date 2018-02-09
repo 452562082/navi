@@ -4,7 +4,7 @@ import "git.oschina.net/kuaishangtong/navi/lb"
 
 type ConnPool interface {
 	GetConn() (interface{}, error)
-	AddInvalidHost(string)
+	AddInvalidHost(interface{})
 	ClearInvalidHost()
 	GetFailMode() (lb.FailMode)
 	GetRetries() (int)
