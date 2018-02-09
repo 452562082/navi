@@ -957,6 +957,7 @@ type Engine struct {
 	selector  lb.Selector
 	FailMode 	lb.FailMode
 	invalidHost []string
+	lock  *sync.RWMutex
 }
 
 func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, maxConns int) (err error) {
@@ -1060,15 +1061,21 @@ func (c *Engine) GetConn() (interface{}, error) {
 }
 
 func (c *Engine) ClearInvalidHost() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.invalidHost = c.invalidHost[:0]
 }
 
 func (c *Engine) AddInvalidHost(host string) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.invalidHost = append(c.invalidHost, host)
 }
 
 func (c *Engine) getConn() (*Conn, error) {
 	var h string
+
+	c.lock.RLock()
 	for{
 		h := c.selector.Select(context.Background(), "", "", nil)
 		isExist := false
@@ -1082,6 +1089,7 @@ func (c *Engine) getConn() (*Conn, error) {
 			break
 		}
 	}
+	c.lock.RUnlock()
 
 	if host, ok := c.servers[h]; ok {
 		conn := host.getConn()
