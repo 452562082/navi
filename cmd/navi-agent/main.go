@@ -39,14 +39,16 @@ func main() {
 			logSet.MaxDays)
 	}
 
-	var agents []*agent.Agent = make([]*agent.Agent, len(defaultConfig.Server.ServerHosts), len(defaultConfig.Server.ServerHosts))
-	for i := 0; i < len(defaultConfig.Server.ServerHosts); i++ {
-		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, defaultConfig.Server.ServerHosts[i], defaultConfig.Server.ServerType, nil)
+	serverCount := len(defaultConfig.Server.ServerHosts)
+
+	var agents []*agent.Agent = make([]*agent.Agent, serverCount, serverCount)
+	for i := 0; i < serverCount; i++ {
+		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, defaultConfig.Server.ServerHosts[i], defaultConfig.Server.ServerType)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		go func() {
+		go func(index int) {
 			var basePath string
 
 			if defaultConfig.Server.ServerType == "rpc" {
@@ -56,7 +58,7 @@ func main() {
 			}
 
 			r := &registry.ZooKeeperRegister{
-				ServiceAddress:   defaultConfig.Server.ServerHosts[i],
+				ServiceAddress:   defaultConfig.Server.ServerHosts[index],
 				ZooKeeperServers: defaultConfig.Zookeeper.ZookeeperHosts,
 				BasePath:         basePath,
 				Metrics:          metrics.NewRegistry(),
@@ -67,13 +69,13 @@ func main() {
 				log.Fatal(err)
 			}
 
-			agents[i].Plugins.Add(r)
+			agents[index].Plugins.Add(r)
 
-			err = agents[i].Serve()
+			err = agents[index].Serve()
 			if err != nil {
 				log.Fatal(err)
 			}
-		}()
+		}(i)
 	}
 
 	// 为 http 服务添加url注册信息

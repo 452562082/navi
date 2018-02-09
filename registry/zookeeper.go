@@ -51,7 +51,6 @@ func (p *ZooKeeperRegister) Start() error {
 		p.kv = kv
 	}
 
-
 	if p.BasePath[0] == '/' {
 		p.BasePath = p.BasePath[1:]
 	}
@@ -166,7 +165,7 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, metadata str
 
 func (p *ZooKeeperRegister) UnRegister(name string) (err error) {
 	if "" == strings.TrimSpace(name) {
-		err = errors.New("Register service `name` can't be empty")
+		err = fmt.Errorf("Register service `name` can't be empty")
 		return
 	}
 
