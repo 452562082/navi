@@ -413,7 +413,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 		//		//重建连接
 		//	}
 		case lb.Failover:
-			retries := c.GetRetries()
+			retries := s.Service().(navicli.ConnPool).GetRetries()
 			for retries > 0 {
 				retries--
 				conn, err := s.Service().(navicli.ConnPool).GetConn()
@@ -435,7 +435,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 				return nil, err
 			}
 			serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
-			return serviceResponse. err
+			return serviceResponse, err
 		}
 
 {{end}}

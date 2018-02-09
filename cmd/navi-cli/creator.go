@@ -969,7 +969,7 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 	gMaxConns = maxConns
 	XEngine = &Engine{
 		servers: make(map[string]*ServerHost),
-		failMode: failMode
+		failMode: failMode,
 	}
 
 	XEngine.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
@@ -1071,14 +1071,14 @@ func (c *Engine) GetConn() (interface{}, error) {
 func (c *Engine) GetFailMode() (lb.FailMode) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
-	failMode = c.failMode
+	failMode := c.failMode
 	return failMode
 }
 
 func (c *Engine) GetRetries() (int) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
-	retries = c.retries
+	retries := c.retries
 	return retries
 }
 
