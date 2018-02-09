@@ -1201,11 +1201,11 @@ var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePat
 func main() {
 	flag.Parse()
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, *configFilePath)
-	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15, lb.FailMode)
+	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, timpl.TProcessor, engine.XEngine)
+	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, engine.XEngine, timpl.TProcessor)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
