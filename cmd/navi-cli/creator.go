@@ -1154,6 +1154,8 @@ import (
 	"{{.PkgPath}}/gen"
 	gcomponent "{{.PkgPath}}/grpcapi/component"
 	gimpl "{{.PkgPath}}/grpcservice/impl"
+	"git.oschina.net/kuaishangtong/common/utils/log"
+	"git.oschina.net/kuaishangtong/navi/lb"
 	"os/signal"
 	"os"
 	"syscall"
@@ -1189,6 +1191,7 @@ import (
 	"os"
 	"syscall"
 	"fmt"
+	"flag"
 )
 
 var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePath")
@@ -1196,7 +1199,7 @@ var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePat
 func main() {
 	flag.Parse()
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, *configFilePath)
-	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15)
+	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15, lb.FailMode)
 	if err != nil {
 		log.Fatal(err)
 	}
