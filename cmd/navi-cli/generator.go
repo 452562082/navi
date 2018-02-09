@@ -425,7 +425,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 				if err == nil {
 					return serviceResponse, err
 				}
-				s.Service().(navicli.ConnPool).SetServerHostUnavailable(conn.(*engine.Conn).getServerHost())
+				s.Service().(navicli.ConnPool).SetServerHostUnavailable(conn.(*engine.Conn).GetServerHost())
 			}
 			return nil, err
 

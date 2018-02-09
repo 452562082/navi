@@ -850,7 +850,7 @@ func (c *Conn) check() {
 	}
 }
 
-func (c *Conn) getServerHost() (*ServerHost) {
+func (c *Conn) GetServerHost() (*ServerHost) {
 	return c.serverHost
 }
 
