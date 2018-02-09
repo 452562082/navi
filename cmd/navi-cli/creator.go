@@ -793,6 +793,7 @@ var gTimeout int
 var gMaxConns int
 
 type Conn struct {
+	serverHost    *ServerHost
 	host     string
 	interval int
 	*t.{{.ServiceName}}Client
@@ -800,9 +801,10 @@ type Conn struct {
 	available bool
 }
 
-func newConn(host string, interval int) (*Conn, error) {
+func newConn(serviceHost *ServerHost, host string, interval int) (*Conn, error) {
 	var err error
 	conn := &Conn{
+		serverHost: serverHost,
 		host:      host,
 		interval:  interval,
 		closed:    false,
@@ -839,6 +841,7 @@ func (c *Conn) check() {
 					c.close()
 					c.{{.ServiceName}}Client = newClient
 					c.available = true
+					c.serverHost.available = true
 				}
 			} else {
 				c.available = true
@@ -847,8 +850,8 @@ func (c *Conn) check() {
 	}
 }
 
-func (c *Conn) getHost() (string) {
-	return c.host
+func (c *Conn) getServerHost() (*ServerHost) {
+	return c.serverHost
 }
 
 func (c *Conn) connect() (*t.{{.ServiceName}}Client, error) {
@@ -897,6 +900,7 @@ type ServerHost struct {
 	host  string
 	lock  *sync.RWMutex
 	conns []*Conn
+	available bool
 }
 
 func newServerHost(host string, maxConns int) (*ServerHost, error) {
@@ -906,7 +910,7 @@ func newServerHost(host string, maxConns int) (*ServerHost, error) {
 	}
 	conns := make([]*Conn, maxConns, maxConns)
 	for i := 0; i < maxConns; i++ {
-		conn, err := newConn(host, 1)
+		conn, err := newConn(serverHost, host, 1)
 		if err != nil {
 			return nil, err
 		}
@@ -957,7 +961,6 @@ type Engine struct {
 	discovery registry.ServiceDiscovery
 	selector  lb.Selector
 	failMode 	lb.FailMode
-	invalidHost []string
 	lock  *sync.RWMutex
 
 	// Retries retries to send
@@ -1069,49 +1072,48 @@ func (c *Engine) GetConn() (interface{}, error) {
 }
 
 func (c *Engine) GetFailMode() (lb.FailMode) {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-	failMode := c.failMode
-	return failMode
+	return c.failMode
 }
 
 func (c *Engine) GetRetries() (int) {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-	retries := c.retries
-	return retries
+	return c.retries
 }
 
-func (c *Engine) ClearInvalidHost() {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	c.invalidHost = c.invalidHost[:0]
-}
+//func (c *Engine) ClearInvalidHost() {
+//	c.lock.Lock()
+//	defer c.lock.Unlock()
+//	c.invalidHost = c.invalidHost[:0]
+//}
 
-func (c *Engine) AddInvalidHost(conn interface{}) {
+func (c *Engine) SetServerHostUnavailable(serverHost interface{}) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	c.invalidHost = append(c.invalidHost, conn.(*Conn).getHost())
+	//c.invalidHost = append(c.invalidHost, conn.(*Conn).getHost())
+	serverHost.(*ServerHost).available = false
 }
 
 func (c *Engine) getConn() (*Conn, error) {
-	var h string
-
-	c.lock.RLock()
+	//c.lock.RLock()
+	//for{
+	//	h = c.selector.Select(context.Background(), "", "", h, nil)
+		//isExist := false
+		//for _, host := range c.invalidHost {
+		//	if h == host {
+		//		isExist = true
+		//	}
+		//}
+		//
+		//if !isExist {
+		//	break
+		//}
+	//}
+	//c.lock.RUnlock()
 	for{
-		h := c.selector.Select(context.Background(), "", "", nil)
-		isExist := false
-		for _, host := range c.invalidHost {
-			if h == host {
-				isExist = true
-			}
-		}
-
-		if !isExist {
+		h = c.selector.Select(context.Background(), "", "", h, nil)
+		if c.servers[h].available {
 			break
 		}
 	}
-	c.lock.RUnlock()
 
 	if host, ok := c.servers[h]; ok {
 		conn := host.getConn()
