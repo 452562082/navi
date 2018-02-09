@@ -1095,7 +1095,7 @@ func (c *Engine) SetServerHostUnavailable(serverHost interface{}) {
 func (c *Engine) getConn() (*Conn, error) {
 	//c.lock.RLock()
 	//for{
-	//	h = c.selector.Select(context.Background(), "", "", h, nil)
+	//	h = c.selector.Select(context.Background(), "", "", nil)
 		//isExist := false
 		//for _, host := range c.invalidHost {
 		//	if h == host {
@@ -1108,6 +1108,7 @@ func (c *Engine) getConn() (*Conn, error) {
 		//}
 	//}
 	//c.lock.RUnlock()
+	var h string
 	for{
 		h = c.selector.Select(context.Background(), "", "", h, nil)
 		if c.servers[h].available {
