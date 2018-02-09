@@ -375,6 +375,7 @@ import (
 	"reflect"
 	"net/http"
 	"errors"
+	"git.oschina.net/kuaishangtong/navi/lb"
 )
 
 // ThriftSwitcher is a runtime func with which a server starts.
