@@ -1094,6 +1094,10 @@ func (c *Engine) AddInvalidHost(host string) {
 	c.invalidHost = append(c.invalidHost, host)
 }
 
+func (c *Engine) GetConn() (interface{}, error) {
+	return c.getConn()
+}
+
 func (c *Engine) getConn() (*Conn, error) {
 	var h string
 
