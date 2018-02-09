@@ -24,18 +24,27 @@ func (this *ApiController) Proxy() {
 	api := api.GlobalApiManager.GetApi(service)
 	if api != nil {
 		if _, ok := api.ServerURLs[apiurl]; ok {
-			director := func(req *http.Request) *http.Request {
-				req = this.Ctx.Request
-				req.URL.Scheme = "http"
-				host := api.Cluster.Select(service+"/"+apiurl, req.Method)
-				req.URL.Host = host
-				req.URL.Path = "/" + apiurl
-				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
-				log.Infof("remote %s, proxy service %s api /%s to host %s", this.Ctx.Request.RemoteAddr, service, apiurl, host)
-				return req
+
+			var err error
+			var firstCall bool = true
+			var host string
+
+			for err != nil || firstCall {
+				firstCall = false
+				director := func(req *http.Request) *http.Request {
+					req = this.Ctx.Request
+					req.URL.Scheme = "http"
+					host = api.Cluster.Select(service+"/"+apiurl, req.Method, host)
+					req.URL.Host = host
+					req.URL.Path = "/" + apiurl
+					req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
+					log.Infof("remote %s, proxy service %s api /%s to host %s", this.Ctx.Request.RemoteAddr, service, apiurl, host)
+					return req
+				}
+				proxy := &httpproxy.ReverseProxy{Director: director}
+				err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 			}
-			proxy := &httpproxy.ReverseProxy{Director: director}
-			proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
+
 			return
 		}
 	}

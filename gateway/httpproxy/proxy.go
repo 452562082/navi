@@ -127,7 +127,7 @@ var hopHeaders = []string{
 	"Upgrade",
 }
 
-func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) error {
 	transport := p.Transport
 	if transport == nil {
 		transport = http.DefaultTransport
@@ -190,8 +190,8 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
 		log.Errorf("http: proxy error: %v", err)
-		rw.WriteHeader(http.StatusBadGateway)
-		return
+		//rw.WriteHeader(http.StatusBadGateway)
+		return err
 	}
 
 	// Remove hop-by-hop headers listed in the
@@ -211,8 +211,8 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if p.ModifyResponse != nil {
 		if err := p.ModifyResponse(res); err != nil {
 			log.Errorf("http: proxy error: %v", err)
-			rw.WriteHeader(http.StatusBadGateway)
-			return
+			//rw.WriteHeader(http.StatusBadGateway)
+			return err
 		}
 	}
 
@@ -243,7 +243,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	if len(res.Trailer) == announcedTrailers {
 		copyHeader(rw.Header(), res.Trailer)
-		return
+		return nil
 	}
 
 	for k, vv := range res.Trailer {
@@ -252,6 +252,8 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			rw.Header().Add(k, v)
 		}
 	}
+
+	return nil
 }
 
 func (p *ReverseProxy) copyResponse(dst io.Writer, src io.Reader) {

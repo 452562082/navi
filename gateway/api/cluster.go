@@ -46,8 +46,8 @@ func (sc *ServiceCluster) Commit() error {
 	return nil
 }
 
-func (sc *ServiceCluster) Select(servicePath, serviceMethod string) string {
-	return sc.selector.Select(context.Background(), servicePath, serviceMethod, nil)
+func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select string) string {
+	return sc.selector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
 }
 
 func (sc *ServiceCluster) GetServices() map[string]string {

@@ -13,7 +13,7 @@ import (
 
 // Selector defines selector that selects one service from candidates.
 type Selector interface {
-	Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string
+	Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string
 	UpdateServer(servers map[string]string)
 }
 
@@ -50,12 +50,19 @@ func NewRandomSelector(servers map[string]string) Selector {
 	return &randomSelector{servers: ss}
 }
 
-func (s randomSelector) Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string {
+func (s randomSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	ss := s.servers
-	if len(ss) == 0 {
+	length := len(ss)
+	if length == 0 {
 		return ""
 	}
+
 	i := fastrand.Uint32n(uint32(len(ss)))
+
+	if ss[i] == last_select {
+		return ss[(int)(i+1)%length]
+	}
+
 	return ss[i]
 }
 
@@ -83,13 +90,17 @@ func NewRoundRobinSelector(servers map[string]string) Selector {
 	return &roundRobinSelector{servers: ss}
 }
 
-func (s *roundRobinSelector) Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string {
+func (s *roundRobinSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	var ss = s.servers
-	if len(ss) == 0 {
+	length := len(ss)
+	if length == 0 {
 		return ""
 	}
 	i := s.i
 	i = i % len(ss)
+	if ss[i] == last_select {
+		i = (i + 1) % len(ss)
+	}
 	s.i = i + 1
 
 	return ss[i]
@@ -114,9 +125,10 @@ func NewWeightedRoundRobinSelector(servers map[string]string) Selector {
 	return &weightedRoundRobinSelector{servers: ss}
 }
 
-func (s *weightedRoundRobinSelector) Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string {
+func (s *weightedRoundRobinSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	ss := s.servers
-	if len(ss) == 0 {
+	length := len(ss)
+	if length == 0 {
 		return ""
 	}
 	w := nextWeighted(ss)
@@ -172,7 +184,7 @@ func NewGeoSelector(servers map[string]string, latitude, longitude float64) Sele
 	return &geoSelector{servers: ss, Latitude: latitude, Longitude: longitude, r: r}
 }
 
-func (s geoSelector) Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string {
+func (s geoSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	if len(s.servers) == 0 {
 		return ""
 	}
@@ -244,7 +256,7 @@ func NewConsistentHashSelector(servers map[string]string) Selector {
 	return &consistentHashSelector{servers: ss}
 }
 
-func (s consistentHashSelector) Select(ctx context.Context, servicePath, serviceMethod string, args interface{}) string {
+func (s consistentHashSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	ss := s.servers
 	if len(ss) == 0 {
 		return ""
