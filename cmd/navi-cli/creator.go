@@ -801,7 +801,7 @@ type Conn struct {
 	available bool
 }
 
-func newConn(serviceHost *ServerHost, host string, interval int) (*Conn, error) {
+func newConn(serverHost *ServerHost, host string, interval int) (*Conn, error) {
 	var err error
 	conn := &Conn{
 		serverHost: serverHost,
