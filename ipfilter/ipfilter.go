@@ -10,8 +10,12 @@ import (
 	"sync"
 )
 
-var __ipfilterctl *ipfilterController
+var __ipfilterctl *ipfilterManager
 
+/*
+ *	zkhosts: 			zookeeper 连接地址
+ *	zkIpFilterPath:		ip过滤保存json的zookeeper节点 默认 /navi/ipfilter
+ */
 func InitFilter(zkhosts []string, zkIpFilterPath string) (err error) {
 	__ipfilterctl, err = newIpfilter(zkhosts, zkIpFilterPath)
 	return
@@ -55,7 +59,7 @@ type ipfilters struct {
 	Ipfilters []*ipfilter `json:"ipfilters"`
 }
 
-type ipfilterController struct {
+type ipfilterManager struct {
 	zkIpFilterPath string
 
 	devNetMap   map[string][]*net.IPNet
@@ -64,13 +68,13 @@ type ipfilterController struct {
 	filterStore store.Store
 }
 
-func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipfilterController, error) {
+func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipfilterManager, error) {
 	store, err := libkv.NewStore(store.ZK, zkhosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	_ipfilter := &ipfilterController{
+	_ipfilter := &ipfilterManager{
 		zkIpFilterPath: zkIpFilterPath,
 		devNetMap:      make(map[string][]*net.IPNet),
 		denyNetMap:     make(map[string][]*net.IPNet),
@@ -88,7 +92,7 @@ func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipfilterController, 
 	return _ipfilter, nil
 }
 
-func (p *ipfilterController) init() error {
+func (p *ipfilterManager) init() error {
 	ipfilterJsonStr, err := p.filterStore.Get(p.zkIpFilterPath)
 	if err != nil {
 		return err
@@ -115,7 +119,7 @@ func (p *ipfilterController) init() error {
 	return nil
 }
 
-func (p *ipfilterController) watchIpfilters() {
+func (p *ipfilterManager) watchIpfilters() {
 	for {
 		event, err := p.filterStore.Watch(p.zkIpFilterPath, nil)
 		if err != nil {
@@ -148,7 +152,7 @@ func (p *ipfilterController) watchIpfilters() {
 	}
 }
 
-func (p *ipfilterController) addDevNets(serviceName string, nets []string) error {
+func (p *ipfilterManager) addDevNets(serviceName string, nets []string) error {
 	if len(nets) == 0 {
 		return fmt.Errorf("dev nets is empty")
 	}
@@ -179,7 +183,7 @@ func (p *ipfilterController) addDevNets(serviceName string, nets []string) error
 	return nil
 }
 
-func (p *ipfilterController) addDenyNets(serviceName string, nets []string) error {
+func (p *ipfilterManager) addDenyNets(serviceName string, nets []string) error {
 	deny_nets := make([]*net.IPNet, 0, len(nets))
 
 	for _, n := range nets {
