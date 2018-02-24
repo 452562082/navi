@@ -10,8 +10,8 @@ var URLServicePath string
 var HTTPServicePath string
 var IPFilterPath string
 
-const PROD_VERSION = "prod"
-const DEV_VERSION = "dev"
+const PROD_MODE = "prod"
+const DEV_MODE = "dev"
 
 func init() {
 	ZookeeperHosts = beego.AppConfig.Strings("zookeeper.hosts")

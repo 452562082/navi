@@ -69,8 +69,8 @@ func (sc *ServiceCluster) Commit() error {
 	return nil
 }
 
-func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, version string) string {
-	if strings.EqualFold(version, constants.DEV_VERSION) {
+func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode string) string {
+	if strings.EqualFold(mode, constants.DEV_MODE) {
 		return sc.devSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
 	}
 

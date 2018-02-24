@@ -9,13 +9,16 @@ import (
 )
 
 type Api struct {
-	Name             string
-	Cluster          *ServiceCluster
-	prodURLs         registry.ServiceDiscovery
-	devURLs          registry.ServiceDiscovery
+	Name    string
+	Cluster *ServiceCluster
+
+	prodURLs registry.ServiceDiscovery
+	devURLs  registry.ServiceDiscovery
+
 	ProdServerUrlMap map[string]struct{}
 	DevServerUrlMap  map[string]struct{}
-	closed           bool
+
+	closed bool
 }
 
 func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
@@ -60,6 +63,7 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 
 	prodselecter := lb.NewSelector(lbmode, nil)
 	api.Cluster.SetProdSelector(prodselecter)
+
 	devselecter := lb.NewSelector(lbmode, nil)
 	api.Cluster.SetDevSelector(devselecter)
 
@@ -100,6 +104,7 @@ func (this *Api) watchURLs() {
 	}
 
 	this.prodURLs.Close()
+	this.devURLs.Close()
 }
 
 func (this *Api) Close() {
