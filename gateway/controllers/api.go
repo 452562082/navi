@@ -5,7 +5,7 @@ import (
 	"git.oschina.net/kuaishangtong/navi/gateway/api"
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/gateway/httpproxy"
-	"git.oschina.net/kuaishangtong/navi/gateway/ipfilter"
+	"git.oschina.net/kuaishangtong/navi/ipfilter"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"net"
