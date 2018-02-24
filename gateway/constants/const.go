@@ -8,11 +8,16 @@ import (
 var ZookeeperHosts []string
 var URLServicePath string
 var HTTPServicePath string
+var IPFilterPath string
+
+const PROD_VERSION = "prod"
+const DEV_VERSION = "dev"
 
 func init() {
 	ZookeeperHosts = beego.AppConfig.Strings("zookeeper.hosts")
 	URLServicePath = beego.AppConfig.String("zookeeper.url_service_path")
 	HTTPServicePath = beego.AppConfig.String("zookeeper.http_service_path")
+	IPFilterPath = beego.AppConfig.String("zookeeper.ip_filter_path")
 
 	if len(ZookeeperHosts) == 0 {
 		panic("do not configurate zookeeper.hosts")
@@ -28,4 +33,10 @@ func init() {
 		panic("do not configurate zookeeper.service_list_path")
 	}
 	HTTPServicePath = strings.Trim(HTTPServicePath, "/")
+
+	if len(IPFilterPath) == 0 {
+		panic("do not configurate zookeeper.ip_filter_path")
+	}
+	IPFilterPath = strings.Trim(IPFilterPath, "/")
+
 }
