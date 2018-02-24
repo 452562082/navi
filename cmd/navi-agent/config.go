@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"git.oschina.net/kuaishangtong/common/utils/json"
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -26,6 +27,14 @@ type Config struct {
 	// log
 	Log     logConf `json:"log"`
 	Version string  `json:"version"`
+}
+
+type serverConf struct {
+	ServerType            string   `json:"server_type"`
+	ServerMode            string   `json:"server_mode"`
+	ServerHttpApiJsonFile string   `json:"server_http_api_json_file"`
+	ServerName            string   `json:"server_name"`
+	ServerHosts           []string `json:"server_hosts"`
 }
 
 type zookeeprConf struct {
@@ -55,12 +64,6 @@ type logConf struct {
 	MaxDays int  `json:"maxdays"`
 }
 
-type serverConf struct {
-	ServerType  string   `json:"server_type"`
-	ServerName  string   `json:"server_name"`
-	ServerHosts []string `json:"server_hosts"`
-}
-
 func (c *Config) init(filename string) error {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -76,6 +79,48 @@ func (c *Config) init(filename string) error {
 				line, col, serr.Offset, highlight)
 		}
 		return err
+	}
+
+	if !strings.EqualFold(c.Server.ServerType, "rpc") && !strings.EqualFold(c.Server.ServerType, "http") {
+		return fmt.Errorf("illegal server_type: %s, must be 'rpc' or 'http'", c.Server.ServerType)
+	}
+	log.Noticef("[agent] server_type: %s", c.Server.ServerType)
+
+	if !strings.EqualFold(c.Server.ServerMode, "dev") && !strings.EqualFold(c.Server.ServerMode, "prod") {
+		return fmt.Errorf("illegal server_mode: %s, must be 'prod' or 'dev'", c.Server.ServerMode)
+	}
+	log.Noticef("[agent] server_mode: %s", c.Server.ServerMode)
+
+	if strings.EqualFold(c.Server.ServerType, "http") && len(c.Server.ServerHttpApiJsonFile) == 0 {
+		return fmt.Errorf("server_type is 'http', server_http_api_json_file can not be \"\"")
+	}
+
+	if len(c.Server.ServerName) == 0 {
+		return fmt.Errorf("illegal server_name, server_name can not be \"\"")
+	}
+	log.Noticef("[agent] server_name: %s", c.Server.ServerName)
+
+	if len(c.Server.ServerHosts) == 0 {
+		return fmt.Errorf("illegal server_hosts, length of server_hosts can not be 0")
+	}
+	log.Noticef("[agent] server_hosts: %s", c.Server.ServerHosts)
+
+	/* zk */
+	if c.Zookeeper.ZookeeperHosts == nil || len(c.Zookeeper.ZookeeperHosts) == 0 {
+		return fmt.Errorf("zookeeper_hosts can not be nil")
+	}
+	log.Noticef("[agent] zookeeper_hosts: %v", c.Zookeeper.ZookeeperHosts)
+
+	if strings.EqualFold(c.Server.ServerType, "rpc") && len(c.Zookeeper.ZookeeperRPCServicePath) == 0 {
+		return fmt.Errorf("server_type is 'rpc', zookeeper_rpc_service_path can not be \"\"")
+	}
+
+	if strings.EqualFold(c.Server.ServerType, "http") && len(c.Zookeeper.ZookeeperHTTPServicePath) == 0 {
+		return fmt.Errorf("server_type is 'http', zookeeper_http_service_path can not be \"\"")
+	}
+
+	if strings.EqualFold(c.Server.ServerType, "http") && len(c.Zookeeper.ZookeeperURLServicePath) == 0 {
+		return fmt.Errorf("server_type is 'http', zookeeper_url_service_path can not be \"\"")
 	}
 
 	return nil

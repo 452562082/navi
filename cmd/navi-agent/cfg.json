@@ -2,6 +2,8 @@
   // server 相关配置
   "server": {
     "server_type": "rpc",
+    "server_mode": "dev",
+    "server_http_api_json_file": "httpapi.json",
     "server_name": "AsrService",
     // server 服务节点
     "server_hosts": [

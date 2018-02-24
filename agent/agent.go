@@ -98,8 +98,6 @@ func (a *Agent) Serve() (err error) {
 		if err != nil {
 			log.Error(err)
 			a.agenter = nil
-			//time.Sleep(time.Second)
-			//continue
 		}
 
 		select {
@@ -138,8 +136,6 @@ func (a *Agent) Serve() (err error) {
 	return nil
 }
 
-// RegisterName is like Register but uses the provided name for the type
-// instead of the receiver's concrete type.
 func (a *Agent) RegisterName(name, mode string, rcvr interface{}, metadata string) error {
 	if a.Plugins == nil {
 		a.Plugins = &pluginContainer{}
