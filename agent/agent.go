@@ -25,9 +25,6 @@ func NewAgent(servername, address string, typ string, options ...OptionFn) (*Age
 		typ:        typ,
 	}
 
-	//if options!=nil{
-	//
-	//}
 	for _, op := range options {
 		op(a)
 	}
@@ -56,17 +53,17 @@ func NewAgent(servername, address string, typ string, options ...OptionFn) (*Age
 // Serve starts and listens RPC requests.
 func (a *Agent) Serve() (err error) {
 
-	//serviceName, err := a.agenter.ServiceName()
-	//if err != nil {
-	//	return err
-	//}
+	serviceMode, err := a.agenter.ServiceMode()
+	if err != nil {
+		return err
+	}
 
 	_, err = a.agenter.Ping()
 	if err != nil {
 		return err
 	}
 
-	err = a.RegisterName(a.servername, nil, a.servername)
+	err = a.RegisterName(a.servername, serviceMode, nil, a.servername)
 	if err != nil {
 		return err
 	}
@@ -113,7 +110,7 @@ func (a *Agent) Serve() (err error) {
 				if err != nil {
 					if service_active {
 						service_active = false
-						err = a.UnRegisterName(a.servername)
+						err = a.UnRegisterName(a.servername, serviceMode)
 						if err != nil {
 							log.Error(err)
 							continue
@@ -124,7 +121,7 @@ func (a *Agent) Serve() (err error) {
 				}
 
 				if !service_active {
-					err = a.RegisterName(a.servername, nil, a.servername)
+					err = a.RegisterName(a.servername, serviceMode, nil, a.servername)
 					if err != nil {
 						log.Error(err)
 						continue
@@ -139,4 +136,22 @@ func (a *Agent) Serve() (err error) {
 	}
 
 	return nil
+}
+
+// RegisterName is like Register but uses the provided name for the type
+// instead of the receiver's concrete type.
+func (a *Agent) RegisterName(name, mode string, rcvr interface{}, metadata string) error {
+	if a.Plugins == nil {
+		a.Plugins = &pluginContainer{}
+	}
+
+	return a.Plugins.DoRegister(name+"/"+mode, rcvr, metadata)
+}
+
+func (a *Agent) UnRegisterName(name, mode string) error {
+	if a.Plugins == nil {
+		a.Plugins = &pluginContainer{}
+	}
+
+	return a.Plugins.DoUnRegister(name + "/" + mode)
 }

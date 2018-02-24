@@ -34,6 +34,16 @@ func (ha *httpAgenter) Ping() (string, error) {
 	return httplib.Get(url).String()
 }
 
+func (ha *httpAgenter) ServiceName() (string, error) {
+	url := fmt.Sprintf("http://%s/servicename", ha.Address)
+	return httplib.Get(url).String()
+}
+
+func (ha *httpAgenter) ServiceMode() (string, error) {
+	url := fmt.Sprintf("http://%s/servicemode", ha.Address)
+	return httplib.Get(url).String()
+}
+
 func (ha *httpAgenter) Close() error {
 	return nil
 }

@@ -6,6 +6,8 @@ import (
 
 type Agenter interface {
 	Ping() (r string, err error)
+	ServiceName() (r string, err error)
+	ServiceMode() (r string, err error)
 	Close() error
 }
 

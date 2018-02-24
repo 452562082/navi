@@ -200,24 +200,24 @@ func (p *thriftAgenter) recvServiceName() (value string, err error) {
 	return
 }
 
-func (p *thriftAgenter) ServiceType() (r string, err error) {
-	if err = p.sendServiceType(); err != nil {
+func (p *thriftAgenter) ServiceMode() (r string, err error) {
+	if err = p.sendServiceMode(); err != nil {
 		return
 	}
-	return p.recvServiceType()
+	return p.recvServiceMode()
 }
 
-func (p *thriftAgenter) sendServiceType() (err error) {
+func (p *thriftAgenter) sendServiceMode() (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
 		p.OutputProtocol = oprot
 	}
 	p.SeqId++
-	if err = oprot.WriteMessageBegin("ServiceType", thrift.CALL, p.SeqId); err != nil {
+	if err = oprot.WriteMessageBegin("ServiceMode", thrift.CALL, p.SeqId); err != nil {
 		return
 	}
-	args := ServiceTypeArgs{}
+	args := ServiceModeArgs{}
 	if err = args.Write(oprot); err != nil {
 		return
 	}
@@ -227,7 +227,7 @@ func (p *thriftAgenter) sendServiceType() (err error) {
 	return oprot.Flush()
 }
 
-func (p *thriftAgenter) recvServiceType() (value string, err error) {
+func (p *thriftAgenter) recvServiceMode() (value string, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -237,12 +237,12 @@ func (p *thriftAgenter) recvServiceType() (value string, err error) {
 	if err != nil {
 		return
 	}
-	if method != "ServiceType" {
-		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "ServiceType failed: wrong method name")
+	if method != "ServiceMode" {
+		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "ServiceMode failed: wrong method name")
 		return
 	}
 	if p.SeqId != seqId {
-		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ServiceType failed: out of sequence response")
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ServiceMode failed: out of sequence response")
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
@@ -259,10 +259,10 @@ func (p *thriftAgenter) recvServiceType() (value string, err error) {
 		return
 	}
 	if mTypeId != thrift.REPLY {
-		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "ServiceType failed: invalid message type")
+		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "ServiceMode failed: invalid message type")
 		return
 	}
-	result := ServiceTypeResult{}
+	result := ServiceModeResult{}
 	if err = result.Read(iprot); err != nil {
 		return
 	}
@@ -579,10 +579,10 @@ func (p *ServiceNameResult) String() string {
 	return fmt.Sprintf("ServiceNameResult(%+v)", *p)
 }
 
-type ServiceTypeArgs struct {
+type ServiceModeArgs struct {
 }
 
-func (p *ServiceTypeArgs) Read(iprot thrift.TProtocol) error {
+func (p *ServiceModeArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
 	}
@@ -608,8 +608,8 @@ func (p *ServiceTypeArgs) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ServiceTypeArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("ServiceType_args"); err != nil {
+func (p *ServiceModeArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("ServiceMode_args"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
 	}
 	if p != nil {
@@ -623,32 +623,32 @@ func (p *ServiceTypeArgs) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ServiceTypeArgs) String() string {
+func (p *ServiceModeArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ServiceTypeArgs(%+v)", *p)
+	return fmt.Sprintf("ServiceModeArgs(%+v)", *p)
 }
 
 // Attributes:
 //  - Success
-type ServiceTypeResult struct {
+type ServiceModeResult struct {
 	Success *string `thrift:"success,0" db:"success" json:"success,omitempty"`
 }
 
-var NaviServiceServiceTypeResult_Success_DEFAULT string
+var NaviServiceServiceModeResult_Success_DEFAULT string
 
-func (p *ServiceTypeResult) GetSuccess() string {
+func (p *ServiceModeResult) GetSuccess() string {
 	if !p.IsSetSuccess() {
-		return NaviServiceServiceTypeResult_Success_DEFAULT
+		return NaviServiceServiceModeResult_Success_DEFAULT
 	}
 	return *p.Success
 }
-func (p *ServiceTypeResult) IsSetSuccess() bool {
+func (p *ServiceModeResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ServiceTypeResult) Read(iprot thrift.TProtocol) error {
+func (p *ServiceModeResult) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
 	}
@@ -681,7 +681,7 @@ func (p *ServiceTypeResult) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ServiceTypeResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *ServiceModeResult) ReadField0(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return thrift.PrependError("error reading field 0: ", err)
 	} else {
@@ -690,8 +690,8 @@ func (p *ServiceTypeResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ServiceTypeResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("ServiceType_result"); err != nil {
+func (p *ServiceModeResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("ServiceMode_result"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
 	}
 	if p != nil {
@@ -708,7 +708,7 @@ func (p *ServiceTypeResult) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ServiceTypeResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *ServiceModeResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err := oprot.WriteFieldBegin("success", thrift.STRING, 0); err != nil {
 			return thrift.PrependError(fmt.Sprintf("%T write field begin error 0:success: ", p), err)
@@ -723,7 +723,7 @@ func (p *ServiceTypeResult) writeField0(oprot thrift.TProtocol) (err error) {
 	return err
 }
 
-func (p *ServiceTypeResult) String() string {
+func (p *ServiceModeResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
