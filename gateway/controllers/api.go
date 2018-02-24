@@ -27,7 +27,7 @@ func (this *ApiController) Proxy() {
 
 	remoteIp := strings.Split(this.Ctx.Request.RemoteAddr, ":")[0]
 	rip := net.ParseIP(remoteIp)
-	version := constants.PROD_VERSION
+	mode := constants.PROD_MODE
 	servercounts := 0
 
 	isdeny, isdev := ipfilter.IpFilter(service, rip)
@@ -43,7 +43,7 @@ func (this *ApiController) Proxy() {
 		if isdev {
 			// 开发版本
 			servercounts = api.Cluster.DevServerCount()
-			version = constants.DEV_VERSION
+			mode = constants.DEV_MODE
 			if _, ok := api.DevServerUrlMap[apiurl]; !ok {
 				respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
 				this.Ctx.ResponseWriter.Write([]byte(respstr))
@@ -69,11 +69,11 @@ func (this *ApiController) Proxy() {
 			director := func(req *http.Request) *http.Request {
 				req = this.Ctx.Request
 				req.URL.Scheme = "http"
-				host = api.Cluster.Select(service+"/"+apiurl, req.Method, host, version)
+				host = api.Cluster.Select(service+"/"+apiurl, req.Method, host, mode)
 				req.URL.Host = host
 				req.URL.Path = "/" + apiurl
 				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
-				log.Infof("remote IP %s, proxy prod service %s api /%s to host %s", remoteIp, service, apiurl, host)
+				log.Infof("remote IP %s, proxy %s service %s api /%s to host %s", remoteIp, mode, service, apiurl, host)
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}

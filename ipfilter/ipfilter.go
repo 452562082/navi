@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
 	"net"
@@ -13,8 +12,8 @@ import (
 
 var __ipfilterctl *ipfilterController
 
-func InitFilter() (err error) {
-	__ipfilterctl, err = newIpfilter()
+func InitFilter(zkhosts []string, zkIpFilterPath string) (err error) {
+	__ipfilterctl, err = newIpfilter(zkhosts, zkIpFilterPath)
 	return
 }
 
@@ -57,23 +56,26 @@ type ipfilters struct {
 }
 
 type ipfilterController struct {
+	zkIpFilterPath string
+
 	devNetMap   map[string][]*net.IPNet
 	denyNetMap  map[string][]*net.IPNet
 	rwlock      *sync.RWMutex
 	filterStore store.Store
 }
 
-func newIpfilter() (*ipfilterController, error) {
-	store, err := libkv.NewStore(store.ZK, constants.ZookeeperHosts, nil)
+func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipfilterController, error) {
+	store, err := libkv.NewStore(store.ZK, zkhosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	_ipfilter := &ipfilterController{
-		devNetMap:   make(map[string][]*net.IPNet),
-		denyNetMap:  make(map[string][]*net.IPNet),
-		rwlock:      &sync.RWMutex{},
-		filterStore: store,
+		zkIpFilterPath: zkIpFilterPath,
+		devNetMap:      make(map[string][]*net.IPNet),
+		denyNetMap:     make(map[string][]*net.IPNet),
+		rwlock:         &sync.RWMutex{},
+		filterStore:    store,
 	}
 
 	err = _ipfilter.init()
@@ -87,7 +89,7 @@ func newIpfilter() (*ipfilterController, error) {
 }
 
 func (p *ipfilterController) init() error {
-	ipfilterJsonStr, err := p.filterStore.Get(constants.IPFilterPath)
+	ipfilterJsonStr, err := p.filterStore.Get(p.zkIpFilterPath)
 	if err != nil {
 		return err
 	}
@@ -115,7 +117,7 @@ func (p *ipfilterController) init() error {
 
 func (p *ipfilterController) watchIpfilters() {
 	for {
-		event, err := p.filterStore.Watch(constants.IPFilterPath, nil)
+		event, err := p.filterStore.Watch(p.zkIpFilterPath, nil)
 		if err != nil {
 			log.Error(err)
 			continue
