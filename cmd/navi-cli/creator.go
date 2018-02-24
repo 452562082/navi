@@ -55,46 +55,6 @@ func (c *Creator) createThriftProject(serviceName string) {
 
 }
 
-func (c *Creator) generateThriftHTTPComponent() {
-	type thriftHTTPComponentValues struct {
-		ServiceName string
-		PkgPath     string
-	}
-	writeFileWithTemplate(
-		c.c.ServiceRootPathAbsolute()+"/thriftapi/component/components.go",
-		thriftHTTPComponentValues{ServiceName: c.c.GrpcServiceName(), PkgPath: c.PkgPath},
-		`package component
-
-import (
-	t "{{.PkgPath}}/gen/thrift/gen-go/gen"
-	"git.apache.org/thrift.git/lib/go/thrift"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
-)
-
-// ThriftClient returns a thrift client
-func ThriftClient(trans thrift.TTransport, f thrift.TProtocolFactory) interface{} {
-	return t.New{{.ServiceName}}ClientFactory(trans, f)
-}
-
-type ServiceInitializer struct {
-}
-
-// InitService is run before the service is started, do initializing staffs for your service here.
-// For example, init navicli components, such as interceptors, pre/postprocessors, errorHandlers, etc.
-func (i *ServiceInitializer) InitService(s navicli.Servable) error {
-	// TODO
-	return nil
-}
-
-// StopService is run after both grpc server and http server are stopped,
-// do your cleaning up work here.
-func (i *ServiceInitializer) StopService(s navicli.Servable) {
-	// TODO
-}
-`,
-	)
-}
-
 func (c *Creator) generateThriftHTTPMain() {
 	type HTTPMainValues struct {
 		ServiceName    string
@@ -592,6 +552,46 @@ func (c *Engine) getConn() (*Conn, error) {
 	)
 }
 
+func (c *Creator) generateThriftHTTPComponent() {
+	type thriftHTTPComponentValues struct {
+		ServiceName string
+		PkgPath     string
+	}
+	writeFileWithTemplate(
+		c.c.ServiceRootPathAbsolute()+"/thriftapi/component/components.go",
+		thriftHTTPComponentValues{ServiceName: c.c.GrpcServiceName(), PkgPath: c.PkgPath},
+		`package component
+
+import (
+	t "{{.PkgPath}}/gen/thrift/gen-go/gen"
+	"git.apache.org/thrift.git/lib/go/thrift"
+	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+)
+
+// ThriftClient returns a thrift client
+func ThriftClient(trans thrift.TTransport, f thrift.TProtocolFactory) interface{} {
+	return t.New{{.ServiceName}}ClientFactory(trans, f)
+}
+
+type ServiceInitializer struct {
+}
+
+// InitService is run before the service is started, do initializing staffs for your service here.
+// For example, init navicli components, such as interceptors, pre/postprocessors, errorHandlers, etc.
+func (i *ServiceInitializer) InitService(s navicli.Servable) error {
+	// TODO
+	return nil
+}
+
+// StopService is run after both grpc server and http server are stopped,
+// do your cleaning up work here.
+func (i *ServiceInitializer) StopService(s navicli.Servable) {
+	// TODO
+}
+`,
+	)
+}
+
 func (c *Creator) createGrpcProject(serviceName string) {
 	c.createGrpcFolders()
 	c.createProto(serviceName)
@@ -613,14 +613,12 @@ func (c *Creator) createGrpcProject(serviceName string) {
 	g.GenerateGrpcSwitcher()
 }
 
-
 func (c *Creator) createThriftFolders() {
 	os.MkdirAll(c.c.ServiceRootPathAbsolute()+"/gen/thrift", 0755)
 	os.MkdirAll(c.c.ServiceRootPathAbsolute()+"/thriftapi/component", 0755)
 	os.MkdirAll(c.c.ServiceRootPathAbsolute()+"/thriftapi/engine", 0755)
 	os.MkdirAll(c.c.ServiceRootPathAbsolute()+"/thriftservice/impl", 0755)
 }
-
 
 func (c *Creator) createGrpcFolders() {
 	os.MkdirAll(c.c.ServiceRootPathAbsolute()+"/gen/proto", 0755)
