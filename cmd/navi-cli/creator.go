@@ -136,12 +136,14 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   service_root_path: {{.ServiceRoot}}
   turbo_log_path: log
   http_port: 8081
+  max_limit_conn: 10
   grpc_service_name: {{.ServiceName}}
   grpc_service_host: 127.0.0.1
   grpc_service_port: 50051
   thrift_service_name: {{.ServiceName}}
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
+  service_version_type: prod
   service_version: 1.0
   zookeeper_servers_addr: 127.0.0.1:2181
   zookeeper_url_service_path: /navi/service
@@ -724,7 +726,7 @@ func main() {
 	for _, v := range s.Config.UrlMappings() {
 		path := strFirstToUpper(v[1])
 
-		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersion() + "/" + path
+		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ServiceVersionType() + "/" + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersion() + "/" + path
 		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
 		err = kv.Put(key, nil, nil)
 		if err != nil {

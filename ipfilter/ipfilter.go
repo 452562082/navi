@@ -26,7 +26,7 @@ func IpFilter(serviceName string, ip net.IP) (isdeny bool, isdev bool) {
 		if len(deny_nets) != 0 {
 			for _, on := range deny_nets {
 				if on.Contains(ip) {
-					return false, false
+					return true, false
 				}
 			}
 		}
@@ -42,7 +42,7 @@ func IpFilter(serviceName string, ip net.IP) (isdeny bool, isdev bool) {
 		}
 	}
 
-	return true, false
+	return false, false
 }
 
 type ipfilter struct {
@@ -160,13 +160,13 @@ func (p *ipfilterController) addDevNets(serviceName string, nets []string) error
 	dev_nets = make([]*net.IPNet, 0, len(nets))
 	//}
 
-	for _, n := range nets {
-		if len(n) == 0 {
+	for _, ip := range nets {
+		if len(ip) == 0 {
 			continue
 		}
-		_, ipnet, err := net.ParseCIDR(n)
+		_, ipnet, err := net.ParseCIDR(ip)
 		if err != nil {
-			return fmt.Errorf("ParseCIDR %s err: %v", n, err)
+			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
 		log.Info("add dev nets filter", ipnet)
 		dev_nets = append(dev_nets, ipnet)
