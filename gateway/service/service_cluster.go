@@ -1,4 +1,4 @@
-package api
+package service
 
 import (
 	"context"
@@ -9,9 +9,11 @@ import (
 	"strings"
 )
 
+// ServiceCluster 主要用于管理对应 Service 下的集群
+// 包括 prod , dev 两个版本的服务机器的发现功能，还有负载均衡功能
 type ServiceCluster struct {
-	Name string
-	Api  *Api
+	Name    string
+	service *Service // 集群所从属的服务
 
 	prodServerIps map[string]string
 	devServerIps  map[string]string
@@ -26,27 +28,23 @@ type ServiceCluster struct {
 	dev_ch  chan []*registry.KVPair
 }
 
-func NewServiceCluster(name string) *ServiceCluster {
+func NewServiceCluster(name string, service *Service) *ServiceCluster {
 	return &ServiceCluster{
 		Name:          name,
+		service:       service,
 		prodServerIps: make(map[string]string, 10),
 		devServerIps:  make(map[string]string, 10),
 	}
 }
 
-func (sc *ServiceCluster) SetApi(api *Api) *ServiceCluster {
-	sc.Api = api
-	return sc
-}
-
 func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
-	s.UpdateServer(sc.GetProdServices())
+	s.UpdateServer(sc.GetProdServers())
 	sc.prodSelector = s
 	return sc
 }
 
 func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
-	s.UpdateServer(sc.GetDevServices())
+	s.UpdateServer(sc.GetDevServers())
 	sc.devSelector = s
 	return sc
 }
@@ -64,8 +62,8 @@ func (sc *ServiceCluster) Discovery(basePath string, servicePath string, zkAddr 
 }
 
 func (sc *ServiceCluster) Commit() error {
-	go sc.prodServiceDiscovery()
-	go sc.devServiceDiscovery()
+	go sc.prodServerDiscovery()
+	go sc.devServerDiscovery()
 	return nil
 }
 
@@ -77,7 +75,7 @@ func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode s
 	return sc.prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
 }
 
-func (sc *ServiceCluster) GetProdServices() map[string]string {
+func (sc *ServiceCluster) GetProdServers() map[string]string {
 	kvpairs := sc.prodIpDiscovery.GetServices()
 	prodServerIps := make(map[string]string)
 	for _, p := range kvpairs {
@@ -86,7 +84,7 @@ func (sc *ServiceCluster) GetProdServices() map[string]string {
 	return prodServerIps
 }
 
-func (sc *ServiceCluster) GetDevServices() map[string]string {
+func (sc *ServiceCluster) GetDevServers() map[string]string {
 	kvpairs := sc.devIpDiscovery.GetServices()
 	devServerIps := make(map[string]string)
 	for _, p := range kvpairs {
@@ -95,7 +93,8 @@ func (sc *ServiceCluster) GetDevServices() map[string]string {
 	return devServerIps
 }
 
-func (sc *ServiceCluster) prodServiceDiscovery() {
+// 监听zookeeper，发现 服务 prod 版本的机器
+func (sc *ServiceCluster) prodServerDiscovery() {
 	ch := sc.prodIpDiscovery.WatchService()
 	if ch != nil {
 		sc.prod_ch = ch
@@ -115,7 +114,8 @@ func (sc *ServiceCluster) prodServiceDiscovery() {
 	}
 }
 
-func (sc *ServiceCluster) devServiceDiscovery() {
+// 监听zookeeper，发现 服务 dev 版本的机器
+func (sc *ServiceCluster) devServerDiscovery() {
 	ch := sc.devIpDiscovery.WatchService()
 	if ch != nil {
 		sc.prod_ch = ch

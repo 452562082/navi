@@ -6,8 +6,8 @@ import (
 )
 
 var ZookeeperHosts []string
-var URLServicePath string
-var HTTPServicePath string
+var URLServicePath string  // 存储service的提供的 api 接口,即 url
+var HTTPServicePath string // 存储service的服务IP
 var IPFilterPath string
 
 const PROD_MODE = "prod"

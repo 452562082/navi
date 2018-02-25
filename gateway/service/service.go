@@ -1,4 +1,4 @@
-package api
+package service
 
 import (
 	"git.oschina.net/kuaishangtong/common/utils/log"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Api struct {
+type Service struct {
 	Name    string
 	Cluster *ServiceCluster
 
@@ -21,8 +21,8 @@ type Api struct {
 	closed bool
 }
 
-func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
-	api := &Api{
+func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
+	srv := &Service{
 		Name:             name,
 		ProdServerUrlMap: make(map[string]struct{}),
 		closed:           false,
@@ -30,54 +30,54 @@ func NewApi(name string, lbmode lb.SelectMode) (*Api, error) {
 
 	var err error
 
-	/* 获取 生产版本 /prod  url api接口 */
-	api.prodURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
+	/* 获取 生产版本 /prod  url */
+	srv.prodURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	pairs := api.prodURLs.GetServices()
+	pairs := srv.prodURLs.GetServices()
 	for _, kv := range pairs {
-		api.ProdServerUrlMap[kv.Key] = struct{}{}
-		log.Infof("service [%s] add prod api [/%s]", name, kv.Key)
+		srv.ProdServerUrlMap[kv.Key] = struct{}{}
+		log.Infof("service [%s] add prod srv [/%s]", name, kv.Key)
 	}
 
-	/* 获取 开发版本 /dev  url api接口 */
-	api.devURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/dev", constants.ZookeeperHosts, nil)
+	/* 获取 开发版本 /dev  url */
+	srv.devURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/dev", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	pairs = api.prodURLs.GetServices()
+	pairs = srv.prodURLs.GetServices()
 	for _, kv := range pairs {
-		api.DevServerUrlMap[kv.Key] = struct{}{}
-		log.Infof("service [%s] add dev api [/%s]", name, kv.Key)
+		srv.DevServerUrlMap[kv.Key] = struct{}{}
+		log.Infof("service [%s] add dev srv [/%s]", name, kv.Key)
 	}
 
-	api.Cluster = NewServiceCluster(name).SetApi(api)
+	srv.Cluster = NewServiceCluster(name, srv)
 
-	err = api.Cluster.Discovery(constants.HTTPServicePath, name, constants.ZookeeperHosts, nil)
+	err = srv.Cluster.Discovery(constants.HTTPServicePath, name, constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	prodselecter := lb.NewSelector(lbmode, nil)
-	api.Cluster.SetProdSelector(prodselecter)
+	srv.Cluster.SetProdSelector(prodselecter)
 
 	devselecter := lb.NewSelector(lbmode, nil)
-	api.Cluster.SetDevSelector(devselecter)
+	srv.Cluster.SetDevSelector(devselecter)
 
-	err = api.Cluster.Commit()
+	err = srv.Cluster.Commit()
 	if err != nil {
 		return nil, err
 	}
 
-	go api.watchURLs()
+	go srv.watchURLs()
 
-	return api, nil
+	return srv, nil
 }
 
-func (this *Api) watchURLs() {
+func (this *Service) watchURLs() {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
@@ -107,6 +107,6 @@ func (this *Api) watchURLs() {
 	this.devURLs.Close()
 }
 
-func (this *Api) Close() {
+func (this *Service) Close() {
 	this.closed = true
 }

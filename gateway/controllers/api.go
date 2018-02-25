@@ -2,13 +2,11 @@ package controllers
 
 import (
 	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/gateway/api"
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/gateway/httpproxy"
-	"git.oschina.net/kuaishangtong/navi/ipfilter"
+	"git.oschina.net/kuaishangtong/navi/gateway/service"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
-	"net"
 	"net/http"
 	"strings"
 )
@@ -22,37 +20,29 @@ func (this *ApiController) Init(ct *context.Context, controllerName, actionName 
 }
 
 func (this *ApiController) Proxy() {
-	service := this.Ctx.Input.Param(":service")
-	apiurl := this.Ctx.Input.Param(":api")
+	service_name := this.Ctx.Input.Param(":service")
+	api_url := this.Ctx.Input.Param(":api")
+	mode := this.Ctx.Input.Header("mode")
 
-	remoteIp := strings.Split(this.Ctx.Request.RemoteAddr, ":")[0]
-	rip := net.ParseIP(remoteIp)
-	mode := constants.PROD_MODE
 	servercounts := 0
 
-	isdeny, isdev := ipfilter.IpFilter(service, rip)
+	isdev := strings.EqualFold(mode, constants.DEV_MODE)
 
-	if isdeny {
-		this.Ctx.ResponseWriter.WriteHeader(403)
-		return
-	}
-
-	api := api.GlobalApiManager.GetApi(service)
-	if api != nil {
+	srv := service.GlobalServiceManager.GetService(service_name)
+	if srv != nil {
 
 		if isdev {
 			// 开发版本
-			servercounts = api.Cluster.DevServerCount()
-			mode = constants.DEV_MODE
-			if _, ok := api.DevServerUrlMap[apiurl]; !ok {
+			servercounts = srv.Cluster.DevServerCount()
+			if _, ok := srv.DevServerUrlMap[api_url]; !ok {
 				respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
 				this.Ctx.ResponseWriter.Write([]byte(respstr))
 				return
 			}
 		} else {
 			// 生产版本
-			servercounts = api.Cluster.ProdServerCount()
-			if _, ok := api.ProdServerUrlMap[apiurl]; !ok {
+			servercounts = srv.Cluster.ProdServerCount()
+			if _, ok := srv.ProdServerUrlMap[api_url]; !ok {
 				respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
 				this.Ctx.ResponseWriter.Write([]byte(respstr))
 				return
@@ -69,11 +59,13 @@ func (this *ApiController) Proxy() {
 			director := func(req *http.Request) *http.Request {
 				req = this.Ctx.Request
 				req.URL.Scheme = "http"
-				host = api.Cluster.Select(service+"/"+apiurl, req.Method, host, mode)
+				// 由 mode 来决定请求时转发到prod的集群上或dev的集群上
+				host = srv.Cluster.Select(service_name+"/"+api_url, req.Method, host, mode)
 				req.URL.Host = host
-				req.URL.Path = "/" + apiurl
+				req.URL.Path = "/" + api_url
 				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
-				log.Infof("remote IP %s, proxy %s service %s api /%s to host %s", remoteIp, mode, service, apiurl, host)
+				log.Infof("remote addr %s, proxy %s service %s api /%s to host %s",
+					this.Ctx.Request.RemoteAddr, mode, service_name, api_url, host)
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}
