@@ -114,6 +114,7 @@ func (this *Service) watchURLs() {
 			prodApiUrlMap := make(map[string]struct{})
 			for _, kv := range p {
 				prodApiUrlMap[kv.Key] = struct{}{}
+				log.Infof("service [%s] update prod api url [/%s]", this.Name, kv.Key)
 			}
 			this.prodApiUrlMap = prodApiUrlMap
 
@@ -122,6 +123,7 @@ func (this *Service) watchURLs() {
 			devApiUrlMap := make(map[string]struct{})
 			for _, kv := range p {
 				devApiUrlMap[kv.Key] = struct{}{}
+				log.Infof("service [%s] update dev api url [/%s]", this.Name, kv.Key)
 			}
 			this.devApiUrlMap = devApiUrlMap
 
