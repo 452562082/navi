@@ -170,7 +170,7 @@ func (p *ipFilter) addDevNets(serviceName string, nets []string) error {
 		if err != nil {
 			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
-		log.Info("service %s add dev nets filter", serviceName, ipnet)
+		log.Infof("service %s add dev nets filter %v", serviceName, ipnet)
 		dev_nets = append(dev_nets, ipnet)
 	}
 
@@ -196,7 +196,7 @@ func (p *ipFilter) addDenyNets(serviceName string, nets []string) error {
 		if err != nil {
 			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
-		log.Info("service %sadd deny nets filter", serviceName, ipnet)
+		log.Infof("service %s add deny nets filter %v", serviceName, ipnet)
 		deny_nets = append(deny_nets, ipnet)
 	}
 
