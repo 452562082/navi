@@ -82,44 +82,21 @@ func newIpFilter(zkhosts []string, zkIpFilterPath string) (*ipFilter, error) {
 		filterStore:    store,
 	}
 
-	//err = _ipfilter.init()
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	event, err := _ipfilter.filterStore.Watch(_ipfilter.zkIpFilterPath, nil)
+	err = _ipfilter.init()
 	if err != nil {
 		return nil, err
 	}
-
-	go _ipfilter.watch(event)
 
 	return _ipfilter, nil
 }
 
 func (p *ipFilter) init() error {
-	ipfilterJsonStr, err := p.filterStore.Get(p.zkIpFilterPath)
+	event, err := p.filterStore.Watch(p.zkIpFilterPath, nil)
 	if err != nil {
 		return err
 	}
 
-	var ip_filter_rules ipFilterRules
-	err = json.Unmarshal(ipfilterJsonStr.Value, &ip_filter_rules)
-	if err != nil {
-		return err
-	}
-
-	for _, ifrule := range ip_filter_rules.IpFilterRules {
-		err = p.addDevNets(ifrule.ServiceName, ifrule.DevIps)
-		if err != nil {
-			return err
-		}
-
-		err = p.addDenyNets(ifrule.ServiceName, ifrule.DenyIps)
-		if err != nil {
-			return err
-		}
-	}
+	go p.watch(event)
 
 	return nil
 }
