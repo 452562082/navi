@@ -16,12 +16,12 @@ func InitServiceManager() error {
 	return err
 }
 
-// ServiceManager 用于动态管理 gateway 可支持的services
+// ServiceManager 用于动态管理 gateway 对外提供的services
 // services信息存储在zookeeper上，后续由平台的管理后台来管理
 type ServiceManager struct {
-	services     map[string]*Service
-	apiDiscovery registry.ServiceDiscovery
-	lock         *sync.RWMutex
+	services         map[string]*Service
+	serviceDiscovery registry.ServiceDiscovery
+	lock             *sync.RWMutex
 }
 
 func newServiceManager() (*ServiceManager, error) {
@@ -31,7 +31,7 @@ func newServiceManager() (*ServiceManager, error) {
 	}
 
 	var err error
-	srvManager.apiDiscovery, err = registry.NewZookeeperDiscovery(constants.URLServicePath, "", constants.ZookeeperHosts, nil)
+	srvManager.serviceDiscovery, err = registry.NewZookeeperDiscovery(constants.URLServicePath, "", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func newServiceManager() (*ServiceManager, error) {
 }
 
 func (this *ServiceManager) init() error {
-	pairs := this.apiDiscovery.GetServices()
+	pairs := this.serviceDiscovery.GetServices()
 
 	for _, kv := range pairs {
 		api, err := NewService(kv.Key, lb.RoundRobin)
@@ -63,7 +63,7 @@ func (this *ServiceManager) init() error {
 func (this *ServiceManager) watch() {
 	for {
 		select {
-		case p := <-this.apiDiscovery.WatchService():
+		case p := <-this.serviceDiscovery.WatchService():
 			// 动态刷新API
 			var oldmap, newmap map[string]struct{} = make(map[string]struct{}), make(map[string]struct{})
 			for k, _ := range this.services {
