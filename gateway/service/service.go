@@ -26,6 +26,7 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 	srv := &Service{
 		Name:          name,
 		prodApiUrlMap: make(map[string]struct{}),
+		devApiUrlMap:  make(map[string]struct{}),
 		closed:        false,
 	}
 
