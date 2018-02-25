@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/lb"
 	"git.oschina.net/kuaishangtong/navi/registry"
@@ -39,12 +40,14 @@ func NewServiceCluster(name string, service *Service) *ServiceCluster {
 
 func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
 	s.UpdateServer(sc.getProdServers())
+	log.Infof("service [%s] cluster add prod servers %v", sc.service.Name, sc.getProdServers())
 	sc.prodSelector = s
 	return sc
 }
 
 func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
 	s.UpdateServer(sc.getDevServers())
+	log.Infof("service [%s] cluster add dev servers %v", sc.service.Name, sc.getDevServers())
 	sc.devSelector = s
 	return sc
 }
@@ -110,6 +113,7 @@ func (sc *ServiceCluster) prodServerDiscovery() {
 
 		if sc.prodSelector != nil {
 			sc.prodSelector.UpdateServer(prodServerIps)
+			log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
 		}
 	}
 }
@@ -131,6 +135,7 @@ func (sc *ServiceCluster) devServerDiscovery() {
 
 		if sc.devSelector != nil {
 			sc.devSelector.UpdateServer(devServerIps)
+			log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, devServerIps)
 		}
 	}
 }
