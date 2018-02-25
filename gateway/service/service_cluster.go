@@ -8,6 +8,7 @@ import (
 	"git.oschina.net/kuaishangtong/navi/registry"
 	"github.com/docker/libkv/store"
 	"strings"
+	"time"
 )
 
 // ServiceCluster 主要用于管理对应 Service 下的集群
@@ -25,8 +26,7 @@ type ServiceCluster struct {
 	prodSelector lb.Selector
 	devSelector  lb.Selector
 
-	prod_ch chan []*registry.KVPair
-	dev_ch  chan []*registry.KVPair
+	closed bool
 }
 
 func NewServiceCluster(name string, service *Service) *ServiceCluster {
@@ -65,8 +65,7 @@ func (sc *ServiceCluster) Discovery(basePath string, servicePath string, zkAddr 
 }
 
 func (sc *ServiceCluster) Commit() error {
-	go sc.prodServerDiscovery()
-	go sc.devServerDiscovery()
+	go sc.srverDiscovery()
 	return nil
 }
 
@@ -97,52 +96,49 @@ func (sc *ServiceCluster) getDevServers() map[string]string {
 }
 
 // 监听zookeeper，发现 服务 prod 版本的机器
-func (sc *ServiceCluster) prodServerDiscovery() {
-	ch := sc.prodIpDiscovery.WatchService()
-	if ch != nil {
-		sc.prod_ch = ch
-	}
+func (sc *ServiceCluster) srverDiscovery() {
 
-	for pairs := range ch {
-		log.Debug("prodServerDiscovery")
-		prodServerIps := make(map[string]string)
-		for _, p := range pairs {
-			prodServerIps[p.Key] = p.Value
-		}
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
-		sc.prodServerIps = prodServerIps
+	for !sc.closed {
+		select {
+		// 监听zookeeper，发现服务 prod版本的机器更变
+		case prod_ch := <-sc.prodIpDiscovery.WatchService():
+			prodServerIps := make(map[string]string)
+			for _, p := range prod_ch {
+				prodServerIps[p.Key] = p.Value
+			}
 
-		if sc.prodSelector != nil {
-			sc.prodSelector.UpdateServer(prodServerIps)
-			log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
-		}
-	}
-}
+			sc.prodServerIps = prodServerIps
 
-// 监听zookeeper，发现 服务 dev 版本的机器
-func (sc *ServiceCluster) devServerDiscovery() {
-	ch := sc.devIpDiscovery.WatchService()
-	if ch != nil {
-		sc.dev_ch = ch
-	}
+			if sc.prodSelector != nil {
+				sc.prodSelector.UpdateServer(prodServerIps)
+				log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
+			}
 
-	for pairs := range ch {
-		log.Debug("devServerDiscovery")
-		devServerIps := make(map[string]string)
-		for _, p := range pairs {
-			devServerIps[p.Key] = p.Value
-		}
+			// 监听zookeeper，发现服务 dev 版本的机器更变
+		case dev_ch := <-sc.devIpDiscovery.WatchService():
+			devServerIps := make(map[string]string)
+			for _, p := range dev_ch {
+				devServerIps[p.Key] = p.Value
+			}
 
-		sc.devServerIps = devServerIps
+			sc.devServerIps = devServerIps
 
-		if sc.devSelector != nil {
-			sc.devSelector.UpdateServer(devServerIps)
-			log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, devServerIps)
+			if sc.devSelector != nil {
+				sc.devSelector.UpdateServer(devServerIps)
+				log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, devServerIps)
+			}
+		case <-ticker.C:
 		}
 	}
+
 }
 
 func (sc *ServiceCluster) Close() {
+	sc.closed = true
+
 	sc.prodIpDiscovery.Close()
 	sc.devIpDiscovery.Close()
 }
