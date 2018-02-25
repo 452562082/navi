@@ -87,7 +87,7 @@ func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipFilterManager, err
 		return nil, err
 	}
 
-	go _ipfilter.watchIpfilters()
+	go _ipfilter.watch()
 
 	return _ipfilter, nil
 }
@@ -119,7 +119,7 @@ func (p *ipFilterManager) init() error {
 	return nil
 }
 
-func (p *ipFilterManager) watchIpfilters() {
+func (p *ipFilterManager) watch() {
 	for {
 		event, err := p.filterStore.Watch(p.zkIpFilterPath, nil)
 		if err != nil {
