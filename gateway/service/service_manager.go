@@ -35,6 +35,7 @@ func newServiceManager() (*ServiceManager, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	log.Infof("Discovery Service list in %s", constants.URLServicePath)
 
 	err = srvManager.init()

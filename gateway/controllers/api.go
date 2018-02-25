@@ -55,6 +55,10 @@ func (this *ApiController) Proxy() {
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
+			if err != nil {
+				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
+					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, err)
+			}
 		}
 
 		if err != nil || servercounts == 0 {
