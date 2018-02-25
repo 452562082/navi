@@ -87,7 +87,12 @@ func newIpFilter(zkhosts []string, zkIpFilterPath string) (*ipFilter, error) {
 		return nil, err
 	}
 
-	go _ipfilter.watch()
+	event, err := _ipfilter.filterStore.Watch(_ipfilter.zkIpFilterPath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	go _ipfilter.watch(event)
 
 	return _ipfilter, nil
 }
@@ -119,35 +124,29 @@ func (p *ipFilter) init() error {
 	return nil
 }
 
-func (p *ipFilter) watch() {
+func (p *ipFilter) watch(event <-chan *store.KVPair) {
 	for {
-		event, err := p.filterStore.Watch(p.zkIpFilterPath, nil)
-		if err != nil {
-			log.Error(err)
-			continue
-		}
-
-		log.Debugf("Watch %s", p.zkIpFilterPath)
-
-		ipfilterJsonStr := <-event
-		var ip_filter_rules ipFilterRules
-		err = json.Unmarshal(ipfilterJsonStr.Value, &ip_filter_rules)
-		if err != nil {
-			log.Error(err)
-			continue
-		}
-
-		for _, ifrule := range ip_filter_rules.IpFilterRules {
-			err = p.addDevNets(ifrule.ServiceName, ifrule.DevIps)
+		select {
+		case ipfilterJsonStr := <-event:
+			var ip_filter_rules ipFilterRules
+			err := json.Unmarshal(ipfilterJsonStr.Value, &ip_filter_rules)
 			if err != nil {
 				log.Error(err)
 				continue
 			}
 
-			err = p.addDenyNets(ifrule.ServiceName, ifrule.DenyIps)
-			if err != nil {
-				log.Error(err)
-				continue
+			for _, ifrule := range ip_filter_rules.IpFilterRules {
+				err = p.addDevNets(ifrule.ServiceName, ifrule.DevIps)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+
+				err = p.addDenyNets(ifrule.ServiceName, ifrule.DenyIps)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
 			}
 		}
 
@@ -171,7 +170,7 @@ func (p *ipFilter) addDevNets(serviceName string, nets []string) error {
 		if err != nil {
 			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
-		log.Info("add dev nets filter", ipnet)
+		log.Info("service %s add dev nets filter", serviceName, ipnet)
 		dev_nets = append(dev_nets, ipnet)
 	}
 
@@ -197,7 +196,7 @@ func (p *ipFilter) addDenyNets(serviceName string, nets []string) error {
 		if err != nil {
 			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
-		log.Info("add deny nets filter", ipnet)
+		log.Info("service %sadd deny nets filter", serviceName, ipnet)
 		deny_nets = append(deny_nets, ipnet)
 	}
 
