@@ -111,6 +111,8 @@ func (sc *ServiceCluster) prodServerDiscovery() {
 
 		sc.prodServerIps = prodServerIps
 
+		log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
+
 		if sc.prodSelector != nil {
 			sc.prodSelector.UpdateServer(prodServerIps)
 			log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
