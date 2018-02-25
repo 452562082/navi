@@ -127,6 +127,8 @@ func (p *ipFilter) watch() {
 			continue
 		}
 
+		log.Debugf("Watch %s", p.zkIpFilterPath)
+
 		ipfilterJsonStr := <-event
 		var ip_filter_rules ipFilterRules
 		err = json.Unmarshal(ipfilterJsonStr.Value, &ip_filter_rules)
