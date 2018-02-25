@@ -99,6 +99,7 @@ func (sc *ServiceCluster) getDevServers() map[string]string {
 // 监听zookeeper，发现 服务 prod 版本的机器
 func (sc *ServiceCluster) prodServerDiscovery() {
 	ch := sc.prodIpDiscovery.WatchService()
+	log.Debug("prodServerDiscovery")
 	if ch != nil {
 		sc.prod_ch = ch
 	}
@@ -111,8 +112,6 @@ func (sc *ServiceCluster) prodServerDiscovery() {
 
 		sc.prodServerIps = prodServerIps
 
-		log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
-
 		if sc.prodSelector != nil {
 			sc.prodSelector.UpdateServer(prodServerIps)
 			log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
@@ -123,6 +122,7 @@ func (sc *ServiceCluster) prodServerDiscovery() {
 // 监听zookeeper，发现 服务 dev 版本的机器
 func (sc *ServiceCluster) devServerDiscovery() {
 	ch := sc.devIpDiscovery.WatchService()
+	log.Debug("devServerDiscovery")
 	if ch != nil {
 		sc.dev_ch = ch
 	}
