@@ -10,23 +10,23 @@ import (
 	"sync"
 )
 
-var __ipfilterctl *ipfilterManager
+var __ipFilterManager *ipFilterManager
 
 /*
  *	zkhosts: 			zookeeper 连接地址
  *	zkIpFilterPath:		ip过滤保存json的zookeeper节点 默认 /navi/ipfilter
  */
-func InitFilter(zkhosts []string, zkIpFilterPath string) (err error) {
-	__ipfilterctl, err = newIpfilter(zkhosts, zkIpFilterPath)
+func InitFilter(zkHosts []string, zkIpFilterPath string) (err error) {
+	__ipFilterManager, err = newIpfilter(zkHosts, zkIpFilterPath)
 	return
 }
 
 func IpFilter(serviceName string, ip net.IP) (isdeny bool, isdev bool) {
 
-	__ipfilterctl.rwlock.RLock()
-	defer __ipfilterctl.rwlock.RUnlock()
+	__ipFilterManager.rwlock.RLock()
+	defer __ipFilterManager.rwlock.RUnlock()
 
-	if deny_nets, ok := __ipfilterctl.denyNetMap[serviceName]; ok {
+	if deny_nets, ok := __ipFilterManager.denyNetMap[serviceName]; ok {
 		if len(deny_nets) != 0 {
 			for _, on := range deny_nets {
 				if on.Contains(ip) {
@@ -36,7 +36,7 @@ func IpFilter(serviceName string, ip net.IP) (isdeny bool, isdev bool) {
 		}
 	}
 
-	if dev_nets, ok := __ipfilterctl.devNetMap[serviceName]; ok {
+	if dev_nets, ok := __ipFilterManager.devNetMap[serviceName]; ok {
 		if len(dev_nets) != 0 {
 			for _, on := range dev_nets {
 				if on.Contains(ip) {
@@ -59,7 +59,7 @@ type ipfilters struct {
 	Ipfilters []*ipfilter `json:"ipfilters"`
 }
 
-type ipfilterManager struct {
+type ipFilterManager struct {
 	zkIpFilterPath string
 
 	devNetMap   map[string][]*net.IPNet
@@ -68,13 +68,13 @@ type ipfilterManager struct {
 	filterStore store.Store
 }
 
-func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipfilterManager, error) {
+func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipFilterManager, error) {
 	store, err := libkv.NewStore(store.ZK, zkhosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	_ipfilter := &ipfilterManager{
+	_ipfilter := &ipFilterManager{
 		zkIpFilterPath: zkIpFilterPath,
 		devNetMap:      make(map[string][]*net.IPNet),
 		denyNetMap:     make(map[string][]*net.IPNet),
@@ -92,7 +92,7 @@ func newIpfilter(zkhosts []string, zkIpFilterPath string) (*ipfilterManager, err
 	return _ipfilter, nil
 }
 
-func (p *ipfilterManager) init() error {
+func (p *ipFilterManager) init() error {
 	ipfilterJsonStr, err := p.filterStore.Get(p.zkIpFilterPath)
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func (p *ipfilterManager) init() error {
 	return nil
 }
 
-func (p *ipfilterManager) watchIpfilters() {
+func (p *ipFilterManager) watchIpfilters() {
 	for {
 		event, err := p.filterStore.Watch(p.zkIpFilterPath, nil)
 		if err != nil {
@@ -152,17 +152,14 @@ func (p *ipfilterManager) watchIpfilters() {
 	}
 }
 
-func (p *ipfilterManager) addDevNets(serviceName string, nets []string) error {
+func (p *ipFilterManager) addDevNets(serviceName string, nets []string) error {
 	if len(nets) == 0 {
 		return fmt.Errorf("dev nets is empty")
 	}
 
 	var dev_nets []*net.IPNet
-	//var exist bool
 
-	//if dev_net, exist = devNetMap[serviceName]; !exist {
 	dev_nets = make([]*net.IPNet, 0, len(nets))
-	//}
 
 	for _, ip := range nets {
 		if len(ip) == 0 {
@@ -183,16 +180,20 @@ func (p *ipfilterManager) addDevNets(serviceName string, nets []string) error {
 	return nil
 }
 
-func (p *ipfilterManager) addDenyNets(serviceName string, nets []string) error {
+func (p *ipFilterManager) addDenyNets(serviceName string, nets []string) error {
+	if len(nets) == 0 {
+		return fmt.Errorf("deny nets is empty")
+	}
+
 	deny_nets := make([]*net.IPNet, 0, len(nets))
 
-	for _, n := range nets {
-		if len(n) == 0 {
+	for _, ip := range nets {
+		if len(ip) == 0 {
 			continue
 		}
-		_, ipnet, err := net.ParseCIDR(n)
+		_, ipnet, err := net.ParseCIDR(ip)
 		if err != nil {
-			return fmt.Errorf("ParseCIDR %s err: %v", n, err)
+			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
 		log.Info("add deny nets filter", ipnet)
 		deny_nets = append(deny_nets, ipnet)
