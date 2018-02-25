@@ -82,10 +82,10 @@ func newIpFilter(zkhosts []string, zkIpFilterPath string) (*ipFilter, error) {
 		filterStore:    store,
 	}
 
-	err = _ipfilter.init()
-	if err != nil {
-		return nil, err
-	}
+	//err = _ipfilter.init()
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	event, err := _ipfilter.filterStore.Watch(_ipfilter.zkIpFilterPath, nil)
 	if err != nil {

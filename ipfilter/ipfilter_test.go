@@ -14,7 +14,8 @@ const _ipFilterRules = `{
     {
       "service_name": "MyTest",
       "dev_ips": [
-        "192.168.0.1/24"
+        "192.168.0.1/24",
+        "192.168.1.1/32"
       ],
       "deny_ips": [
         "192.168.1.1/24"
@@ -31,6 +32,7 @@ const _ipFilterRules = `{
     }
   ]
 }
+
 `
 
 func TestAddIpFilterRule(t *testing.T) {
