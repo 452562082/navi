@@ -15,7 +15,7 @@ type Agent struct {
 }
 
 // NewServer returns a server.
-func NewAgent(servername, address string, typ string, options ...OptionFn) (*Agent, error) {
+func NewAgent(servername, address string, typ string) (*Agent, error) {
 	var err error
 
 	a := &Agent{
@@ -23,10 +23,6 @@ func NewAgent(servername, address string, typ string, options ...OptionFn) (*Age
 		servername: servername,
 		address:    address,
 		typ:        typ,
-	}
-
-	for _, op := range options {
-		op(a)
 	}
 
 	switch typ {

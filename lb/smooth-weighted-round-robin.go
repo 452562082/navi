@@ -8,13 +8,6 @@ type Weighted struct {
 	EffectiveWeight int
 }
 
-// func (w *Weighted) fail() {
-// 	w.EffectiveWeight -= w.Weight
-// 	if w.EffectiveWeight < 0 {
-// 		w.EffectiveWeight = 0
-// 	}
-// }
-
 //https://github.com/phusion/nginx/commit/27e94984486058d73157038f7950a0a36ecc6e35
 func nextWeighted(servers []*Weighted) (best *Weighted) {
 	total := 0
