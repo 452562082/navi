@@ -131,9 +131,9 @@ func (p *ipFilter) watch(event <-chan *store.KVPair) {
 }
 
 func (p *ipFilter) addDevNets(serviceName string, nets []string) error {
-	if len(nets) == 0 {
-		return fmt.Errorf("dev nets is empty")
-	}
+	//if len(nets) == 0 {
+	//	return fmt.Errorf("dev nets is empty")
+	//}
 
 	var dev_nets []*net.IPNet
 
@@ -147,7 +147,7 @@ func (p *ipFilter) addDevNets(serviceName string, nets []string) error {
 		if err != nil {
 			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
-		log.Infof("service %s add dev nets filter %v", serviceName, ipnet)
+		log.Infof("service %s add dev network %v", serviceName, ipnet)
 		dev_nets = append(dev_nets, ipnet)
 	}
 
@@ -159,9 +159,9 @@ func (p *ipFilter) addDevNets(serviceName string, nets []string) error {
 }
 
 func (p *ipFilter) addDenyNets(serviceName string, nets []string) error {
-	if len(nets) == 0 {
-		return fmt.Errorf("deny nets is empty")
-	}
+	//if len(nets) == 0 {
+	//	return fmt.Errorf("deny network is empty")
+	//}
 
 	deny_nets := make([]*net.IPNet, 0, len(nets))
 
@@ -173,7 +173,7 @@ func (p *ipFilter) addDenyNets(serviceName string, nets []string) error {
 		if err != nil {
 			return fmt.Errorf("ParseCIDR %s err: %v", ip, err)
 		}
-		log.Infof("service %s add deny nets filter %v", serviceName, ipnet)
+		log.Infof("service %s add deny network %v", serviceName, ipnet)
 		deny_nets = append(deny_nets, ipnet)
 	}
 
