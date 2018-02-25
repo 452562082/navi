@@ -39,15 +39,23 @@ func NewServiceCluster(name string, service *Service) *ServiceCluster {
 }
 
 func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
-	s.UpdateServer(sc.getProdServers())
-	log.Infof("service [%s] cluster add prod servers %v", sc.service.Name, sc.getProdServers())
+	servers := sc.getProdServers()
+	s.UpdateServer(servers)
+	for ip, _ := range servers {
+		log.Infof("service [%s] cluster add prod server ip %s", sc.service.Name, ip)
+	}
+
 	sc.prodSelector = s
 	return sc
 }
 
 func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
-	s.UpdateServer(sc.getDevServers())
-	log.Infof("service [%s] cluster add dev servers %v", sc.service.Name, sc.getDevServers())
+	servers := sc.getDevServers()
+	s.UpdateServer(servers)
+	for ip, _ := range servers {
+		log.Infof("service [%s] cluster add dev server ip %s", sc.service.Name, ip)
+	}
+
 	sc.devSelector = s
 	return sc
 }
