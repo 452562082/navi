@@ -112,20 +112,23 @@ func (this *Service) watchURLs() {
 		// 生产版本 /prod
 		case p := <-this.prodApiURLs.WatchService():
 			prodApiUrlMap := make(map[string]struct{})
+			urls := make([]string, 0, len(p))
 			for _, kv := range p {
 				prodApiUrlMap[kv.Key] = struct{}{}
-				log.Infof("service [%s] update prod api url [/%s]", this.Name, kv.Key)
+				urls = append(urls, kv.Key)
 			}
 			this.prodApiUrlMap = prodApiUrlMap
-
+			log.Infof("service [%s] update prod api urls %v", this.Name, urls)
 			// 开发版本 /dev
 		case p := <-this.devApiURLs.WatchService():
 			devApiUrlMap := make(map[string]struct{})
+			urls := make([]string, 0, len(p))
 			for _, kv := range p {
 				devApiUrlMap[kv.Key] = struct{}{}
-				log.Infof("service [%s] update dev api url [/%s]", this.Name, kv.Key)
+				urls = append(urls, kv.Key)
 			}
 			this.devApiUrlMap = devApiUrlMap
+			log.Infof("service [%s] update dev api urls %v", this.Name, urls)
 
 		case <-ticker.C:
 		}

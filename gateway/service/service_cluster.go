@@ -106,29 +106,33 @@ func (sc *ServiceCluster) srverDiscovery() {
 		// 监听zookeeper，发现服务 prod版本的机器更变
 		case prod_ch := <-sc.prodIpDiscovery.WatchService():
 			prodServerIps := make(map[string]string)
+			ips := make([]string, 0, len(prod_ch))
 			for _, p := range prod_ch {
 				prodServerIps[p.Key] = p.Value
+				ips = append(ips, p.Key)
 			}
 
 			sc.prodServerIps = prodServerIps
 
 			if sc.prodSelector != nil {
 				sc.prodSelector.UpdateServer(prodServerIps)
-				log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, prodServerIps)
+				log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, ips)
 			}
 
 			// 监听zookeeper，发现服务 dev 版本的机器更变
 		case dev_ch := <-sc.devIpDiscovery.WatchService():
 			devServerIps := make(map[string]string)
+			ips := make([]string, 0, len(dev_ch))
 			for _, p := range dev_ch {
 				devServerIps[p.Key] = p.Value
+				ips = append(ips, p.Key)
 			}
 
 			sc.devServerIps = devServerIps
 
 			if sc.devSelector != nil {
 				sc.devSelector.UpdateServer(devServerIps)
-				log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, devServerIps)
+				log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, ips)
 			}
 		case <-ticker.C:
 		}
