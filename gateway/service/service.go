@@ -31,7 +31,7 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 
 	var err error
 
-	/* 获取 生产版本 /prod  url */
+	/* 获取 生产版本 /prod  api url */
 	srv.prodApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
@@ -40,19 +40,19 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 	pairs := srv.prodApiURLs.GetServices()
 	for _, kv := range pairs {
 		srv.prodApiUrlMap[kv.Key] = struct{}{}
-		log.Infof("service [%s] add prod srv [/%s]", name, kv.Key)
+		log.Infof("service [%s] add prod api url [/%s]", name, kv.Key)
 	}
 
-	/* 获取 开发版本 /dev  url */
+	/* 获取 开发版本 /dev api url */
 	srv.devApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/dev", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	pairs = srv.prodApiURLs.GetServices()
+	pairs = srv.devApiURLs.GetServices()
 	for _, kv := range pairs {
 		srv.devApiUrlMap[kv.Key] = struct{}{}
-		log.Infof("service [%s] add dev srv [/%s]", name, kv.Key)
+		log.Infof("service [%s] add dev api url [/%s]", name, kv.Key)
 	}
 
 	srv.Cluster = NewServiceCluster(name, srv)
@@ -100,6 +100,7 @@ func (this *Service) GetServerCount(mode string) int {
 	return 0
 }
 
+// 监听 service 的 api 更变
 func (this *Service) watchURLs() {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
@@ -116,11 +117,11 @@ func (this *Service) watchURLs() {
 
 			// 开发版本 /dev
 		case p := <-this.devApiURLs.WatchService():
-			prodApiUrlMap := make(map[string]struct{})
+			devApiUrlMap := make(map[string]struct{})
 			for _, kv := range p {
-				prodApiUrlMap[kv.Key] = struct{}{}
+				devApiUrlMap[kv.Key] = struct{}{}
 			}
-			this.devApiUrlMap = prodApiUrlMap
+			this.devApiUrlMap = devApiUrlMap
 
 		case <-ticker.C:
 		}

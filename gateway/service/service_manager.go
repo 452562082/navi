@@ -124,5 +124,6 @@ func (this *ServiceManager) GetService(name string) *Service {
 		return api
 	}
 	this.lock.RUnlock()
+
 	return nil
 }

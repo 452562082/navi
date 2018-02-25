@@ -38,13 +38,13 @@ func NewServiceCluster(name string, service *Service) *ServiceCluster {
 }
 
 func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
-	s.UpdateServer(sc.GetProdServers())
+	s.UpdateServer(sc.getProdServers())
 	sc.prodSelector = s
 	return sc
 }
 
 func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
-	s.UpdateServer(sc.GetDevServers())
+	s.UpdateServer(sc.getDevServers())
 	sc.devSelector = s
 	return sc
 }
@@ -75,7 +75,7 @@ func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode s
 	return sc.prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
 }
 
-func (sc *ServiceCluster) GetProdServers() map[string]string {
+func (sc *ServiceCluster) getProdServers() map[string]string {
 	kvpairs := sc.prodIpDiscovery.GetServices()
 	prodServerIps := make(map[string]string)
 	for _, p := range kvpairs {
@@ -84,7 +84,7 @@ func (sc *ServiceCluster) GetProdServers() map[string]string {
 	return prodServerIps
 }
 
-func (sc *ServiceCluster) GetDevServers() map[string]string {
+func (sc *ServiceCluster) getDevServers() map[string]string {
 	kvpairs := sc.devIpDiscovery.GetServices()
 	devServerIps := make(map[string]string)
 	for _, p := range kvpairs {
@@ -135,7 +135,7 @@ func (sc *ServiceCluster) devServerDiscovery() {
 	}
 }
 
-
 func (sc *ServiceCluster) Close() {
 	sc.prodIpDiscovery.Close()
+	sc.devIpDiscovery.Close()
 }

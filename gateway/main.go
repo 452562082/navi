@@ -41,7 +41,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = ipfilter.InitFilter(constants.ZookeeperHosts, constants.IPFilterPath)
+	err = ipfilter.InitIpFilter(constants.ZookeeperHosts, constants.IPFilterPath)
 	if err != nil {
 		log.Fatal(err)
 	}
