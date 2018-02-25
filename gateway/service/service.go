@@ -107,6 +107,7 @@ func (this *Service) watchURLs() {
 
 	for !this.closed {
 		select {
+
 		// 生产版本 /prod
 		case p := <-this.prodApiURLs.WatchService():
 			prodApiUrlMap := make(map[string]struct{})

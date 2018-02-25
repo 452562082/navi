@@ -26,8 +26,9 @@ func (this *ApiController) Proxy() {
 	if srv != nil {
 
 		if api_exist := srv.ExistApi(api_url, mode); !api_exist {
-			respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
-			this.Ctx.ResponseWriter.Write([]byte(respstr))
+			//respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
+			//this.Ctx.ResponseWriter.Write([]byte(respstr))
+			this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
 			return
 		}
 
@@ -48,21 +49,22 @@ func (this *ApiController) Proxy() {
 				req.URL.Host = host
 				req.URL.Path = "/" + api_url
 				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
-				log.Infof("remote addr %s, proxy %s service %s api /%s to host %s",
-					this.Ctx.Request.RemoteAddr, mode, service_name, api_url, host)
+				log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
+					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director}
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 		}
 
-		if err != nil {
+		if err != nil || servercounts == 0 {
 			this.Ctx.ResponseWriter.WriteHeader(http.StatusBadGateway)
 		}
 		return
 	}
 
-	respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
-	this.Ctx.ResponseWriter.Write([]byte(respstr))
+	//respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
+	//this.Ctx.ResponseWriter.Write([]byte(respstr))
+	this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
 	return
 }
