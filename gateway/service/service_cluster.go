@@ -122,7 +122,7 @@ func (sc *ServiceCluster) prodServerDiscovery() {
 func (sc *ServiceCluster) devServerDiscovery() {
 	ch := sc.devIpDiscovery.WatchService()
 	if ch != nil {
-		sc.prod_ch = ch
+		sc.dev_ch = ch
 	}
 
 	for pairs := range ch {
