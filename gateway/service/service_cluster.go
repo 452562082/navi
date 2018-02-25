@@ -135,13 +135,6 @@ func (sc *ServiceCluster) devServerDiscovery() {
 	}
 }
 
-func (sc *ServiceCluster) ProdServerCount() int {
-	return len(sc.prodServerIps)
-}
-
-func (sc *ServiceCluster) DevServerCount() int {
-	return len(sc.devServerIps)
-}
 
 func (sc *ServiceCluster) Close() {
 	sc.prodIpDiscovery.Close()

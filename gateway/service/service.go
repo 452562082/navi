@@ -5,6 +5,7 @@ import (
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/lb"
 	"git.oschina.net/kuaishangtong/navi/registry"
+	"strings"
 	"time"
 )
 
@@ -12,45 +13,45 @@ type Service struct {
 	Name    string
 	Cluster *ServiceCluster
 
-	prodURLs registry.ServiceDiscovery
-	devURLs  registry.ServiceDiscovery
+	prodApiURLs registry.ServiceDiscovery
+	devApiURLs  registry.ServiceDiscovery
 
-	ProdServerUrlMap map[string]struct{}
-	DevServerUrlMap  map[string]struct{}
+	prodApiUrlMap map[string]struct{}
+	devApiUrlMap  map[string]struct{}
 
 	closed bool
 }
 
 func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 	srv := &Service{
-		Name:             name,
-		ProdServerUrlMap: make(map[string]struct{}),
-		closed:           false,
+		Name:          name,
+		prodApiUrlMap: make(map[string]struct{}),
+		closed:        false,
 	}
 
 	var err error
 
 	/* 获取 生产版本 /prod  url */
-	srv.prodURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
+	srv.prodApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	pairs := srv.prodURLs.GetServices()
+	pairs := srv.prodApiURLs.GetServices()
 	for _, kv := range pairs {
-		srv.ProdServerUrlMap[kv.Key] = struct{}{}
+		srv.prodApiUrlMap[kv.Key] = struct{}{}
 		log.Infof("service [%s] add prod srv [/%s]", name, kv.Key)
 	}
 
 	/* 获取 开发版本 /dev  url */
-	srv.devURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/dev", constants.ZookeeperHosts, nil)
+	srv.devApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/dev", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	pairs = srv.prodURLs.GetServices()
+	pairs = srv.prodApiURLs.GetServices()
 	for _, kv := range pairs {
-		srv.DevServerUrlMap[kv.Key] = struct{}{}
+		srv.devApiUrlMap[kv.Key] = struct{}{}
 		log.Infof("service [%s] add dev srv [/%s]", name, kv.Key)
 	}
 
@@ -77,6 +78,28 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 	return srv, nil
 }
 
+func (this *Service) ExistApi(api string, mode string) bool {
+
+	if strings.EqualFold(mode, constants.DEV_MODE) {
+		_, exist := this.devApiUrlMap[api]
+		return exist
+	} else if strings.EqualFold(mode, constants.PROD_MODE) {
+		_, exist := this.prodApiUrlMap[api]
+		return exist
+	}
+
+	return false
+}
+
+func (this *Service) GetServerCount(mode string) int {
+	if strings.EqualFold(mode, constants.DEV_MODE) {
+		return len(this.Cluster.devServerIps)
+	} else if strings.EqualFold(mode, constants.PROD_MODE) {
+		return len(this.Cluster.prodServerIps)
+	}
+	return 0
+}
+
 func (this *Service) watchURLs() {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
@@ -84,27 +107,27 @@ func (this *Service) watchURLs() {
 	for !this.closed {
 		select {
 		// 生产版本 /prod
-		case p := <-this.prodURLs.WatchService():
-			ProdServerUrlMap := make(map[string]struct{})
+		case p := <-this.prodApiURLs.WatchService():
+			prodApiUrlMap := make(map[string]struct{})
 			for _, kv := range p {
-				ProdServerUrlMap[kv.Key] = struct{}{}
+				prodApiUrlMap[kv.Key] = struct{}{}
 			}
-			this.ProdServerUrlMap = ProdServerUrlMap
+			this.prodApiUrlMap = prodApiUrlMap
 
 			// 开发版本 /dev
-		case p := <-this.devURLs.WatchService():
-			ProdServerUrlMap := make(map[string]struct{})
+		case p := <-this.devApiURLs.WatchService():
+			prodApiUrlMap := make(map[string]struct{})
 			for _, kv := range p {
-				ProdServerUrlMap[kv.Key] = struct{}{}
+				prodApiUrlMap[kv.Key] = struct{}{}
 			}
-			this.DevServerUrlMap = ProdServerUrlMap
+			this.devApiUrlMap = prodApiUrlMap
 
 		case <-ticker.C:
 		}
 	}
 
-	this.prodURLs.Close()
-	this.devURLs.Close()
+	this.prodApiURLs.Close()
+	this.devApiURLs.Close()
 }
 
 func (this *Service) Close() {

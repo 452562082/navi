@@ -2,13 +2,11 @@ package controllers
 
 import (
 	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/gateway/httpproxy"
 	"git.oschina.net/kuaishangtong/navi/gateway/service"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"net/http"
-	"strings"
 )
 
 type ApiController struct {
@@ -24,30 +22,16 @@ func (this *ApiController) Proxy() {
 	api_url := this.Ctx.Input.Param(":api")
 	mode := this.Ctx.Input.Header("mode")
 
-	servercounts := 0
-
-	isdev := strings.EqualFold(mode, constants.DEV_MODE)
-
 	srv := service.GlobalServiceManager.GetService(service_name)
 	if srv != nil {
 
-		if isdev {
-			// 开发版本
-			servercounts = srv.Cluster.DevServerCount()
-			if _, ok := srv.DevServerUrlMap[api_url]; !ok {
-				respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
-				this.Ctx.ResponseWriter.Write([]byte(respstr))
-				return
-			}
-		} else {
-			// 生产版本
-			servercounts = srv.Cluster.ProdServerCount()
-			if _, ok := srv.ProdServerUrlMap[api_url]; !ok {
-				respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
-				this.Ctx.ResponseWriter.Write([]byte(respstr))
-				return
-			}
+		if api_exist := srv.ExistApi(api_url, mode); !api_exist {
+			respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
+			this.Ctx.ResponseWriter.Write([]byte(respstr))
+			return
 		}
+
+		servercounts := srv.GetServerCount(mode)
 
 		var err error
 		var firstCall bool = true
