@@ -221,7 +221,6 @@ import (
 	timpl "{{.PkgPath}}/thriftservice/impl"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/lb"
-	"git.oschina.net/kuaishangtong/navi/ipfilter"
 	"os/signal"
 	"os"
 	"syscall"
@@ -242,11 +241,6 @@ func main() {
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
-
-	err = ipfilter.InitFilter(s.Config.ZookeeperServersAddr(), s.Config.IPFilterPath())
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	select {
 	case <-exit:
