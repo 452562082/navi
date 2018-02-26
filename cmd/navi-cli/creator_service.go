@@ -74,8 +74,8 @@ func (s {{.ServiceName}}) ServiceName() (str string, err error) {
 	return "serviceName",nil
 }
 
-func (s {{.ServiceName}}) ServiceType() (str string, err error) {
-	return "ServiceType",nil
+func (s {{.ServiceName}}) ServiceMode() (str string, err error) {
+	return "ServiceMode",nil
 }
 
 // SayHello is an example entry point
