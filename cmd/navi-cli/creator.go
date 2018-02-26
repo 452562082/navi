@@ -133,7 +133,7 @@ func main() {
 	}
 
 	log.Infof("Register %s host to Registry", s.Config.ThriftServiceName())
-	err = r.Register(s.Config.ThriftServiceName(), nil, "")
+	err = r.Register(s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), nil, "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -146,7 +146,7 @@ func main() {
 	for _, v := range s.Config.UrlMappings() {
 		path := strFirstToUpper(v[1])
 
-		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ServiceVersionType() + "/" + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersion() + "/" + path
+		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode() + "/" + path
 		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
 		err = kv.Put(key, nil, nil)
 		if err != nil {

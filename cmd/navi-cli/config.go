@@ -17,8 +17,10 @@ const (
 	thriftServiceName             = "thrift_service_name"
 	thriftServiceHost             = "thrift_service_host"
 	thriftServicePort             = "thrift_service_port"
-	serviceVersionType			 = "service_version_type"
+	maxConnNum						 = "max_conn_num"
+	serviceVersionMode			 = "service_version_mode"
 	serviceVersion 				 = "service_version"
+	ipFilterPath					 = "ip_filter_path"
 	zookeeperServersAddr          = "zookeeper_servers_addr"
 	zookeeperURLServicePath       = "zookeeper_url_service_path"
 	zookeeperHttpServicePath      = "zookeeper_http_service_path"
@@ -216,12 +218,24 @@ func (c *Config) ThriftServicePort() string {
 	return c.configs[thriftServicePort]
 }
 
-func (c *Config) ServiceVersionType() string {
-	return c.configs[serviceVersionType]
+func (c *Config) MaxConnNum() int {
+	num, err := strconv.Atoi(c.configs[maxConnNum])
+	if err != nil {
+		return -1
+	}
+	return num
+}
+
+func (c *Config) ServiceVersionMode() string {
+	return c.configs[serviceVersionMode]
 }
 
 func (c *Config) ServiceVersion() string {
 	return c.configs[serviceVersion]
+}
+
+func (c *Config) IPFilterPath() string {
+	return c.configs[ipFilterPath]
 }
 
 func (c *Config) ZookeeperServersAddr() []string {

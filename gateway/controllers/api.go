@@ -49,7 +49,6 @@ func (this *ApiController) Proxy() {
 				req.URL.Host = host
 				req.URL.Path = "/" + api_url
 				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
-				req.Header.Set("mode", mode)
 				log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
 					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
 				return req
