@@ -113,7 +113,7 @@ func (p *ZooKeeperRegister) HandleConnAccept(conn net.Conn) (net.Conn, bool) {
 
 // Register handles registering event.
 // this service is registered at BASE/serviceName/thisIpAddress node
-func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, metadata string) (err error) {
+func (p *ZooKeeperRegister) Register(name string, mode string, rcvr interface{}, metadata string) (err error) {
 	if "" == strings.TrimSpace(name) {
 		err = errors.New("Register service `name` can't be empty")
 		return
@@ -145,7 +145,14 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, metadata str
 		return err
 	}
 
-	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
+	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, mode)
+	err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
+	if err != nil {
+		log.Errorf("cannot create zk path %s: %v", nodePath, err)
+		return err
+	}
+
+	nodePath = fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, mode, p.ServiceAddress)
 	err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: p.UpdateInterval * 2})
 	if err != nil {
 		log.Errorf("cannot create zk path %s: %v", nodePath, err)

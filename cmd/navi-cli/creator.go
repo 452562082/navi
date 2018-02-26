@@ -133,7 +133,7 @@ func main() {
 	}
 
 	log.Infof("Register %s host to Registry", s.Config.ThriftServiceName())
-	err = r.Register(s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), nil, "")
+	err = r.Register(s.Config.ThriftServiceName(), s.Config.ServiceVersionMode(), nil, "")
 	if err != nil {
 		log.Fatal(err)
 	}
