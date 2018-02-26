@@ -396,9 +396,9 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 		/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
 
 		//s.Service().(navicli.ConnPool).ClearInvalidHost()
-		if cur_conn_num >= s.Service().Config().MaxConnNum() {
+		/*if cur_conn_num >= s.Service().Config().MaxConnNum() {
 			return nil, errors.New("the number of connections exceeds the limit.")
-		}
+		}*/
 
 		switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
 		//case lb.Failtry:
@@ -428,7 +428,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 
 				serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
 				if err == nil {
-					cur_conn_num += 1
+					//cur_conn_num += 1
 					return serviceResponse, err
 				}
 				s.Service().(navicli.ConnPool).SetServerHostUnavailable(conn.(*engine.Conn).GetServerHost())
@@ -442,9 +442,9 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 			}
 
 			serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
-			if err == nil {
-				cur_conn_num += 1
-			}
+			//if err == nil {
+				//cur_conn_num += 1
+			//}
 			return serviceResponse, err
 		}
 
