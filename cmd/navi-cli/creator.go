@@ -146,7 +146,7 @@ func main() {
 	for _, v := range s.Config.UrlMappings() {
 		path := strFirstToUpper(v[1])
 
-		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode() + "/" + path
+		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode() + path
 		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
 		err = kv.Put(key, nil, nil)
 		if err != nil {
