@@ -345,6 +345,14 @@ func newServerHost(host string, maxConns int) (*ServerHost, error) {
 	return serverHost, nil
 }
 
+func (s *ServerHost) Available() bool {
+	return s.available
+}
+
+func (s *ServerHost) SetAvailable(flag bool) {
+	s.available = flag
+}
+
 func (s *ServerHost) closeAllConns() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -512,7 +520,7 @@ func (c *Engine) SetServerHostUnavailable(serverHost interface{}) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	//c.invalidHost = append(c.invalidHost, conn.(*Conn).getHost())
-	serverHost.(*ServerHost).available = false
+	serverHost.(*ServerHost).SetAvailable(false)
 }
 
 func (c *Engine) getConn() (*Conn, error) {
@@ -534,7 +542,7 @@ func (c *Engine) getConn() (*Conn, error) {
 	var h string
 	for{
 		h = c.selector.Select(context.Background(), "", "", h, nil)
-		if c.servers[h].available {
+		if c.servers[h].Available() {
 			break
 		}
 	}
