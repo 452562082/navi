@@ -102,7 +102,7 @@ func getaddr() (string,error) {
 
 func main() {
 	s := navicli.NewThriftServer(&component.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
+	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
 	if err != nil {
 		log.Fatal(err)
 	}
