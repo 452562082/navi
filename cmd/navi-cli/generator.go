@@ -387,7 +387,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 		cur_conn_num--
 	}()
 
-	if cur_conn_num >= s.Service().Config().MaxConnNum() {
+	if cur_conn_num >= s.ServerField().Config().MaxConnNum() {
 		return nil, errors.New("the number of connections exceeds the limit.")
 	}
 	switch methodName {
