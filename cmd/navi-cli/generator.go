@@ -378,8 +378,16 @@ import (
 	"git.oschina.net/kuaishangtong/navi/lb"
 )
 
+var cur_conn_num int
+
 // ThriftSwitcher is a runtime func with which a server starts.
 var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (serviceResponse interface{}, err error) {
+	cur_conn_num++
+	defer cur_conn_num--
+
+	if cur_conn_num >= s.Service().Config().MaxConnNum() {
+		return nil, errors.New("the number of connections exceeds the limit.")
+	}
 	switch methodName {
 {{range $i, $MethodName := .MethodNames}}
 	case "{{$MethodName}}":{{if index $.NotEmptyParameters $i }}
@@ -394,11 +402,6 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 		//}
 
 		/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-
-		//s.Service().(navicli.ConnPool).ClearInvalidHost()
-		/*if cur_conn_num >= s.Service().Config().MaxConnNum() {
-			return nil, errors.New("the number of connections exceeds the limit.")
-		}*/
 
 		switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
 		//case lb.Failtry:
@@ -425,10 +428,8 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 					return nil, err
 				}
 
-
 				serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
 				if err == nil {
-					//cur_conn_num += 1
 					return serviceResponse, err
 				}
 				s.Service().(navicli.ConnPool).SetServerHostUnavailable(conn.(*engine.Conn).GetServerHost())
@@ -442,9 +443,6 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 			}
 
 			serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
-			//if err == nil {
-				//cur_conn_num += 1
-			//}
 			return serviceResponse, err
 		}
 
