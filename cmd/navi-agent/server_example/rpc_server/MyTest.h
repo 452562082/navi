@@ -412,19 +412,14 @@ class MyTest_SayHello_result {
 
   virtual ~MyTest_SayHello_result() throw();
   Response success;
-  ServiceException e;
 
   _MyTest_SayHello_result__isset __isset;
 
   void __set_success(const Response& val);
 
-  void __set_e(const ServiceException& val);
-
   bool operator == (const MyTest_SayHello_result & rhs) const
   {
     if (!(success == rhs.success))
-      return false;
-    if (!(e == rhs.e))
       return false;
     return true;
   }
@@ -450,7 +445,6 @@ class MyTest_SayHello_presult {
 
   virtual ~MyTest_SayHello_presult() throw();
   Response* success;
-  ServiceException e;
 
   _MyTest_SayHello_presult__isset __isset;
 
@@ -536,19 +530,14 @@ class MyTest_SaveWave_result {
 
   virtual ~MyTest_SaveWave_result() throw();
   Response success;
-  ServiceException e;
 
   _MyTest_SaveWave_result__isset __isset;
 
   void __set_success(const Response& val);
 
-  void __set_e(const ServiceException& val);
-
   bool operator == (const MyTest_SaveWave_result & rhs) const
   {
     if (!(success == rhs.success))
-      return false;
-    if (!(e == rhs.e))
       return false;
     return true;
   }
@@ -574,7 +563,6 @@ class MyTest_SaveWave_presult {
 
   virtual ~MyTest_SaveWave_presult() throw();
   Response* success;
-  ServiceException e;
 
   _MyTest_SaveWave_presult__isset __isset;
 

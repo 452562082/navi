@@ -22,8 +22,6 @@
 
 class Response;
 
-class ServiceException;
-
 
 class Response : public virtual ::apache::thrift::TBase {
  public:
@@ -64,53 +62,6 @@ class Response : public virtual ::apache::thrift::TBase {
 void swap(Response &a, Response &b);
 
 inline std::ostream& operator<<(std::ostream& out, const Response& obj)
-{
-  obj.printTo(out);
-  return out;
-}
-
-
-class ServiceException : public ::apache::thrift::TException {
- public:
-
-  ServiceException(const ServiceException&);
-  ServiceException& operator=(const ServiceException&);
-  ServiceException() : exceptionCode(0), exceptionMeg() {
-  }
-
-  virtual ~ServiceException() throw();
-  int32_t exceptionCode;
-  std::string exceptionMeg;
-
-  void __set_exceptionCode(const int32_t val);
-
-  void __set_exceptionMeg(const std::string& val);
-
-  bool operator == (const ServiceException & rhs) const
-  {
-    if (!(exceptionCode == rhs.exceptionCode))
-      return false;
-    if (!(exceptionMeg == rhs.exceptionMeg))
-      return false;
-    return true;
-  }
-  bool operator != (const ServiceException &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const ServiceException & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-  virtual void printTo(std::ostream& out) const;
-  mutable std::string thriftTExceptionMessageHolder_;
-  const char* what() const throw();
-};
-
-void swap(ServiceException &a, ServiceException &b);
-
-inline std::ostream& operator<<(std::ostream& out, const ServiceException& obj)
 {
   obj.printTo(out);
   return out;

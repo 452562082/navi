@@ -602,7 +602,6 @@ uint32_t MyTest_SayHello_result::read(::apache::thrift::protocol::TProtocol* ipr
 
   using ::apache::thrift::protocol::TProtocolException;
 
-  bool isset_e = false;
 
   while (true)
   {
@@ -620,14 +619,6 @@ uint32_t MyTest_SayHello_result::read(::apache::thrift::protocol::TProtocol* ipr
           xfer += iprot->skip(ftype);
         }
         break;
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->e.read(iprot);
-          isset_e = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -637,8 +628,6 @@ uint32_t MyTest_SayHello_result::read(::apache::thrift::protocol::TProtocol* ipr
 
   xfer += iprot->readStructEnd();
 
-  if (!isset_e)
-    throw TProtocolException(TProtocolException::INVALID_DATA);
   return xfer;
 }
 
@@ -651,10 +640,6 @@ uint32_t MyTest_SayHello_result::write(::apache::thrift::protocol::TProtocol* op
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRUCT, 0);
     xfer += this->success.write(oprot);
-    xfer += oprot->writeFieldEnd();
-  } else if (this->__isset.e) {
-    xfer += oprot->writeFieldBegin("e", ::apache::thrift::protocol::T_STRUCT, 1);
-    xfer += this->e.write(oprot);
     xfer += oprot->writeFieldEnd();
   }
   xfer += oprot->writeFieldStop();
@@ -679,7 +664,6 @@ uint32_t MyTest_SayHello_presult::read(::apache::thrift::protocol::TProtocol* ip
 
   using ::apache::thrift::protocol::TProtocolException;
 
-  bool isset_e = false;
 
   while (true)
   {
@@ -697,14 +681,6 @@ uint32_t MyTest_SayHello_presult::read(::apache::thrift::protocol::TProtocol* ip
           xfer += iprot->skip(ftype);
         }
         break;
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->e.read(iprot);
-          isset_e = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -714,8 +690,6 @@ uint32_t MyTest_SayHello_presult::read(::apache::thrift::protocol::TProtocol* ip
 
   xfer += iprot->readStructEnd();
 
-  if (!isset_e)
-    throw TProtocolException(TProtocolException::INVALID_DATA);
   return xfer;
 }
 
@@ -847,7 +821,6 @@ uint32_t MyTest_SaveWave_result::read(::apache::thrift::protocol::TProtocol* ipr
 
   using ::apache::thrift::protocol::TProtocolException;
 
-  bool isset_e = false;
 
   while (true)
   {
@@ -865,14 +838,6 @@ uint32_t MyTest_SaveWave_result::read(::apache::thrift::protocol::TProtocol* ipr
           xfer += iprot->skip(ftype);
         }
         break;
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->e.read(iprot);
-          isset_e = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -882,8 +847,6 @@ uint32_t MyTest_SaveWave_result::read(::apache::thrift::protocol::TProtocol* ipr
 
   xfer += iprot->readStructEnd();
 
-  if (!isset_e)
-    throw TProtocolException(TProtocolException::INVALID_DATA);
   return xfer;
 }
 
@@ -896,10 +859,6 @@ uint32_t MyTest_SaveWave_result::write(::apache::thrift::protocol::TProtocol* op
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRUCT, 0);
     xfer += this->success.write(oprot);
-    xfer += oprot->writeFieldEnd();
-  } else if (this->__isset.e) {
-    xfer += oprot->writeFieldBegin("e", ::apache::thrift::protocol::T_STRUCT, 1);
-    xfer += this->e.write(oprot);
     xfer += oprot->writeFieldEnd();
   }
   xfer += oprot->writeFieldStop();
@@ -924,7 +883,6 @@ uint32_t MyTest_SaveWave_presult::read(::apache::thrift::protocol::TProtocol* ip
 
   using ::apache::thrift::protocol::TProtocolException;
 
-  bool isset_e = false;
 
   while (true)
   {
@@ -942,14 +900,6 @@ uint32_t MyTest_SaveWave_presult::read(::apache::thrift::protocol::TProtocol* ip
           xfer += iprot->skip(ftype);
         }
         break;
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->e.read(iprot);
-          isset_e = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -959,8 +909,6 @@ uint32_t MyTest_SaveWave_presult::read(::apache::thrift::protocol::TProtocol* ip
 
   xfer += iprot->readStructEnd();
 
-  if (!isset_e)
-    throw TProtocolException(TProtocolException::INVALID_DATA);
   return xfer;
 }
 
@@ -1190,9 +1138,6 @@ void MyTestClient::recv_SayHello(Response& _return)
     // _return pointer has now been filled
     return;
   }
-  if (result.__isset.e) {
-    throw result.e;
-  }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "SayHello failed: unknown result");
 }
 
@@ -1252,9 +1197,6 @@ void MyTestClient::recv_SaveWave(Response& _return)
   if (result.__isset.success) {
     // _return pointer has now been filled
     return;
-  }
-  if (result.__isset.e) {
-    throw result.e;
   }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "SaveWave failed: unknown result");
 }
@@ -1465,9 +1407,6 @@ void MyTestProcessor::process_SayHello(int32_t seqid, ::apache::thrift::protocol
   try {
     iface_->SayHello(result.success, args.yourName);
     result.__isset.success = true;
-  } catch (ServiceException &e) {
-    result.e = e;
-    result.__isset.e = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
       this->eventHandler_->handlerError(ctx, "MyTest.SayHello");
@@ -1522,9 +1461,6 @@ void MyTestProcessor::process_SaveWave(int32_t seqid, ::apache::thrift::protocol
   try {
     iface_->SaveWave(result.success, args.fileName, args.wavFormat, args.data);
     result.__isset.success = true;
-  } catch (ServiceException &e) {
-    result.e = e;
-    result.__isset.e = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
       this->eventHandler_->handlerError(ctx, "MyTest.SaveWave");
@@ -1883,10 +1819,6 @@ void MyTestConcurrentClient::recv_SayHello(Response& _return, const int32_t seqi
         sentry.commit();
         return;
       }
-      if (result.__isset.e) {
-        sentry.commit();
-        throw result.e;
-      }
       // in a bad state, don't commit
       throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "SayHello failed: unknown result");
     }
@@ -1972,10 +1904,6 @@ void MyTestConcurrentClient::recv_SaveWave(Response& _return, const int32_t seqi
         // _return pointer has now been filled
         sentry.commit();
         return;
-      }
-      if (result.__isset.e) {
-        sentry.commit();
-        throw result.e;
       }
       // in a bad state, don't commit
       throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "SaveWave failed: unknown result");
