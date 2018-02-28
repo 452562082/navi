@@ -350,7 +350,7 @@ func newServerHost(host string, maxConns int) (*ServerHost, error) {
 func (s *ServerHost) Available() bool {
 	return s.available
 }
-
+ 
 func (s *ServerHost) SetAvailable(flag bool) {
 	s.available = flag
 }
