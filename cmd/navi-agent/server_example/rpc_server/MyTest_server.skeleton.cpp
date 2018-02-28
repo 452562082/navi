@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
           server.serve();
       }
       catch(TException e) {
-            printf("Server.serve() failed\n");
+            printf("Server.serve() failed: %s\n", e.what());
             exit(-1);
       }
       return 0;

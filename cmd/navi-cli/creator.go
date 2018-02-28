@@ -331,6 +331,7 @@ func newServerHost(host string, maxConns int) (*ServerHost, error) {
 	serverHost := &ServerHost{
 		host: host,
 		lock: new(sync.RWMutex),
+		available: true
 	}
 
 	conns := make([]*Conn, maxConns, maxConns)
