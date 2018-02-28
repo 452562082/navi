@@ -51,7 +51,8 @@ class MyTestHandler : virtual public MyTestIf {
 
   void SaveWave(Response& _return, const std::string& fileName, const std::string& wavFormat, const std::string& data) {
     // Your implementation goes here
-    WaveSave(fileName,static_cast<short*>(data.c_str()),strlen(data.c_str()) / 2)
+    bool flag = WaveSave(fileName,static_cast<short*>(data.c_str()),strlen(data.c_str()) / 2);
+    printf("status: %d",flag);
 
     _return.__set_responseCode(200);
     _return.__set_responseJSON("{\"file_name\": \""+fileName+"\", \"wav_format\": \"" +wavFormat+"\", \"data\": \"" +data+"\"}");
