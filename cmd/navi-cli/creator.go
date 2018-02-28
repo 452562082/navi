@@ -521,7 +521,7 @@ func (c *Engine) SetServerHostUnavailable(serverHost interface{}) {
 func (c *Engine) getConn() (*Conn, error) {
 
 	var h string
-	var serverCount, index int = len(c.servers[h]), 0
+	var serverCount, index int = len(c.servers), 0
 	for {
 		index++ 
 		h = c.selector.Select(context.Background(), "", "", h, nil)
