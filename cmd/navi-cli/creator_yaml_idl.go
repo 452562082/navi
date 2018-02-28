@@ -38,6 +38,7 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
 
 urlmapping:
   - POST /hello SayHello
+  - POST /savewave SaveWave
 `)
 }
 
@@ -87,14 +88,6 @@ struct Response {
     2:required string responseJSON;
 }
 
-# 异常描述定义，当服务提供者处理过程出现异常时，向服务调用者返回
-exception ServiceException {
-    # EXCCODE 是异常代码，也是一个int32型。
-    1:required i32 exceptionCode;
-    # 异常的描述信息，使用字符串进行描述
-    2:required string exceptionMeg;
-}
-
 # 这是经过泛化后的Apache Thrift接口
 service {{.ServiceName}} {
 
@@ -107,7 +100,9 @@ service {{.ServiceName}} {
 		# rpc server必须实现的接口，说明该server是以什么模式运行，分为dev和prod；dev为开发版本，prod为生产版本
         string ServiceMode(),
 
-        Response SayHello(1:string yourName) throws (1:required ServiceException e)
+        Response SayHello(1:string yourName)
+
+		Response SaveWave(1:string fileName, 2:string wavFormat, 3:binary data)
 }
 `,
 	)
