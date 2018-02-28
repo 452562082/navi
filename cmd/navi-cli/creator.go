@@ -241,9 +241,7 @@ func newConn(serverHost *ServerHost, host string, interval int) (*Conn, error) {
 	}
 
 	go conn.check()
-
 	log.Debugf("new Conn to host %s", host)
-
 	return conn, nil
 }
 
