@@ -46,6 +46,7 @@ class MyTestHandler : virtual public MyTestIf {
     _return.__set_responseCode(200);
     _return.__set_responseJSON("{\"file_name\": \""+fileName+"\", \"wav_format\": \"" +wavFormat+"\", \"data\": \"" +data+"\"}");
   }
+
 };
 
 int main(int argc, char **argv) {
