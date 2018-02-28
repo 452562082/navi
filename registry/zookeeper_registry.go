@@ -29,7 +29,7 @@ type ZooKeeperRegister struct {
 	ZooKeeperServers []string
 	// base path for rpcx server, for example com/example/rpcx
 	BasePath string
-	Mode	string
+	Mode     string
 	Metrics  metrics.Registry
 	// Registered services
 	Services       []string
@@ -76,7 +76,14 @@ func (p *ZooKeeperRegister) Start() error {
 				}
 				//set this same metrics for all services at this server
 				for _, name := range p.Services {
-					nodePath := fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, p.Mode, p.ServiceAddress)
+
+					var nodePath string
+					if p.Mode != "" {
+						nodePath = fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, p.Mode, p.ServiceAddress)
+					} else {
+						nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
+					}
+
 					kvPaire, err := p.kv.Get(nodePath)
 					if err != nil {
 						log.Infof("can't get data of node: %s, because of %v", nodePath, err.Error())
@@ -146,14 +153,24 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, metadata str
 		return err
 	}
 
-	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.Mode)
+	if p.Mode != "" {
+		nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.Mode)
+	} else {
+		nodePath = fmt.Sprintf("%s/%s", p.BasePath, name)
+	}
+
 	err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
 	if err != nil {
 		log.Errorf("cannot create zk path %s: %v", nodePath, err)
 		return err
 	}
 
-	nodePath = fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, p.Mode, p.ServiceAddress)
+	if p.Mode != "" {
+		nodePath = fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, p.Mode, p.ServiceAddress)
+	} else {
+		nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
+	}
+
 	err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: p.UpdateInterval * 2})
 	if err != nil {
 		log.Errorf("cannot create zk path %s: %v", nodePath, err)
@@ -203,14 +220,25 @@ func (p *ZooKeeperRegister) UnRegister(name string) (err error) {
 		return err
 	}
 
-	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.Mode)
+
+	if p.Mode != "" {
+		nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.Mode)
+	} else {
+		nodePath = fmt.Sprintf("%s/%s", p.BasePath, name)
+	}
+
 	err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
 	if err != nil {
 		log.Errorf("cannot create zk path %s: %v", nodePath, err)
 		return err
 	}
 
-	nodePath = fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, p.Mode, p.ServiceAddress)
+	if p.Mode != "" {
+		nodePath = fmt.Sprintf("%s/%s/%s/%s", p.BasePath, name, p.Mode, p.ServiceAddress)
+	} else {
+		nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.ServiceAddress)
+	}
+
 	err = p.kv.Delete(nodePath)
 	if err != nil {
 		log.Errorf("cannot delete zk path %s: %v", nodePath, err)
