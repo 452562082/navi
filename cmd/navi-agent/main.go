@@ -90,7 +90,7 @@ func main() {
 				ServiceAddress:   defaultConfig.Server.ServerHosts[index],
 				ZooKeeperServers: defaultConfig.Zookeeper.ZookeeperHosts,
 				BasePath:         basePath,
-				Mode:             defaultConfig.Server.ServerMode,
+				//Mode:             defaultConfig.Server.ServerMode,
 				Metrics:          metrics.NewRegistry(),
 			}
 

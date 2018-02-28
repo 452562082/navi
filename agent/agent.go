@@ -100,6 +100,11 @@ func (a *Agent) Serve() (err error) {
 		case <-pingTicker.C:
 			if a.agenter != nil {
 
+				_serviceMode, err := a.agenter.ServiceMode()
+				if err == nil {
+					serviceMode = _serviceMode
+				}
+
 				_, err = a.agenter.Ping()
 				if err != nil {
 					if service_active {
