@@ -85,7 +85,7 @@ func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error)
 
 // SayHello is an example entry point
 func (s {{.ServiceName}}) SaveWave(fileName string, wavFormat string, data []byte) (r *gen.Response, err error) {
-	return &gen.Response{ResponseCode: 200, ResponseJSON: "{\"file_name\": \""+fileName+"\", \"wav_format\": \"" +wavFormat+"\", \"data\": \"" +data+"\"}"}, nil
+	return &gen.Response{ResponseCode: 200, ResponseJSON: "{\"file_name\": \""+fileName+"\", \"wav_format\": \"" +wavFormat+"\", \"data\": \"" +string(data)+"\"}"}, nil
 }
 `,
 	)
