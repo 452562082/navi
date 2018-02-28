@@ -53,8 +53,8 @@ int main(int argc, char **argv) {
     int port = 9191;
     if (argc >= 2)   port = atoi(argv[1]);
 
-      shared_ptr<kvpServiceHandler> handler(new kvpServiceHandler());
-      shared_ptr<TProcessor> processor(new kvpServiceProcessor(handler));
+      shared_ptr<MyTestHandler> handler(new MyTestHandler());
+      shared_ptr<TProcessor> processor(new MyTestProcessor(handler));
       shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
       shared_ptr<ThreadManager> threadManager = ThreadManager::newSimpleThreadManager(16);
       shared_ptr<PosixThreadFactory> threadFactory = shared_ptr<PosixThreadFactory > (new PosixThreadFactory());
