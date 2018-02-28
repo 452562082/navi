@@ -71,16 +71,16 @@ func (s {{.ServiceName}}) Ping() (str string, err error) {
 }
 
 func (s {{.ServiceName}}) ServiceName() (str string, err error) {
-	return "serviceName",nil
+	return "MyTest",nil
 }
 
 func (s {{.ServiceName}}) ServiceMode() (str string, err error) {
-	return "ServiceMode",nil
+	return "dev",nil
 }
 
 // SayHello is an example entry point
 func (s {{.ServiceName}}) SayHello(yourName string) (r *gen.Response, err error) {
-	return &gen.Response{ResponseCode: gen.RESCODE_SUCCESS, ResponseJSON: "{name: Hello, " + yourName + "}"}, nil
+	return &gen.Response{ResponseCode: 200, ResponseJSON: "{name: Hello, " + yourName + "}"}, nil
 }
 `,
 	)
