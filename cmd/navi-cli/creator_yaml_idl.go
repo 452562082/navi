@@ -70,6 +70,7 @@ func (c *Creator) createThrift(serviceName string) {
 
 namespace go gen
 
+# TODO(暂时不使用Request结构体，后续用到分布式追踪，再修改)
 # 这个结构体定义了服务调用者的请求信息
 /*struct Request {
     # 传递的参数信息，使用格式进行表示
@@ -80,41 +81,30 @@ namespace go gen
 
 # 这个结构体，定义了服务提供者的返回信息
 struct Response {
-    # RESCODE 是处理状态代码，是一个枚举类型。例如RESCODE._200表示处理成功
-    1:required RESCODE responseCode;
+    # RESCODE 是处理状态代码，是一个int32型, 具体状态码参考文档;
+    1:required i32 responseCode;
     # 返回的处理结果，同样使用JSON格式进行描述
     2:required string responseJSON;
 }
 
 # 异常描述定义，当服务提供者处理过程出现异常时，向服务调用者返回
 exception ServiceException {
-    # EXCCODE 是异常代码，也是一个枚举类型。
-    # 例如EXCCODE.PARAMNOTFOUND表示需要的请求参数没有找到
-    1:required EXCCODE exceptionCode;
+    # EXCCODE 是异常代码，也是一个int32型。
+    1:required i32 exceptionCode;
     # 异常的描述信息，使用字符串进行描述
-    2:required string exceptionMess;
-}
-
-# 这个枚举结构，描述各种服务提供者的响应代码
-enum RESCODE {
-    SUCCESS = 200;
-	FORBIDDEN = 403;
-	NOTFOUND = 404;
-    BADGATEWAY = 502;
-}
-
-# 这个枚举结构，描述各种服务提供者的异常种类
-enum EXCCODE {
-    PARAMNOTFOUND = 2001;
-    SERVICENOTFOUND = 2002;
+    2:required string exceptionMeg;
 }
 
 # 这是经过泛化后的Apache Thrift接口
 service {{.ServiceName}} {
+
+		# rpc server必须实现的接口，返回字符串 "pong" 即可
         string Ping(),
 
+		# rpc server必须实现的接口，返回服务名称，为首字母大写的驼峰格式，例如 "AsvService"
         string ServiceName(),
 
+		# rpc server必须实现的接口，说明该server是以什么模式运行，分为dev和prod；dev为开发版本，prod为生产版本
         string ServiceMode(),
 
         Response SayHello(1:string yourName) throws (1:required ServiceException e)
