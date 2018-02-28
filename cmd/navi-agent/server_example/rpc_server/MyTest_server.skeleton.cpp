@@ -12,6 +12,7 @@
 #include <thrift/server/TNonblockingServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include "waveIO.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -50,6 +51,8 @@ class MyTestHandler : virtual public MyTestIf {
 
   void SaveWave(Response& _return, const std::string& fileName, const std::string& wavFormat, const std::string& data) {
     // Your implementation goes here
+    WaveSave(fileName,static_cast<short*>(data.c_str()),strlen(data.c_str()) / 2)
+
     _return.__set_responseCode(200);
     _return.__set_responseJSON("{\"file_name\": \""+fileName+"\", \"wav_format\": \"" +wavFormat+"\", \"data\": \"" +data+"\"}");
   }
