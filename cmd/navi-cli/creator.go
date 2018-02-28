@@ -525,6 +525,10 @@ func (c *Engine) getConn() (*Conn, error) {
 	for {
 		index++ 
 		h = c.selector.Select(context.Background(), "", "", h, nil)
+		if h == "" {
+			return nil, fmt.Errorf("can not find available serverhost")
+		}
+
 		if c.servers[h].Available() {
 			break
 		}
@@ -535,9 +539,9 @@ func (c *Engine) getConn() (*Conn, error) {
 		}
 	}
 
-	if h == "" {
-		return nil, fmt.Errorf("can not find available serverhost")
-	}
+	//if h == "" {
+	//	return nil, fmt.Errorf("can not find available serverhost")
+	//}
 
 	if host, ok := c.servers[h]; ok {
 		conn := host.getConn()
