@@ -539,18 +539,21 @@ func (c *Engine) getConn() (*Conn, error) {
 		}
 	}
 
-	//if h == "" {
-	//	return nil, fmt.Errorf("can not find available serverhost")
-	//}
+	if h == "" {
+		log.Errorf("can not find available serverhost")
+		return nil, fmt.Errorf("can not find available serverhost")
+	}
 
 	if host, ok := c.servers[h]; ok {
 		conn := host.getConn()
 		if conn == nil {
-			return nil, fmt.Errorf("can not find available conn in %s", host)
+			log.Errorf("can not find available conn in %s", h)
+			return nil, fmt.Errorf("can not find available conn in %s", h)
 		}
 		return conn, nil
 	}
 
+	log.Errorf("can not find available conn in %s", h)
 	return nil, fmt.Errorf("can not find available conn in %s", h)
 }
 `,
