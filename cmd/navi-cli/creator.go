@@ -332,6 +332,7 @@ func newServerHost(host string, maxConns int) (*ServerHost, error) {
 		host: host,
 		lock: new(sync.RWMutex),
 	}
+
 	conns := make([]*Conn, maxConns, maxConns)
 	for i := 0; i < maxConns; i++ {
 		conn, err := newConn(serverHost, host, 1)
@@ -412,7 +413,7 @@ func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, 
 		return
 	}
 
-	log.Infof("Engine NewZookeeperDiscovery in /%s/%s", basePath, servicePath)
+	log.Infof("Engine NewZookeeperDiscovery in %s/%s", basePath, servicePath)
 
 	selecter := lb.NewSelector(lb.RoundRobin, nil)
 
