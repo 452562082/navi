@@ -28,7 +28,7 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   thrift_service_name: {{.ServiceName}}
   thrift_service_host: 127.0.0.1
   thrift_service_port: 50052
-  service_version_mode: prod
+  service_version_mode: dev
   service_version: 1.0
   ip_filter_path: navi/ipfilter
   zookeeper_servers_addr: 127.0.0.1:2181
