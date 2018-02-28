@@ -390,65 +390,66 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 	if cur_conn_num >= s.ServerField().Config.MaxConnNum() {
 		return nil, errors.New("the number of connections exceeds the limit.")
 	}
+
 	switch methodName {
-{{range $i, $MethodName := .MethodNames}}
-	case "{{$MethodName}}":{{if index $.NotEmptyParameters $i }}
-		params, err := navicli.BuildThriftRequest(s, &gen.{{$.ServiceName}}{{$MethodName}}Args{}, req, buildStructArg)
-		if err != nil {
-			return nil, err
-		}{{end}}
-
-		//conn, err := s.Service().(navicli.ConnPool).GetConn()
-		//if err != nil {
-		//	return nil, err
-		//}
-
-		/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-
-		switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
-		//case lb.Failtry:
-		//	retries := c.Retries
-		//	conn, err := s.Service().(navicli.ConnPool).GetConn()
-		//	if err != nil {
-		//		return nil, err
-		//	}
-		//	for retries > 0 {
-		//		retries--
-		//
-		/*		serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-		//		if err == nil {
-		//			return
-		//		}
-		//		//重建连接
-		//	}
-		case lb.Failover:
-			retries := s.Service().(navicli.ConnPool).GetRetries()
-			for retries > 0 {
-				retries--
-				conn, err := s.Service().(navicli.ConnPool).GetConn()
+		{{range $i, $MethodName := .MethodNames}}
+			case "{{$MethodName}}":{{if index $.NotEmptyParameters $i }}
+				params, err := navicli.BuildThriftRequest(s, &gen.{{$.ServiceName}}{{$MethodName}}Args{}, req, buildStructArg)
 				if err != nil {
 					return nil, err
-				}
-
-				serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
-				if err == nil {
-					return serviceResponse, err
-				}
-				s.Service().(navicli.ConnPool).SetServerHostUnavailable(conn.(*engine.Conn).GetServerHost())
+				}{{end}}
+		
+				//conn, err := s.Service().(navicli.ConnPool).GetConn()
+				//if err != nil {
+				//	return nil, err
+				//}
+		
+				/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
+		
+				switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
+					//case lb.Failtry:
+					//	retries := c.Retries
+					//	conn, err := s.Service().(navicli.ConnPool).GetConn()
+					//	if err != nil {
+					//		return nil, err
+					//	}
+					//	for retries > 0 {
+					//		retries--
+					//
+					/*		serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
+					//		if err == nil {
+					//			return
+					//		}
+					//		//重建连接
+					//	}
+					case lb.Failover:
+						retries := s.Service().(navicli.ConnPool).GetRetries()
+						for retries > 0 {
+							retries--
+							conn, err := s.Service().(navicli.ConnPool).GetConn()
+							if err != nil {
+								return nil, err
+							}
+			
+							serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+							if err == nil {
+								return serviceResponse, nil
+							}
+							s.Service().(navicli.ConnPool).SetServerHostUnavailable(conn.(*engine.Conn).GetServerHost())
+						}
+						return nil, err
+			
+					default: //Failfast
+						conn, err := s.Service().(navicli.ConnPool).GetConn()
+						if err != nil {
+							return nil, err
+						}
+			
+						serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+						return serviceResponse, nil
 			}
-			return nil, err
+	{{end}}
 
-		default: //Failfast
-			conn, err := s.Service().(navicli.ConnPool).GetConn()
-			if err != nil {
-				return nil, err
-			}
-
-			serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
-			return serviceResponse, err
-		}
-
-{{end}}
 	default:
 		return nil, errors.New("No such method[" + methodName + "]")
 	}
@@ -456,14 +457,14 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 
 func buildStructArg(s navicli.Servable, typeName string, req *http.Request) (v reflect.Value, err error) {
 	switch typeName {
-{{range $i, $StructName := .StructNames}}
-	case "{{$StructName}}":
-		request := &gen.{{$StructName}}{ {{index $.StructFields $i}} }
-		navicli.BuildStruct(s, reflect.TypeOf(request).Elem(), reflect.ValueOf(request).Elem(), req)
-		return reflect.ValueOf(request), nil
-{{end}}
-	default:
-		return v, errors.New("unknown typeName[" + typeName + "]")
+		{{range $i, $StructName := .StructNames}}
+			case "{{$StructName}}":
+				request := &gen.{{$StructName}}{ {{index $.StructFields $i}} }
+				navicli.BuildStruct(s, reflect.TypeOf(request).Elem(), reflect.ValueOf(request).Elem(), req)
+				return reflect.ValueOf(request), nil
+		{{end}}
+		default:
+			return v, errors.New("unknown typeName[" + typeName + "]")
 	}
 }
 `

@@ -144,6 +144,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// 注册URL接口到zookeeper上，后续由admin后台手动管理，可删除该部分代码
 	for _, v := range s.Config.UrlMappings() {
 		path := strFirstToUpper(v[1])
 
@@ -173,7 +174,7 @@ func strFirstToUpper(str string) string {
 			if vv[i] >= 97 && vv[i] <= 122 {
 				vv[i] -= 32
 			}
-			upperStr += string(vv[i]) // + string(vv[i+1])
+			upperStr += string(vv[i]) 
 		} else {
 			upperStr += string(vv[i])
 		}
@@ -510,41 +511,32 @@ func (c *Engine) GetRetries() (int) {
 	return c.retries
 }
 
-//func (c *Engine) ClearInvalidHost() {
-//	c.lock.Lock()
-//	defer c.lock.Unlock()
-//	c.invalidHost = c.invalidHost[:0]
-//}
-
 func (c *Engine) SetServerHostUnavailable(serverHost interface{}) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	//c.invalidHost = append(c.invalidHost, conn.(*Conn).getHost())
+	
 	serverHost.(*ServerHost).SetAvailable(false)
 }
 
 func (c *Engine) getConn() (*Conn, error) {
-	//c.lock.RLock()
-	//for{
-	//	h = c.selector.Select(context.Background(), "", "", nil)
-		//isExist := false
-		//for _, host := range c.invalidHost {
-		//	if h == host {
-		//		isExist = true
-		//	}
-		//}
-		//
-		//if !isExist {
-		//	break
-		//}
-	//}
-	//c.lock.RUnlock()
+
 	var h string
-	for{
+	var serverCount, index int = len(c.servers[h]), 0
+	for {
+		index++ 
 		h = c.selector.Select(context.Background(), "", "", h, nil)
 		if c.servers[h].Available() {
 			break
 		}
+		
+		if serverCount == index {
+			h = ""
+			break
+		}
+	}
+
+	if h == "" {
+		return nil, fmt.Errorf("can not find available serverhost")
 	}
 
 	if host, ok := c.servers[h]; ok {
