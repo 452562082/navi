@@ -84,13 +84,14 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		glog.Errorf("req remoteAddr: %s for url %s Extract err: %v", r.RemoteAddr, r.URL.Path, err)
 	}
 
+
 	serverSpan := opentracing.GlobalTracer().StartSpan(
 		"POST sayHello",
 		ext.RPCServerOption(wireSpanContext))
 	serverSpan.SetTag("component", "server")
 	defer serverSpan.Finish()
 
-	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
+	glog.Infof("req remoteAddr: %s for url %s", r.RemoteAddr, r.URL.Path)
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {

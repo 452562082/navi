@@ -162,7 +162,6 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	outreq = p.Director(outreq)
 	outreq.Close = false
 
-
 	// Remove hop-by-hop headers listed in the "Connection" header.
 	// See RFC 2616, section 14.10.
 	if c := outreq.Header.Get("Connection"); c != "" {
@@ -192,7 +191,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		outreq.Header.Set("X-Forwarded-For", clientIP)
 	}
 
-	outreq, ht := nethttp.TraceRequest(opentracing.GlobalTracer(), outreq)
+	outreq, ht := nethttp.TraceRequest(opentracing.GlobalTracer(), outreq, nethttp.ClientTrace(true))
 	defer ht.Finish()
 
 	res, err := transport.RoundTrip(outreq)
