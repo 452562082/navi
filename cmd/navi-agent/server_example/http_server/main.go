@@ -135,6 +135,11 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rpcSpan := opentracing.GlobalTracer().StartSpan(
+		"RPC MyTest",
+		opentracing.ChildOf(serverSpan.Context()))
+	rpcSpan.SetTag("rpc", "mytest rpc server")
+	defer serverSpan.Finish()
 	time.Sleep(time.Second)
 
 	var body map[string]interface{}
