@@ -139,7 +139,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		"RPC MyTest",
 		opentracing.ChildOf(serverSpan.Context()))
 	rpcSpan.SetTag("rpc", "mytest rpc server")
-	defer serverSpan.Finish()
+	defer rpcSpan.Finish()
 	time.Sleep(time.Second)
 
 	var body map[string]interface{}
