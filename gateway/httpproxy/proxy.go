@@ -2,6 +2,7 @@ package httpproxy
 
 import (
 	"context"
+	"fmt"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
@@ -192,15 +193,10 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	}
 
 	tracer := opentracing.GlobalTracer()
-
-	//span := tracer.StartSpan("Proxy to " + outreq.Header.Get("RemoteAddr"))
-	//span.SetTag("abc", "cdf")
-	//defer span.Finish()
-	//
-	//ctx = opentracing.ContextWithSpan(ctx, span)
-	//outreq = outreq.WithContext(ctx)
-
-	outreq, ht := nethttp.TraceRequest(tracer, outreq, nethttp.ClientTrace(true))
+	outreq, ht := nethttp.TraceRequest(tracer, outreq,
+		//nethttp.ClientTrace(false),
+		nethttp.OperationName(fmt.Sprintf("POST: %s/%s", outreq.URL.Host, outreq.URL.Path)),
+		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
 
 	res, err := transport.RoundTrip(outreq)

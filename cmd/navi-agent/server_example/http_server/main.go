@@ -13,6 +13,8 @@ import (
 
 	//"github.com/uber/jaeger-client-go"
 	//"github.com/uber/jaeger-client-go/transport/zipkin"
+	"github.com/uber/jaeger-lib/metrics/go-kit"
+	"github.com/uber/jaeger-lib/metrics/go-kit/expvar"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -38,9 +40,14 @@ func main() {
 			LocalAgentHostPort:  "192.168.1.16:6831",
 		},
 	}
-	
+
 	jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
+
+	//metricsFactory := xkit.Wrap("", expvar.NewFactory(10)) // 10 buckets for histograms
+
+	metricsFactory := jprom.New()
+	metricsFactory.Namespace("route", nil)
 
 	// Initialize tracer with a logger and a metrics factory
 	closer, err := cfg.InitGlobalTracer(
@@ -97,7 +104,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serverSpan := opentracing.GlobalTracer().StartSpan(
-		"POST sayHello",
+		r.URL.Path,
 		opentracing.ChildOf(wireSpanContext))
 	serverSpan.SetTag("component", "mytest server")
 	defer serverSpan.Finish()

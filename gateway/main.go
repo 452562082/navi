@@ -34,12 +34,8 @@ import (
 	jaegerlog "github.com/uber/jaeger-client-go/log"
 	"github.com/uber/jaeger-lib/metrics"
 
-	//"github.com/opentracing/opentracing-go"
-	//zipkin "github.com/openzipkin/zipkin-go-opentracing"
-
-	//"github.com/opentracing/opentracing-go"
-	//"github.com/uber/jaeger-client-go"
-	//"github.com/uber/jaeger-client-go/transport/zipkin"
+	//jprom "github.com/uber/jaeger-lib/metrics/prometheus"
+	"github.com/uber/jaeger-client-go/rpcmetrics"
 	_ "net/http/pprof"
 	"time"
 )
@@ -76,11 +72,15 @@ func main() {
 	jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
 
+	//metricsFactory := jprom.New()
+	//jMetricsFactory := metricsFactory.Namespace("gateway", nil)
+
 	// Initialize tracer with a logger and a metrics factory
 	closer, err := cfg.InitGlobalTracer(
 		"gateway",
 		jaegercfg.Logger(jLogger),
 		jaegercfg.Metrics(jMetricsFactory),
+		jaegercfg.Observer(rpcmetrics.NewObserver(jMetricsFactory, rpcmetrics.DefaultNameNormalizer)),
 	)
 	if err != nil {
 		log.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
