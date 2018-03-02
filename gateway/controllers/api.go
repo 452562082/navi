@@ -63,6 +63,9 @@ func (this *ApiController) Proxy() {
 		}
 
 		if err != nil || servercounts == 0 {
+			if servercounts == 0 {
+				log.Errorf("service [%s] %s server count is 0", service_name, mode)
+			}
 			this.Ctx.ResponseWriter.WriteHeader(http.StatusBadGateway)
 		}
 		return

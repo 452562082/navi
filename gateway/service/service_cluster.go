@@ -46,6 +46,7 @@ func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
 		log.Infof("service [%s] cluster add prod server ip %s", sc.service.Name, ip)
 	}
 
+	sc.prodServerIps = servers
 	sc.prodSelector = s
 	return sc
 }
@@ -57,6 +58,7 @@ func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
 		log.Infof("service [%s] cluster add dev server ip %s", sc.service.Name, ip)
 	}
 
+	sc.devServerIps = servers
 	sc.devSelector = s
 	return sc
 }

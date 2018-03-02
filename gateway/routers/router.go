@@ -40,6 +40,7 @@ func init() {
 		} else {
 			ctx.Request.Header.Set("mode", constants.PROD_MODE)
 		}
+
 	})
 
 	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)",
