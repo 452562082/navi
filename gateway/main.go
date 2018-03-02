@@ -66,7 +66,7 @@ func main() {
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:            true,
 			BufferFlushInterval: 1 * time.Second,
-			LocalAgentHostPort:  "192.168.1.16:5775",
+			LocalAgentHostPort:  "192.168.1.16:6831",
 		},
 	}
 
