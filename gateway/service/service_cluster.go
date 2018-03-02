@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"git.oschina.net/kuaishangtong/common/utils/log"
 	"git.oschina.net/kuaishangtong/navi/gateway/constants"
 	"git.oschina.net/kuaishangtong/navi/lb"
@@ -62,14 +63,16 @@ func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
 
 // 发现服务集群IP
 func (sc *ServiceCluster) Discovery(basePath string, servicePath string, zkAddr []string, options *store.Config) error {
-	var err error
-	sc.prodIpDiscovery, err = registry.NewZookeeperDiscovery(basePath, servicePath+"/prod", zkAddr, options)
-	if err != nil {
-		return err
-	}
+	var err1, err2 error
+	sc.prodIpDiscovery, err1 = registry.NewZookeeperDiscovery(basePath, servicePath+"/prod", zkAddr, options)
 
-	sc.devIpDiscovery, err = registry.NewZookeeperDiscovery(basePath, servicePath+"/dev", zkAddr, options)
-	return err
+	sc.devIpDiscovery, err2 = registry.NewZookeeperDiscovery(basePath, servicePath+"/dev", zkAddr, options)
+
+	if err1 != nil && err2 != nil {
+		log.Errorf("cat not find service %s [prod] or [dev] IP err: %v; %v", servicePath, err1, err2)
+		return fmt.Errorf("cat not find service %s [prod] or [dev] IP err: %v; %v", servicePath, err1, err2)
+	}
+	return nil
 }
 
 func (sc *ServiceCluster) Commit() error {

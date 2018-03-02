@@ -42,7 +42,7 @@ func NewZookeeperDiscovery(basePath string, servicePath string, zkAddr []string,
 
 	kv, err := libkv.NewStore(store.ZK, zkAddr, options)
 	if err != nil {
-		log.Infof("cannot create store: %v", err)
+		log.Errorf("cannot create store: %v", err)
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func NewZookeeperDiscoveryWithStore(basePath string, kv store.Store) (ServiceDis
 
 	ps, err := kv.List(basePath)
 	if err != nil {
-		log.Infof("cannot get services of from registry: %v, error: %v", basePath, err)
+		log.Errorf("cannot get services of from registry: %v, error: %v", basePath, err)
 		return nil, err
 	}
 
@@ -156,7 +156,7 @@ func (d *ZookeeperDiscovery) watch() {
 				}
 				d.pairs = pairs
 
-				for _, ch := range d. chans {
+				for _, ch := range d.chans {
 					ch := ch
 					go func() {
 						defer func() {

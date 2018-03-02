@@ -3,6 +3,8 @@ package httpproxy
 import (
 	"context"
 	"git.oschina.net/kuaishangtong/common/utils/log"
+	"github.com/opentracing-contrib/go-stdlib/nethttp"
+	"github.com/opentracing/opentracing-go"
 	"io"
 	"net"
 	"net/http"
@@ -47,6 +49,8 @@ type ReverseProxy struct {
 	// modifies the Response from the backend.
 	// If it returns an error, the proxy returns a StatusBadGateway error.
 	ModifyResponse func(*http.Response) error
+
+	Tracer opentracing.Tracer
 }
 
 // A BufferPool is an interface for getting and returning temporary
@@ -157,6 +161,9 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 
 	outreq = p.Director(outreq)
 	outreq.Close = false
+
+	req, ht := nethttp.TraceRequest(opentracing.GlobalTracer(), req)
+	defer ht.Finish()
 
 	// Remove hop-by-hop headers listed in the "Connection" header.
 	// See RFC 2616, section 14.10.

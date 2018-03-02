@@ -6,6 +6,7 @@ import (
 	"git.oschina.net/kuaishangtong/navi/gateway/service"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
+	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"net/http"
 )
 
@@ -53,7 +54,7 @@ func (this *ApiController) Proxy() {
 					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
 				return req
 			}
-			proxy := &httpproxy.ReverseProxy{Director: director}
+			proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 			if err != nil {
 				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
