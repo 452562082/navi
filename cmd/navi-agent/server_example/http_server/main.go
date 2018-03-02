@@ -51,11 +51,13 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	glog.Info(r.Header)
+
 	textCarrier := opentracing.HTTPHeadersCarrier(r.Header)
 	wireSpanContext, err := opentracing.GlobalTracer().Extract(
 		opentracing.TextMap, textCarrier)
 	if err != nil {
-		glog.Errorf("req remoteAddr: %s for url /%s Extract err: %v", r.RemoteAddr, r.URL.Path, err)
+		glog.Errorf("req remoteAddr: %s for url %s Extract err: %v", r.RemoteAddr, r.URL.Path, err)
 	}
 
 	serverSpan := opentracing.GlobalTracer().StartSpan(
@@ -83,6 +85,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	glog.Info(body)
 	serverSpan.LogFields(log.String("request body", body["yourName"].(string)))
 
 	w.WriteHeader(http.StatusOK)
