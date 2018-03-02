@@ -86,8 +86,8 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	glog.Info(body)
-	serverSpan.LogFields(log.String("request body", body["yourName"].(string)))
+	serverSpan.LogFields(log.String("request body", body["yourname"].(string)))
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "hello %s", body["yourName"].(string))
+	fmt.Fprintf(w, "hello %s", body["yourname"].(string))
 }
