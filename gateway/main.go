@@ -115,7 +115,7 @@ func main() {
 
 	opentracing.InitGlobalTracer(tracer)
 
-	defer closer.Close()
-
 	beego.Run()
+
+	closer.Close()
 }
