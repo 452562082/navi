@@ -58,7 +58,7 @@ func (this *ApiController) Proxy() {
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 			if err != nil {
 				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
-					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, err)
+					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host, err)
 			}
 		}
 

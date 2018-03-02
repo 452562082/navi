@@ -30,9 +30,16 @@ import (
 	"git.oschina.net/kuaishangtong/navi/gateway/service"
 	"git.oschina.net/kuaishangtong/navi/ipfilter"
 	"github.com/astaxie/beego"
-	jaegercfg "github.com/uber/jaeger-client-go/config"
-	//jaegerlog "github.com/uber/jaeger-client-go/log"
-	"github.com/uber/jaeger-lib/metrics"
+	//jaegercfg "github.com/uber/jaeger-client-go/config"
+	////jaegerlog "github.com/uber/jaeger-client-go/log"
+	//"github.com/uber/jaeger-lib/metrics"
+
+	//"github.com/opentracing/opentracing-go"
+	//zipkin "github.com/openzipkin/zipkin-go-opentracing"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/uber/jaeger-client-go"
+	"github.com/uber/jaeger-client-go/transport/zipkin"
 	_ "net/http/pprof"
 )
 
@@ -49,25 +56,65 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Recommended configuration for production.
-	cfg := jaegercfg.Configuration{}
+	//// Recommended configuration for production.
+	//cfg := jaegercfg.Configuration{}
+	//
+	//// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
+	//// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
+	//// frameworks.
+	////jLogger := jaegerlog.StdLogger
+	//jMetricsFactory := metrics.NullFactory
+	//
+	//// Initialize tracer with a logger and a metrics factory
+	//closer, err := cfg.InitGlobalTracer(
+	//	"Gateway",
+	//	//jaegercfg.Logger(jLogger),
+	//	jaegercfg.Metrics(jMetricsFactory),
+	//)
+	//if err != nil {
+	//	log.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
+	//	return
+	//}
+	//defer closer.Close()
 
-	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
-	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
-	// frameworks.
-	//jLogger := jaegerlog.StdLogger
-	jMetricsFactory := metrics.NullFactory
+	/*#################################################################*/
 
-	// Initialize tracer with a logger and a metrics factory
-	closer, err := cfg.InitGlobalTracer(
-		"Gateway",
-		//jaegercfg.Logger(jLogger),
-		jaegercfg.Metrics(jMetricsFactory),
+	//collector, err := zipkin.NewHTTPCollector("http://192.168.1.16:9411/api/v1/spans")
+	//if err != nil {
+	//	log.Fatal(err)
+	//	return
+	//}
+	//
+	//tracer, err := zipkin.NewTracer(
+	//	zipkin.NewRecorder(collector, false, "localhost:0", "gateway"),
+	//	zipkin.ClientServerSameSpan(true),
+	//	zipkin.TraceID128Bit(true),
+	//)
+	//if err != nil {
+	//	log.Fatal(err)
+	//	return
+	//}
+	//opentracing.InitGlobalTracer(tracer)
+
+	// Jaeger tracer can be initialized with a transport that will
+	// report tracing Spans to a Zipkin backend
+	transport, err := zipkin.NewHTTPTransport(
+		"http://192.168.1.16:9411/api/v1/spans",
+		zipkin.HTTPBatchSize(1),
+		zipkin.HTTPLogger(jaeger.StdLogger),
 	)
 	if err != nil {
-		log.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
-		return
+		log.Fatalf("Cannot initialize HTTP transport: %v", err)
 	}
+	// create Jaeger tracer
+	tracer, closer := jaeger.NewTracer(
+		"gateway",
+		jaeger.NewConstSampler(true), // sample all traces
+		jaeger.NewRemoteReporter(transport),
+	)
+
+	opentracing.InitGlobalTracer(tracer)
+
 	defer closer.Close()
 
 	beego.Run()
