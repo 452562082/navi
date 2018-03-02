@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	glog "git.oschina.net/kuaishangtong/common/utils/log"
 	"github.com/gorilla/mux"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/opentracing/opentracing-go/log"
 	"io/ioutil"
 	"net/http"
 )
@@ -19,40 +22,53 @@ func main() {
 
 	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err.Error())
+		glog.Fatal("ListenAndServe: ", err.Error())
 	}
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	log.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
+	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
 	fmt.Fprintf(w, "pong")
 }
 
 func serviceNameHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	log.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
+	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
 	fmt.Fprintf(w, "MyHttpTest")
 }
 
 func serviceModeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	log.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
+	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
 	fmt.Fprintf(w, "dev")
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusNotFound)
-		log.Errorf("req Method is not POST")
+		glog.Errorf("req Method is not POST")
 		return
 	}
 
-	log.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
+	textCarrier := opentracing.HTTPHeadersCarrier(r.Header)
+	wireSpanContext, err := opentracing.GlobalTracer().Extract(
+		opentracing.TextMap, textCarrier)
+	if err != nil {
+		panic(err)
+	}
+	serverSpan := opentracing.GlobalTracer().StartSpan(
+		"POST sayHello",
+		ext.RPCServerOption(wireSpanContext))
+	serverSpan.SetTag("component", "server")
+	defer serverSpan.Finish()
+
+	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Errorf("read req body err: %v", err)
+		glog.Errorf("read req body err: %v", err)
+		serverSpan.LogFields(log.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -61,10 +77,12 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(data, &body)
 	if err != nil {
-		log.Errorf("Unmarshal req json body err: %v", err)
+		glog.Errorf("Unmarshal req json body err: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	serverSpan.LogFields(log.String("request body", body["name"].(string)))
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "hello %s", body["name"].(string))
