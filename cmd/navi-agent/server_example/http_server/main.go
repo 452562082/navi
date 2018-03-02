@@ -40,6 +40,7 @@ func main() {
 	)
 	defer closer.Close()
 
+	glog.Info("MyTest Http server start")
 	err = http.ListenAndServe(":8081", nethttp.Middleware(tracer, r))
 	if err != nil {
 		glog.Fatal("ListenAndServe: ", err.Error())
