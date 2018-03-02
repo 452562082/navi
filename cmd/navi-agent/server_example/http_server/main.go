@@ -7,8 +7,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
-	"github.com/uber/jaeger-client-go"
-	"github.com/uber/jaeger-client-go/transport/zipkin"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jaegerlog "github.com/uber/jaeger-client-go/log"
+	"github.com/uber/jaeger-lib/metrics"
+
+	//"github.com/uber/jaeger-client-go"
+	//"github.com/uber/jaeger-client-go/transport/zipkin"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -22,25 +26,56 @@ func main() {
 	r.HandleFunc("/hello", helloHandler)
 	http.Handle("/", r)
 
-	// Jaeger tracer can be initialized with a transport that will
-	// report tracing Spans to a Zipkin backend
-	transport, err := zipkin.NewHTTPTransport(
-		"http://192.168.1.16:9411/api/v1/spans",
-		zipkin.HTTPBatchSize(1),
-		zipkin.HTTPLogger(jaeger.StdLogger),
+	//// Jaeger tracer can be initialized with a transport that will
+	//// report tracing Spans to a Zipkin backend
+	//transport, err := zipkin.NewHTTPTransport(
+	//	"http://192.168.1.16:9411/api/v1/spans",
+	//	zipkin.HTTPBatchSize(1),
+	//	zipkin.HTTPLogger(jaeger.StdLogger),
+	//)
+	//if err != nil {
+	//	glog.Fatalf("Cannot initialize HTTP transport: %v", err)
+	//}
+	//// create Jaeger tracer
+	//tracer, closer := jaeger.NewTracer(
+	//	"MyTest",
+	//	jaeger.NewConstSampler(true), // sample all traces
+	//	jaeger.NewRemoteReporter(transport),
+	//)
+	//defer closer.Close()
+	//
+	//opentracing.InitGlobalTracer(tracer)
+
+	// Recommended configuration for production.
+	cfg := jaegercfg.Configuration{
+		Sampler: &jaegercfg.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &jaegercfg.ReporterConfig{
+			LogSpans:            true,
+			BufferFlushInterval: 1 * time.Second,
+			LocalAgentHostPort:  "192.168.1.16:5775",
+		},
+	}
+
+	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
+	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
+	// frameworks.
+	jLogger := jaegerlog.StdLogger
+	jMetricsFactory := metrics.NullFactory
+
+	// Initialize tracer with a logger and a metrics factory
+	closer, err := cfg.InitGlobalTracer(
+		"MyTest",
+		jaegercfg.Logger(jLogger),
+		jaegercfg.Metrics(jMetricsFactory),
 	)
 	if err != nil {
-		glog.Fatalf("Cannot initialize HTTP transport: %v", err)
+		glog.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
+		return
 	}
-	// create Jaeger tracer
-	tracer, closer := jaeger.NewTracer(
-		"MyTest",
-		jaeger.NewConstSampler(true), // sample all traces
-		jaeger.NewRemoteReporter(transport),
-	)
 	defer closer.Close()
-
-	opentracing.InitGlobalTracer(tracer)
 
 	glog.Info("MyTest Http server start")
 	err = http.ListenAndServe(":8081",
@@ -91,7 +126,6 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	defer serverSpan.Finish()
 
 	glog.Infof("req remoteAddr: %s for url %s", r.RemoteAddr, r.URL.Path)
-	serverSpan.LogFields(log.String("remoteAddr", r.RemoteAddr))
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -101,10 +135,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	timeSpan := serverSpan.Tracer().StartSpan("time sleep")
 	time.Sleep(time.Second)
-	timeSpan.LogFields(log.String("sleep", "1 second"))
-	timeSpan.Finish()
 
 	var body map[string]interface{}
 
