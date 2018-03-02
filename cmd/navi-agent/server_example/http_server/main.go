@@ -91,6 +91,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	defer serverSpan.Finish()
 
 	glog.Infof("req remoteAddr: %s for url %s", r.RemoteAddr, r.URL.Path)
+	serverSpan.LogFields(log.String("remoteAddr", r.RemoteAddr))
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -100,7 +101,10 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	timeSpan := serverSpan.Tracer().StartSpan("time sleep")
 	time.Sleep(time.Second)
+	timeSpan.LogFields(log.String("sleep", "1 second"))
+	timeSpan.Finish()
 
 	var body map[string]interface{}
 
