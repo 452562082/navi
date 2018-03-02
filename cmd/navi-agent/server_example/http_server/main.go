@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	glog "git.oschina.net/kuaishangtong/common/utils/log"
-	"github.com/gorilla/mux"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/transport/zipkin"
 	"io/ioutil"
@@ -15,12 +12,12 @@ import (
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/ping", pingHandler)
-	r.HandleFunc("/servicename", serviceNameHandler)
-	r.HandleFunc("/servicemode", serviceModeHandler)
-	r.HandleFunc("/hello", helloHandler)
-	http.Handle("/", r)
+	//r := mux.NewRouter()
+	http.HandleFunc("/ping", pingHandler)
+	http.HandleFunc("/servicename", serviceNameHandler)
+	http.HandleFunc("/servicemode", serviceModeHandler)
+	http.HandleFunc("/hello", helloHandler)
+	//http.Handle("/", r)
 
 	// Jaeger tracer can be initialized with a transport that will
 	// report tracing Spans to a Zipkin backend
@@ -41,7 +38,7 @@ func main() {
 	defer closer.Close()
 
 	glog.Info("MyTest Http server start")
-	err = http.ListenAndServe(":8081", nethttp.Middleware(tracer, r))
+	err = http.ListenAndServe(":8081", nethttp.Middleware(tracer, http.DefaultServeMux, nethttp.MWComponentName("MyTestHttpServer")))
 	if err != nil {
 		glog.Fatal("ListenAndServe: ", err.Error())
 	}
@@ -74,25 +71,25 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 	glog.Info(r.Header)
 
-	textCarrier := opentracing.HTTPHeadersCarrier(r.Header)
-	wireSpanContext, err := opentracing.GlobalTracer().Extract(
-		opentracing.TextMap, textCarrier)
-	if err != nil {
-		glog.Errorf("req remoteAddr: %s for url %s Extract err: %v", r.RemoteAddr, r.URL.Path, err)
-	}
-
-	serverSpan := opentracing.GlobalTracer().StartSpan(
-		"POST sayHello",
-		opentracing.ChildOf(wireSpanContext))
-	serverSpan.SetTag("component", "server")
-	defer serverSpan.Finish()
+	//textCarrier := opentracing.HTTPHeadersCarrier(r.Header)
+	//wireSpanContext, err := opentracing.GlobalTracer().Extract(
+	//	opentracing.TextMap, textCarrier)
+	//if err != nil {
+	//	glog.Errorf("req remoteAddr: %s for url %s Extract err: %v", r.RemoteAddr, r.URL.Path, err)
+	//}
+	//
+	//serverSpan := opentracing.GlobalTracer().StartSpan(
+	//	"POST sayHello",
+	//	opentracing.ChildOf(wireSpanContext))
+	//serverSpan.SetTag("component", "server")
+	//defer serverSpan.Finish()
 
 	glog.Infof("req remoteAddr: %s for url %s", r.RemoteAddr, r.URL.Path)
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		glog.Errorf("read req body err: %v", err)
-		serverSpan.LogFields(log.Error(err))
+		//serverSpan.LogFields(log.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -107,7 +104,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	glog.Info(body)
-	serverSpan.LogFields(log.String("request body", body["yourname"].(string)))
+	//serverSpan.LogFields(log.String("request body", body["yourname"].(string)))
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "hello %s", body["yourname"].(string))
