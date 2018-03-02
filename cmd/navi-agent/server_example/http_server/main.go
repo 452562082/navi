@@ -141,6 +141,8 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	rpcSpan.SetTag("rpc", "mytest rpc server")
 	defer rpcSpan.Finish()
 	time.Sleep(time.Second)
+	// 模拟rpc返回错误
+	rpcSpan.LogFields(log.Error(fmt.Errorf("rpc error")))
 
 	var body map[string]interface{}
 
