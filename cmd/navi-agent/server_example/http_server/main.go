@@ -55,8 +55,9 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	wireSpanContext, err := opentracing.GlobalTracer().Extract(
 		opentracing.TextMap, textCarrier)
 	if err != nil {
-		panic(err)
+		glog.Errorf("req remoteAddr: %s for url /%s Extract err: %v", r.RemoteAddr, r.URL.Path, err)
 	}
+
 	serverSpan := opentracing.GlobalTracer().StartSpan(
 		"POST sayHello",
 		ext.RPCServerOption(wireSpanContext))
