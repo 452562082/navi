@@ -11,6 +11,7 @@ import (
 	"github.com/uber/jaeger-client-go/transport/zipkin"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -98,6 +99,8 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	time.Sleep(time.Second)
 
 	var body map[string]interface{}
 

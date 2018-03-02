@@ -193,12 +193,12 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 
 	tracer := opentracing.GlobalTracer()
 
-	span := tracer.StartSpan("Proxy to " + outreq.Header.Get("RemoteAddr"))
-	span.SetTag("abc", "cdf")
-	defer span.Finish()
-
-	ctx = opentracing.ContextWithSpan(ctx, span)
-	outreq = outreq.WithContext(ctx)
+	//span := tracer.StartSpan("Proxy to " + outreq.Header.Get("RemoteAddr"))
+	//span.SetTag("abc", "cdf")
+	//defer span.Finish()
+	//
+	//ctx = opentracing.ContextWithSpan(ctx, span)
+	//outreq = outreq.WithContext(ctx)
 
 	outreq, ht := nethttp.TraceRequest(tracer, outreq, nethttp.ClientTrace(true))
 	defer ht.Finish()
