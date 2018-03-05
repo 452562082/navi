@@ -9,10 +9,8 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	//jaegerlog "github.com/uber/jaeger-client-go/log"
-	"github.com/uber/jaeger-lib/metrics"
+	//"github.com/uber/jaeger-lib/metrics"
 
-	//"github.com/uber/jaeger-client-go"
-	//"github.com/uber/jaeger-client-go/transport/zipkin"
 	jprom "github.com/uber/jaeger-lib/metrics/prometheus"
 	"io/ioutil"
 	"net/http"
@@ -41,12 +39,12 @@ func main() {
 	}
 
 	//jLogger := jaegerlog.StdLogger
-	jMetricsFactory := metrics.NullFactory
+	//jMetricsFactory := metrics.NullFactory
 
 	//metricsFactory := xkit.Wrap("", expvar.NewFactory(10)) // 10 buckets for histograms
 
 	metricsFactory := jprom.New()
-	metricsFactory.Namespace("route", nil)
+	jMetricsFactory := metricsFactory.Namespace("MyTest", nil)
 
 	// Initialize tracer with a logger and a metrics factory
 	closer, err := cfg.InitGlobalTracer(
@@ -61,7 +59,7 @@ func main() {
 	defer closer.Close()
 
 	glog.Info("MyTest Http server start")
-	err = http.ListenAndServe(":8081",
+	err = http.ListenAndServe(":8082",
 		nil /*nethttp.Middleware(tracer, http.DefaultServeMux, nethttp.MWComponentName("MyTestHttpServer"))*/)
 	if err != nil {
 		glog.Fatal("ListenAndServe: ", err.Error())
