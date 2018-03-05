@@ -14,7 +14,7 @@ const _ipFilterRules = `{
     {
       "service_name": "MyTest",
       "dev_ips": [
-        "192.168.1.1/24",
+        "192.168.120.54/32",
 		"127.0.0.1/32"
       ],
       "deny_ips": [

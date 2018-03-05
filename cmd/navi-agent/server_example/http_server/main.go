@@ -8,13 +8,12 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
-	jaegerlog "github.com/uber/jaeger-client-go/log"
+	//jaegerlog "github.com/uber/jaeger-client-go/log"
 	"github.com/uber/jaeger-lib/metrics"
 
 	//"github.com/uber/jaeger-client-go"
 	//"github.com/uber/jaeger-client-go/transport/zipkin"
-	"github.com/uber/jaeger-lib/metrics/go-kit"
-	"github.com/uber/jaeger-lib/metrics/go-kit/expvar"
+	jprom "github.com/uber/jaeger-lib/metrics/prometheus"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -41,7 +40,7 @@ func main() {
 		},
 	}
 
-	jLogger := jaegerlog.StdLogger
+	//jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
 
 	//metricsFactory := xkit.Wrap("", expvar.NewFactory(10)) // 10 buckets for histograms
@@ -52,7 +51,7 @@ func main() {
 	// Initialize tracer with a logger and a metrics factory
 	closer, err := cfg.InitGlobalTracer(
 		"MyTest",
-		jaegercfg.Logger(jLogger),
+		//jaegercfg.Logger(jLogger),
 		jaegercfg.Metrics(jMetricsFactory),
 	)
 	if err != nil {
