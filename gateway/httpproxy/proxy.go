@@ -195,7 +195,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	tracer := opentracing.GlobalTracer()
 	outreq, ht := nethttp.TraceRequest(tracer, outreq,
 		//nethttp.ClientTrace(false),
-		nethttp.OperationName(fmt.Sprintf("POST: /%s%s server: %s", outreq.Header.Get("service"), outreq.URL.Path, outreq.URL.Host)),
+		nethttp.OperationName(fmt.Sprintf("Addr: [%s] POST [/%s%s]", outreq.RemoteAddr, outreq.Header.Get("service"), outreq.URL.Path)),
 		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
 

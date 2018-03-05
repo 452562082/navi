@@ -171,7 +171,7 @@ func (h *Tracer) start(req *http.Request) opentracing.Span {
 	}
 
 	ctx := h.root.Context()
-	h.sp = h.tr.StartSpan(fmt.Sprintf("HTTP %s to %s%s", req.Method, req.URL.Host, req.URL.Path), opentracing.ChildOf(ctx))
+	h.sp = h.tr.StartSpan(fmt.Sprintf("%s to [%s%s]", req.Method, req.URL.Host, req.URL.Path), opentracing.ChildOf(ctx))
 	ext.SpanKindRPCClient.Set(h.sp)
 
 	componentName := h.opts.componentName
