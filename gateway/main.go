@@ -31,7 +31,7 @@ import (
 	"git.oschina.net/kuaishangtong/navi/ipfilter"
 	"github.com/astaxie/beego"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
-	jaegerlog "github.com/uber/jaeger-client-go/log"
+	//jaegerlog "github.com/uber/jaeger-client-go/log"
 	"github.com/uber/jaeger-lib/metrics"
 
 	//jprom "github.com/uber/jaeger-lib/metrics/prometheus"
@@ -69,7 +69,7 @@ func main() {
 	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
 	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
 	// frameworks.
-	jLogger := jaegerlog.StdLogger
+	//jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
 
 	//metricsFactory := jprom.New()
@@ -78,7 +78,7 @@ func main() {
 	// Initialize tracer with a logger and a metrics factory
 	closer, err := cfg.InitGlobalTracer(
 		"gateway",
-		jaegercfg.Logger(jLogger),
+		//jaegercfg.Logger(jLogger),
 		jaegercfg.Metrics(jMetricsFactory),
 		jaegercfg.Observer(rpcmetrics.NewObserver(jMetricsFactory, rpcmetrics.DefaultNameNormalizer)),
 	)
