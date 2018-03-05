@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptrace"
 
+	"fmt"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
@@ -170,7 +171,7 @@ func (h *Tracer) start(req *http.Request) opentracing.Span {
 	}
 
 	ctx := h.root.Context()
-	h.sp = h.tr.StartSpan("HTTP "+req.Method, opentracing.ChildOf(ctx))
+	h.sp = h.tr.StartSpan(fmt.Sprintf("HTTP %s to %s%s", req.Method, req.URL.Host, req.URL.Path), opentracing.ChildOf(ctx))
 	ext.SpanKindRPCClient.Set(h.sp)
 
 	componentName := h.opts.componentName
