@@ -43,7 +43,7 @@ type randomSelector struct {
 
 func NewRandomSelector(servers map[string]string) Selector {
 	var ss = make([]string, 0, len(servers))
-	for k := range servers {
+	for k, _ := range servers {
 		ss = append(ss, k)
 	}
 
@@ -68,7 +68,7 @@ func (s randomSelector) Select(ctx context.Context, servicePath, serviceMethod, 
 
 func (s *randomSelector) UpdateServer(servers map[string]string) {
 	var ss = make([]string, 0, len(servers))
-	for k := range servers {
+	for k, _ := range servers {
 		ss = append(ss, k)
 	}
 
@@ -83,7 +83,7 @@ type roundRobinSelector struct {
 
 func NewRoundRobinSelector(servers map[string]string) Selector {
 	var ss = make([]string, 0, len(servers))
-	for k := range servers {
+	for k, _ := range servers {
 		ss = append(ss, k)
 	}
 
@@ -108,7 +108,7 @@ func (s *roundRobinSelector) Select(ctx context.Context, servicePath, serviceMet
 
 func (s *roundRobinSelector) UpdateServer(servers map[string]string) {
 	var ss = make([]string, 0, len(servers))
-	for k := range servers {
+	for k, _ := range servers {
 		ss = append(ss, k)
 	}
 
@@ -249,7 +249,7 @@ type consistentHashSelector struct {
 
 func NewConsistentHashSelector(servers map[string]string) Selector {
 	var ss = make([]string, 0, len(servers))
-	for k := range servers {
+	for k, _ := range servers {
 		ss = append(ss, k)
 	}
 
@@ -267,7 +267,7 @@ func (s consistentHashSelector) Select(ctx context.Context, servicePath, service
 
 func (s *consistentHashSelector) UpdateServer(servers map[string]string) {
 	var ss = make([]string, 0, len(servers))
-	for k := range servers {
+	for k, _ := range servers {
 		ss = append(ss, k)
 	}
 
