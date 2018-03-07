@@ -35,6 +35,7 @@ import (
 	metrics "github.com/rcrowley/go-metrics"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -91,7 +92,8 @@ func main() {
 				ZooKeeperServers: defaultConfig.Zookeeper.ZookeeperHosts,
 				BasePath:         basePath,
 				//Mode:             defaultConfig.Server.ServerMode,
-				Metrics:          metrics.NewRegistry(),
+				Metrics:        metrics.NewRegistry(),
+				UpdateInterval: 2 * time.Second,
 			}
 
 			err = r.Start()

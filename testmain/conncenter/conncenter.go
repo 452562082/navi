@@ -12,11 +12,10 @@ import (
 	"time"
 )
 
-const initialAllocSize = 8
-
 var connCenter *ConnCenter // 全局引擎
 
 var gTimeout int
+var gAllocSize int = 8
 
 type Conn struct {
 	scpool   *ServerConnPool
@@ -154,8 +153,8 @@ type ServerConnPool struct {
 
 func newServerConnPool(host string, interval int) (*ServerConnPool, error) {
 	shpool := &ServerConnPool{
-		free:      make([]*Conn, 0, initialAllocSize),
-		nextAlloc: initialAllocSize,
+		free:      make([]*Conn, 0, gAllocSize),
+		nextAlloc: gAllocSize,
 		lock:      &sync.RWMutex{},
 		closed:    false,
 		available: true,
@@ -261,35 +260,19 @@ func (s *ServerConnPool) putConn(conn *Conn) {
 	s.free = append(s.free, conn)
 }
 
-func (s *ServerConnPool) reset() error {
+func (s *ServerConnPool) reset(size int) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	s.nextAlloc = initialAllocSize
+	s.nextAlloc = size
 
-	for i := initialAllocSize - 1; i < len(s.free); i++ {
-		s.free[i].Close()
+	for i := size - 1; i < len(s.free); i++ {
+		if conn := s.free[i]; conn != nil {
+			conn.Close()
+		}
 	}
 
-	s.free = s.free[:initialAllocSize]
-
-	//log.Debugf("len of free: %d", len(s.free))
-	//s.closeAllConns()
-	//
-	//s.free = make([]*Conn, 0, s.nextAlloc)
-	//conns := make([]*Conn, s.nextAlloc, s.nextAlloc)
-	//
-	//for i, _ := range conns {
-	//	conn, err := newConn(s)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	conns[i] = conn
-	//}
-	//
-	//for _, conn := range conns {
-	//	s.free = append(s.free, conn)
-	//}
+	s.free = s.free[:size]
 	return nil
 }
 
@@ -307,21 +290,21 @@ func (s *ServerConnPool) stat() {
 
 			length := len(s.free)
 			capab := cap(s.free)
-			log.Infof("%s ServerConnPool STAT: len of pool %d, cap of pool %d", s.host, length, capab)
+			log.Infof("STAT ServerConnPool [%s]: count of conn %d", s.host, length)
 
-			if capab <= initialAllocSize {
+			if capab <= gAllocSize {
 				continue
 			}
 
-			if length > initialAllocSize {
+			if length > gAllocSize*2 {
 				count++
 			} else {
 				count = 0
 			}
 
-			// 5分钟， 空闲的连接太多，连接池重置
+			// 5分钟， 空闲的连接太多，连接池重置，连接数量减半
 			if count >= 30 {
-				s.reset()
+				s.reset(length / 2)
 				count = 0
 			}
 		}
@@ -342,8 +325,9 @@ type ConnCenter struct {
 	lock *sync.RWMutex
 }
 
-func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeout, interval int, failMode lb.FailMode) (err error) {
+func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeout, interval, connNum int, failMode lb.FailMode) (err error) {
 	gTimeout = timeout
+	gAllocSize = connNum
 
 	connCenter = &ConnCenter{
 		serverPools: make(map[string]*ServerConnPool),
