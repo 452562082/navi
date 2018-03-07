@@ -51,17 +51,17 @@ class MyTestHandler : virtual public MyTestIf {
 
   void SaveWave(Response& _return, const std::string& fileName, const std::string& wavFormat, const std::string& data) {
     // Your implementation goes here
-//    int bufLen = data.size() / 2;
-//    short* buf = new short[bufLen];
-//    for(int i = 0, j = 0; i < data.size() && j < bufLen;) {
-//        buf[i] = (short)(data[i] & 0xff);
-//        buf[j] |= (short)((data[i + 1] << 8) & 0xff00);
-//        i += 2;
-//        j++;
-//    }
-//
-//    bool flag = WaveSave(fileName.str, buf, bufLen);
-//    printf("status: %d",flag);
+    int bufLen = data.size() / 2;
+    short* buf = new short[bufLen];
+    for(int i = 0, j = 0; i < data.size() && j < bufLen;) {
+        buf[i] = (short)(data[i] & 0xff);
+        buf[j] |= (short)((data[i + 1] << 8) & 0xff00);
+        i += 2;
+        j++;
+    }
+
+    bool flag = WaveSave(fileName.c_str(), buf, bufLen);
+    printf("status: %d",flag);
 
     _return.__set_responseCode(200);
     _return.__set_responseJSON("{\"file_name\": \""+fileName+"\", \"wav_format\": \"" +wavFormat+"\", \"data\": \"" +data+"\"}");
