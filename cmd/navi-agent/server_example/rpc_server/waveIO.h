@@ -32,7 +32,7 @@ typedef struct {
 	long	bitspsample;	// bits per sample
 }WAVINFO;
 
-bool WaveSave(char *wavFilename,short *pBuf,long len)
+bool WaveSave(const char *wavFilename, short *pBuf, long len)
 {
 	WAVECHUNK	waveChunk;
 	FMTCHUNK	fmtChunk;
@@ -71,7 +71,7 @@ bool WaveSave(char *wavFilename,short *pBuf,long len)
 	return true;
 }
 
-bool WaveLoad(const char* strFileName,short* &pWavData,unsigned long& len)
+bool WaveLoad(const char* strFileName, short* &pWavData, unsigned long& len)
 {
 	int ii,iTotalReaded,iBytesReaded;
 
