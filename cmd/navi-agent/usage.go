@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 )
 
 const (

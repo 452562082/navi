@@ -2,7 +2,7 @@ package navi
 
 import (
 	//"reflect"
-	//"git.oschina.net/kuaishangtong/navi/testmain/navi"
+	//"kuaishangtong/navi/testmain/navi"
 )
 
 func NaviServiceClient_Methods() {

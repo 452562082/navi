@@ -3,7 +3,7 @@ package httpproxy
 import (
 	"context"
 	"fmt"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"

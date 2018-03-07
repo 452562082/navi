@@ -79,16 +79,16 @@ import (
 	"syscall"
 	"time"
 	
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
-	"git.oschina.net/kuaishangtong/navi/registry"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/registry"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
 	metrics "github.com/rcrowley/go-metrics"
 	"{{.PkgPath}}/gen"
 	"{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
-	"git.oschina.net/kuaishangtong/navi/lb"
+	"kuaishangtong/navi/lb"
 )
 
 func getaddr() (string,error) {
@@ -202,9 +202,9 @@ import (
 	"context"
 	"fmt"
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/lb"
-	"git.oschina.net/kuaishangtong/navi/registry"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/lb"
+	"kuaishangtong/navi/registry"
 	t "{{.PkgPath}}/gen/thrift/gen-go/gen"
 	"github.com/valyala/fastrand"
 	"sync"
@@ -574,7 +574,7 @@ func (c *Creator) generateThriftHTTPComponent() {
 import (
 	t "{{.PkgPath}}/gen/thrift/gen-go/gen"
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 )
 
 // ThriftClient returns a thrift client
@@ -653,7 +653,7 @@ func (c *Creator) generateGrpcHTTPMain() {
 import (
 	"{{.PkgPath}}/gen"
 	"{{.PkgPath}}/grpcapi/component"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"os/signal"
 	"os"
 	"syscall"
@@ -661,10 +661,10 @@ import (
 	"net"
 	"time"
 	"strings"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
-	"git.oschina.net/kuaishangtong/navi/registry"
+	"kuaishangtong/navi/registry"
 	metrics "github.com/rcrowley/go-metrics"
 )
 
@@ -753,7 +753,7 @@ func (c *Creator) generateGrpcHTTPComponent() {
 import (
 	"{{.PkgPath}}/gen/proto"
 	"google.golang.org/grpc"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 )
 
 // GrpcClient returns a grpc client

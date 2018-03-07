@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 )
 
 type GrpcServer struct {

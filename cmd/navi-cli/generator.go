@@ -75,7 +75,7 @@ package gen
 
 import (
 	g "{{.PkgPath}}/gen/proto"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"net/http"
 	"errors"
 )
@@ -370,12 +370,12 @@ package gen
 
 import (
 	"{{.PkgPath}}/gen/thrift/gen-go/gen"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/thriftapi/engine"
 	"reflect"
 	"net/http"
 	"errors"
-	"git.oschina.net/kuaishangtong/navi/lb"
+	"kuaishangtong/navi/lb"
 )
 
 var cur_conn_num int

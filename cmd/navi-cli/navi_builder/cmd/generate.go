@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"github.com/spf13/cobra"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 )
 
 var generateCmd = &cobra.Command{

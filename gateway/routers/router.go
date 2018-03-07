@@ -1,9 +1,9 @@
 package routers
 
 import (
-	"git.oschina.net/kuaishangtong/navi/gateway/constants"
-	"git.oschina.net/kuaishangtong/navi/gateway/controllers"
-	"git.oschina.net/kuaishangtong/navi/ipfilter"
+	"kuaishangtong/navi/gateway/constants"
+	"kuaishangtong/navi/gateway/controllers"
+	"kuaishangtong/navi/ipfilter"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/plugins/cors"

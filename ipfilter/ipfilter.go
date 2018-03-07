@@ -3,7 +3,7 @@ package ipfilter
 import (
 	"encoding/json"
 	"fmt"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
 	"net"

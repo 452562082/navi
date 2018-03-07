@@ -2,7 +2,7 @@ package navicli
 
 import (
 	"google.golang.org/grpc"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 )
 
 type grpcClient struct {

@@ -24,11 +24,11 @@
 package main
 
 import (
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/gateway/constants"
-	_ "git.oschina.net/kuaishangtong/navi/gateway/routers"
-	"git.oschina.net/kuaishangtong/navi/gateway/service"
-	"git.oschina.net/kuaishangtong/navi/ipfilter"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/gateway/constants"
+	_ "kuaishangtong/navi/gateway/routers"
+	"kuaishangtong/navi/gateway/service"
+	"kuaishangtong/navi/ipfilter"
 	"github.com/astaxie/beego"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	//jaegerlog "github.com/uber/jaeger-client-go/log"

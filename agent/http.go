@@ -2,7 +2,7 @@ package agent
 
 import (
 	"fmt"
-	"git.oschina.net/kuaishangtong/common/utils/httplib"
+	"kuaishangtong/common/utils/httplib"
 	"time"
 )
 

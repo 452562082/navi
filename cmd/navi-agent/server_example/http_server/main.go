@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	glog "git.oschina.net/kuaishangtong/common/utils/log"
+	glog "kuaishangtong/common/utils/log"
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"

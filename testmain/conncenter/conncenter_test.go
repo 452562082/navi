@@ -1,8 +1,8 @@
 package conncenter
 
 import (
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/lb"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/lb"
 	"testing"
 )
 

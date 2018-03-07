@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"git.oschina.net/kuaishangtong/navi/errors"
+	"kuaishangtong/navi/errors"
 )
 
 type Agenter interface {

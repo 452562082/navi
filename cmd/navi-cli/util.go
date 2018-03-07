@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 	sjson "github.com/bitly/go-simplejson"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"

@@ -15,7 +15,7 @@ func (c *Creator) generateThriftServiceMain() {
 
 import (
 	"{{.PkgPath}}/thriftservice/impl"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"os/signal"
 	"os"
 	"syscall"
@@ -104,7 +104,7 @@ func (c *Creator) generateGrpcServiceMain() {
 
 import (
 	"{{.PkgPath}}/grpcservice/impl"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"os/signal"
 	"os"
 	"syscall"
@@ -187,12 +187,12 @@ func (c *Creator) generateServiceMain(rpcType string) {
 var rootMainGrpc string = `package main
 
 import (
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/gen"
 	gcomponent "{{.PkgPath}}/grpcapi/component"
 	gimpl "{{.PkgPath}}/grpcservice/impl"
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/lb"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/lb"
 	"os/signal"
 	"os"
 	"syscall"
@@ -219,13 +219,13 @@ func main() {
 var rootMainThrift string = `package main
 
 import (
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli"
+	"kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/gen"
 	tcomponent "{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
 	timpl "{{.PkgPath}}/thriftservice/impl"
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/lb"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/lb"
 	"os/signal"
 	"os"
 	"syscall"

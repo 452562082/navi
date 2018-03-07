@@ -1,10 +1,10 @@
 package service
 
 import (
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/gateway/constants"
-	"git.oschina.net/kuaishangtong/navi/lb"
-	"git.oschina.net/kuaishangtong/navi/registry"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/gateway/constants"
+	"kuaishangtong/navi/lb"
+	"kuaishangtong/navi/registry"
 	"strings"
 	"time"
 )

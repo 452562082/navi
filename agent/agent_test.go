@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"git.oschina.net/kuaishangtong/navi/registry"
+	"kuaishangtong/navi/registry"
 	metrics "github.com/rcrowley/go-metrics"
 	"testing"
 )

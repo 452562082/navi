@@ -3,7 +3,7 @@ package navicli
 //
 //import (
 //	"git.apache.org/thrift.git/lib/go/thrift"
-//	"git.oschina.net/kuaishangtong/common/utils/log"
+//	"kuaishangtong/common/utils/log"
 //)
 //
 //type thriftClient struct {

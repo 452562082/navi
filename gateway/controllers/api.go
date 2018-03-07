@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"git.oschina.net/kuaishangtong/common/utils/log"
-	"git.oschina.net/kuaishangtong/navi/gateway/httpproxy"
-	"git.oschina.net/kuaishangtong/navi/gateway/service"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/gateway/httpproxy"
+	"kuaishangtong/navi/gateway/service"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"

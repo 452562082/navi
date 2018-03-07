@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"

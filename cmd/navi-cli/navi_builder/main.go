@@ -24,7 +24,7 @@ package main
 
 import (
 	"fmt"
-	"git.oschina.net/kuaishangtong/navi/cmd/navi-cli/navi_builder/cmd"
+	"kuaishangtong/navi/cmd/navi-cli/navi_builder/cmd"
 	"os"
 )
 

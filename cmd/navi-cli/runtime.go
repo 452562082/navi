@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.oschina.net/kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils/log"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
