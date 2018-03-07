@@ -114,7 +114,7 @@ func (a *Agent) Serve() (err error) {
 							log.Error(err)
 							continue
 						}
-						log.Debugf("unregister service %s successful", a.servername)
+						log.Infof("unregister %s service %s successful", a.typ, a.servername)
 					}
 					continue
 				}
@@ -126,7 +126,7 @@ func (a *Agent) Serve() (err error) {
 						continue
 					} else {
 						service_active = true
-						log.Debugf("register service %s successful", a.servername)
+						log.Infof("register %s service %s successful", a.typ, a.servername)
 					}
 				}
 			}
