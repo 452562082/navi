@@ -669,7 +669,7 @@ func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeo
 
 	log.Infof("ConnCenter NewZookeeperDiscovery in %s/%s", basePath, servicePath)
 
-	initserver := connCenter.getServices()
+	initserver := XConnCenter.getServices()
 	selecter := lb.NewSelector(lb.RoundRobin, initserver)
 
 	for host, _ := range initserver {
@@ -767,8 +767,8 @@ func (c *ConnCenter) getServices() map[string]string {
 	return servers
 }
 
-func GetConn() (interface{}, error) {
-	return XConnCenter.getConn()
+func (c *ConnCenter) GetConn() (interface{}, error) {
+	return c.getConn()
 }
 
 func (c *ConnCenter) getConn() (*Conn, error) {
