@@ -207,7 +207,7 @@ import (
 	"kuaishangtong/navi/lb"
 	"kuaishangtong/navi/registry"
 	t "{{.PkgPath}}/gen/thrift/gen-go/gen"
-	"github.com/valyala/fastrand"
+	//"github.com/valyala/fastrand"
 	"sync"
 	"time"
 )
@@ -814,7 +814,11 @@ func (c *ConnCenter) getConn() (*Conn, error) {
 	return nil, fmt.Errorf("can not find available conn in %s", host)
 }
 
-func PutConn(conn interface{}) error {
+func (c *ConnCenter) PutConn(conn interface{}) error {
+	return connCenter.putConn(conn.(*Conn))
+}
+
+func (c *ConnCenter) putConn(conn *Conn) error {
 
 	c.lock.Lock()
 	if pool, ok := c.serverPools[conn.host]; ok {
