@@ -17,7 +17,7 @@ var connCenter *ConnCenter // 全局引擎
 var gTimeout int
 var gAllocSize int = 8
 
-type Conn struct {
+type ThriftConn struct {
 	scpool   *ServerConnPool
 	host     string
 	interval int
@@ -28,9 +28,9 @@ type Conn struct {
 	reConnFlag chan struct{}
 }
 
-func newConn(pool *ServerConnPool) (*Conn, error) {
+func newThriftConn(pool *ServerConnPool) (*ThriftConn, error) {
 	var err error
-	conn := &Conn{
+	conn := &ThriftConn{
 		scpool:     pool,
 		host:       pool.host,
 		interval:   pool.interval,
@@ -48,51 +48,51 @@ func newConn(pool *ServerConnPool) (*Conn, error) {
 	return conn, nil
 }
 
-func (c *Conn) check() {
+func (tc *ThriftConn) check() {
 
-	for !c.closed {
+	for !tc.closed {
 		select {
-		case <-c.reConnFlag:
-			c.close()
+		case <-tc.reConnFlag:
+			tc.close()
 
-			newClient, err := c.connect()
+			newClient, err := tc.connect()
 			if err != nil {
-				log.Errorf("reconnect to %s err: %v", c.host, err)
+				log.Errorf("reconnect to %s err: %v", tc.host, err)
 
 				reconnectOK := false
-				for !reconnectOK && !c.closed {
+				for !reconnectOK && !tc.closed {
 					ticker := time.NewTicker(1 * time.Second)
 
 					select {
 					case <-ticker.C:
-						newClient, err := c.connect()
+						newClient, err := tc.connect()
 						if err != nil {
-							log.Errorf("reconnect to %s err: %v", c.host, err)
+							log.Errorf("reconnect to %s err: %v", tc.host, err)
 						} else {
-							c.NaviServiceClient = newClient
-							c.available = true
+							tc.NaviServiceClient = newClient
+							tc.available = true
 							reconnectOK = true
 						}
 					}
 					ticker.Stop()
 				}
 			} else {
-				c.NaviServiceClient = newClient
-				c.available = true
+				tc.NaviServiceClient = newClient
+				tc.available = true
 			}
 		}
 	}
 }
 
-func (c *Conn) GetServerConnPool() *ServerConnPool {
-	return c.scpool
+func (tc *ThriftConn) GetServerConnPool() *ServerConnPool {
+	return tc.scpool
 }
 
-func (c *Conn) connect() (*navi.NaviServiceClient, error) {
+func (tc *ThriftConn) connect() (*navi.NaviServiceClient, error) {
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 
-	transport, err := thrift.NewTSocketTimeout(c.host, time.Duration(gTimeout)*time.Second)
+	transport, err := thrift.NewTSocketTimeout(tc.host, time.Duration(gTimeout)*time.Second)
 	if err != nil {
 		return nil, err
 	}
@@ -113,36 +113,36 @@ func (c *Conn) connect() (*navi.NaviServiceClient, error) {
 	return client, nil
 }
 
-func (c *Conn) Available() bool {
-	return c.available
+func (tc *ThriftConn) Available() bool {
+	return tc.available
 }
 
 // 当外部调用rpc接口报错err，一般为rpc连接出问题，需要重新连接
-func (c *Conn) Reconnect() {
-	c.available = false
-	c.reConnFlag <- struct{}{}
+func (tc *ThriftConn) Reconnect() {
+	tc.available = false
+	tc.reConnFlag <- struct{}{}
 }
 
 // 关闭Conn下的thrift rpc连接
-func (c *Conn) close() {
-	c.available = false
-	if c.NaviServiceClient != nil {
-		c.NaviServiceClient.InputProtocol.Transport().Close()
-		c.NaviServiceClient.OutputProtocol.Transport().Close()
-		c.NaviServiceClient.Transport.Close()
+func (tc *ThriftConn) close() {
+	tc.available = false
+	if tc.NaviServiceClient != nil {
+		tc.NaviServiceClient.InputProtocol.Transport().Close()
+		tc.NaviServiceClient.OutputProtocol.Transport().Close()
+		tc.NaviServiceClient.Transport.Close()
 	}
 }
 
 // 关闭Conn连接
-func (c *Conn) Close() {
-	c.closed = true
-	c.close()
-	//close(c.reConnFlag)
+func (tc *ThriftConn) Close() {
+	tc.closed = true
+	tc.close()
+	//close(tc.reConnFlag)
 }
 
 type ServerConnPool struct {
 	lock      *sync.RWMutex
-	free      []*Conn
+	free      []*ThriftConn
 	nextAlloc int
 
 	closed    bool
@@ -153,7 +153,7 @@ type ServerConnPool struct {
 
 func newServerConnPool(host string, interval int) (*ServerConnPool, error) {
 	shpool := &ServerConnPool{
-		free:      make([]*Conn, 0, gAllocSize),
+		free:      make([]*ThriftConn, 0, gAllocSize),
 		nextAlloc: gAllocSize,
 		lock:      &sync.RWMutex{},
 		closed:    false,
@@ -176,12 +176,12 @@ func (s *ServerConnPool) SetAvailable(flag bool) {
 }
 
 func (s *ServerConnPool) grow() error {
-	conns := make([]*Conn, s.nextAlloc, s.nextAlloc)
+	conns := make([]*ThriftConn, s.nextAlloc, s.nextAlloc)
 
 	for i := 0; i < len(conns); i++ {
-		conn, err := newConn(s)
+		conn, err := newThriftConn(s)
 		if err != nil {
-			log.Errorf("ServerConnPool newConn to %s err: %v", s.host, err)
+			log.Errorf("ServerConnPool newThriftConn to %s err: %v", s.host, err)
 		}
 		conns[i] = conn
 		//log.Infof("new conn to %s", s.host)
@@ -215,7 +215,7 @@ func (s *ServerConnPool) closeAllConns() {
 	}
 }
 
-func (s *ServerConnPool) getConn() (conn *Conn) {
+func (s *ServerConnPool) getConn() (conn *ThriftConn) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -247,7 +247,7 @@ func (s *ServerConnPool) getConn() (conn *Conn) {
 	return conn
 }
 
-func (s *ServerConnPool) putConn(conn *Conn) {
+func (s *ServerConnPool) putConn(conn *ThriftConn) {
 	// 回收的连接不可用，直接关闭并丢弃
 	if !conn.Available() {
 		conn.Close()
@@ -366,21 +366,21 @@ func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeo
 	return
 }
 
-func (c *ConnCenter) Close() {
-	c.closed = true
-	for _, connPool := range c.serverPools {
+func (tc *ConnCenter) Close() {
+	tc.closed = true
+	for _, connPool := range tc.serverPools {
 		connPool.close()
 	}
 }
 
-func (c *ConnCenter) serviceDiscovery() {
+func (tc *ConnCenter) serviceDiscovery() {
 
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	for !c.closed {
+	for !tc.closed {
 		select {
-		case pairs, ok := <-c.discovery.WatchService():
+		case pairs, ok := <-tc.discovery.WatchService():
 
 			if !ok {
 				continue
@@ -393,11 +393,11 @@ func (c *ConnCenter) serviceDiscovery() {
 				servers = append(servers, p.Key)
 			}
 
-			c.selector.UpdateServer(newservers)
+			tc.selector.UpdateServer(newservers)
 			log.Infof("ConnCenter UpdateServer %v", servers)
 
 			var oldmap, newmap map[string]struct{} = make(map[string]struct{}), make(map[string]struct{})
-			for k, _ := range c.serverPools {
+			for k, _ := range tc.serverPools {
 				oldmap[k] = struct{}{}
 			}
 
@@ -414,28 +414,28 @@ func (c *ConnCenter) serviceDiscovery() {
 
 			// 关闭不可用的server对应的连接池
 			for host, _ := range oldmap {
-				if pool, ok := c.serverPools[host]; ok {
+				if pool, ok := tc.serverPools[host]; ok {
 					pool.close()
 				}
-				delete(c.serverPools, host)
+				delete(tc.serverPools, host)
 			}
 
 			// 创建新的server对应的连接池
 			for host, _ := range newmap {
-				pool, err := newServerConnPool(host, c.interval)
+				pool, err := newServerConnPool(host, tc.interval)
 				if err != nil {
 					log.Error(err)
 					continue
 				}
-				c.serverPools[host] = pool
+				tc.serverPools[host] = pool
 			}
 		}
 	}
 
 }
 
-func (c *ConnCenter) getServices() map[string]string {
-	kvpairs := c.discovery.GetServices()
+func (tc *ConnCenter) getServices() map[string]string {
+	kvpairs := tc.discovery.GetServices()
 	servers := make(map[string]string)
 	for _, p := range kvpairs {
 		servers[p.Key] = p.Value
@@ -443,22 +443,22 @@ func (c *ConnCenter) getServices() map[string]string {
 	return servers
 }
 
-func (c *ConnCenter) GetConn() (interface{}, error) {
+func (tc *ConnCenter) GetConn() (interface{}, error) {
 	return connCenter.getConn()
 }
 
-func (c *ConnCenter) getConn() (*Conn, error) {
+func (tc *ConnCenter) getConn() (*ThriftConn, error) {
 
 	var host string
-	var serverCount, index int = len(c.serverPools), 0
+	var serverCount, index int = len(tc.serverPools), 0
 	for {
 		index++
-		host = c.selector.Select(context.Background(), "", "", host, nil)
+		host = tc.selector.Select(context.Background(), "", "", host, nil)
 		if host == "" {
 			return nil, fmt.Errorf("can not find available serverConnPool")
 		}
 
-		if c.serverPools[host].Available() {
+		if tc.serverPools[host].Available() {
 			break
 		}
 
@@ -473,34 +473,34 @@ func (c *ConnCenter) getConn() (*Conn, error) {
 		return nil, fmt.Errorf("can not find available serverConnPool")
 	}
 
-	c.lock.Lock()
-	if pool, ok := c.serverPools[host]; ok {
+	tc.lock.Lock()
+	if pool, ok := tc.serverPools[host]; ok {
 		conn := pool.getConn()
 		if conn == nil {
 			log.Errorf("can not find available conn in %s", host)
-			c.lock.Unlock()
+			tc.lock.Unlock()
 			return nil, fmt.Errorf("can not find available conn in %s", host)
 		}
-		c.lock.Unlock()
+		tc.lock.Unlock()
 		return conn, nil
 	}
-	c.lock.Unlock()
+	tc.lock.Unlock()
 
 	log.Errorf("can not find available conn in %s", host)
 	return nil, fmt.Errorf("can not find available conn in %s", host)
 }
 
-func (c *ConnCenter) PutConn(conn interface{}) error {
-	return connCenter.putConn(conn.(*Conn))
+func (tc *ConnCenter) PutConn(conn interface{}) error {
+	return connCenter.putConn(conn.(*ThriftConn))
 }
 
-func (c *ConnCenter) putConn(conn *Conn) error {
+func (tc *ConnCenter) putConn(conn *ThriftConn) error {
 
-	c.lock.Lock()
-	if pool, ok := c.serverPools[conn.host]; ok {
+	tc.lock.Lock()
+	if pool, ok := tc.serverPools[conn.host]; ok {
 		pool.putConn(conn)
 	}
-	c.lock.Unlock()
+	tc.lock.Unlock()
 
 	//if conn.scpool != nil {
 	//	conn.scpool.close()
@@ -509,17 +509,17 @@ func (c *ConnCenter) putConn(conn *Conn) error {
 	return fmt.Errorf("can not find serverConnPool %s", conn.host)
 }
 
-func (c *ConnCenter) GetFailMode() interface{} {
-	return c.failMode
+func (tc *ConnCenter) GetFailMode() interface{} {
+	return tc.failMode
 }
 
-func (c *ConnCenter) GetRetries() int {
-	return c.retries
+func (tc *ConnCenter) GetRetries() int {
+	return tc.retries
 }
 
-func (c *ConnCenter) SetServerConnPoolUnavailable(serverPool interface{}) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
+func (tc *ConnCenter) SetServerConnPoolUnavailable(serverPool interface{}) {
+	tc.lock.Lock()
+	defer tc.lock.Unlock()
 
 	serverPool.(*ServerConnPool).SetAvailable(false)
 }
