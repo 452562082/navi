@@ -841,7 +841,7 @@ func (c *ConnCenter) GetRetries() (int) {
 	return c.retries
 }
 
-func (c *ConnCenter) SetServerConnPoolUnavailable(serverPool interface{}) {
+func (c *ConnCenter) SetServerConnPoolUnavailable(serverConnPool interface{}) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	
