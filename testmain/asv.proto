@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package asv;
+
+message Rpc_UttInfo {
+	string Utt = 1;
+	int64 Duration = 2;
+	int64 ValidDuration = 3;
+	int32 Channels = 4;
+	int32 SampRate = 5;
+	int32 ErrCode = 6;
+	string ErrMsg = 7;
+	int32 RetCode = 8;
+}
+
+message Rpc_ModelInfo {
+	string Utt = 1; 
+	string Spkid = 2; 
+	int32 Size = 3; 
+	string Language = 4; 
+	string Gender = 5; 
+	string Channeltype = 6; 
+	int32 SampRate = 7; 
+	int64 Duration = 8; 
+	int64 ValidDuration = 9; 
+	string IvFile = 10;
+    int32 ErrCode = 11;
+    string ErrMsg = 12;
+	int32 RetCode = 13;
+}
+
+message Rpc_ScoreInfo {
+	string Utt = 1;
+	string Spkid = 2;
+	double Score = 3;
+	int32 SampRate = 4;
+	int64 Duration = 5;
+	int64 ValidDuration = 6;
+    int32 ErrCode = 7;
+    string ErrMsg = 8;
+	int32 RetCode = 9;
+}
+
+message Rpc_SpeakerScore {
+    string Spkid = 1;
+    double Score = 2; 
+    string Node = 3;
+}
+
+message Rpc_TopSpeakerInfo {
+	string Utt = 1;
+	repeated Rpc_SpeakerScore Scores = 2;
+    int32 Top = 3;
+	int32 SampRate = 4;
+	int64 Duration = 5;
+	int64 ValidDuration = 6;
+    int32 ErrCode = 7;
+    string ErrMsg = 8;
+	int32 RetCode = 9;
+}
+
+message Rpc_LicenceInfo {
+	string dateStr = 1;
+	int32 maxOccurs = 2;
+    string fingerprint = 3;
+	int32 RetCode = 4;
+}
+
+service KvpService {
+	rpc KvpPing() returns (string); 
+	
+	/**
+	 *	解析语音文件信息。
+	 *
+	 *	@param wavpath 语音文件路径。
+	 *
+	 *	@return Rpc_UttInfo 返回语音信息。
+	 */
+    rpc KvpGetUttInfo(string wavpath) returns (Rpc_UttInfo);
+
+	/**
+	 *	将某说话人ID从某个库节点中删除。
+	 *
+	 *	@param vp_node 库节点名称。
+	 *	@param vp_dir 库节点本地路径。
+	 *	@param spk_id 说话人ID。
+	 *
+	 *	@return KVP_CODE
+	 */
+    rpc KvpModelRemoveBySpkid(string vp_node, string vp_dir, string spk_id) returns (int32);
+
+	/**
+	 *	注册说话人。
+	 *
+	 *	@param utt 语音路径。
+	 *	@param vp_node 说话人待注册库节点名称。
+	 *	@param vp_dir 声纹库路径。(--------该参数被废弃--------)
+	 *	@param spk_id 说话人ID。
+	 *	@param sp_chan 指定处理声道。
+	 *
+	 *	@return Rpc_ModelInfo 说话人模型信息。
+	 */
+    rpc KvpRegisterSpeakerByFile(string utt, string vp_node, string vp_dir, string spk_id, int32 sp_chan) returns (Rpc_ModelInfo);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

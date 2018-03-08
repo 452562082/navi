@@ -443,7 +443,7 @@ func (c *ConnCenter) getServices() map[string]string {
 	return servers
 }
 
-func GetConn() (interface{}, error) {
+func (c *ConnCenter) GetConn() (interface{}, error) {
 	return connCenter.getConn()
 }
 
@@ -490,7 +490,7 @@ func (c *ConnCenter) getConn() (*Conn, error) {
 	return nil, fmt.Errorf("can not find available conn in %s", host)
 }
 
-func PutConn(conn interface{}) error {
+func (c *ConnCenter) PutConn(conn interface{}) error {
 	return connCenter.putConn(conn.(*Conn))
 }
 
