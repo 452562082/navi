@@ -107,7 +107,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher, engine.connCenter)
+	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher, engine.XConnCenter)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
@@ -213,7 +213,7 @@ import (
 )
 
 //var XEngine *Engine // 全局引擎
-var connCenter *ConnCenter // 全局引擎
+var XConnCenter *ConnCenter // 全局引擎
 
 var gTimeout int
 //var gMaxConns int
@@ -653,7 +653,7 @@ func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeo
 	gTimeout = timeout
 	gAllocSize = connNum
 
-	connCenter = &ConnCenter{
+	XConnCenter = &ConnCenter{
 		serverPools: make(map[string]*ServerConnPool),
 		failMode:    failMode,
 		interval:    interval,
@@ -662,7 +662,7 @@ func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeo
 		closed:      false,
 	}
 
-	connCenter.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
+	XConnCenter.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
 	if err != nil {
 		return
 	}
@@ -678,14 +678,14 @@ func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeo
 			log.Error(err)
 			return err
 		}
-		connCenter.serverPools[host] = pool
+		XConnCenter.serverPools[host] = pool
 		log.Infof("ConnCenter add conn pool into %s", host)
 	}
 
 	selecter.UpdateServer(initserver)
-	connCenter.selector = selecter
+	XConnCenter.selector = selecter
 
-	go connCenter.serviceDiscovery()
+	go XConnCenter.serviceDiscovery()
 
 	return
 }
@@ -768,7 +768,7 @@ func (c *ConnCenter) getServices() map[string]string {
 }
 
 func GetConn() (interface{}, error) {
-	return connCenter.getConn()
+	return XConnCenter.getConn()
 }
 
 func (c *ConnCenter) getConn() (*Conn, error) {
@@ -815,7 +815,7 @@ func (c *ConnCenter) getConn() (*Conn, error) {
 }
 
 func (c *ConnCenter) PutConn(conn interface{}) error {
-	return connCenter.putConn(conn.(*Conn))
+	return XConnCenter.putConn(conn.(*Conn))
 }
 
 func (c *ConnCenter) putConn(conn *Conn) error {

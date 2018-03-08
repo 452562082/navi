@@ -243,7 +243,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, engine.connCenter, timpl.TProcessor)
+	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, engine.XConnCenter, timpl.TProcessor)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
