@@ -385,9 +385,9 @@ type ServerConnPool struct {
 
 func newServerConnPool(host string, interval int) (*ServerConnPool, error) {
 	shpool := &ServerConnPool{
-		free:		make([]*Conn, 0, gAllocSize)
+		free:		make([]*Conn, 0, gAllocSize),
 		nextAlloc: gAllocSize,
-		lock:		&sync.RWMutex{}
+		lock:		&sync.RWMutex{},
 		closed:	false,
 		available:	true,
 		host:		host,
