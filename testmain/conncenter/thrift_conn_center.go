@@ -366,21 +366,21 @@ func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeo
 	return
 }
 
-func (tc *ConnCenter) Close() {
-	tc.closed = true
-	for _, connPool := range tc.serverPools {
+func (cc *ConnCenter) Close() {
+	cc.closed = true
+	for _, connPool := range cc.serverPools {
 		connPool.close()
 	}
 }
 
-func (tc *ConnCenter) serviceDiscovery() {
+func (cc *ConnCenter) serviceDiscovery() {
 
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	for !tc.closed {
+	for !cc.closed {
 		select {
-		case pairs, ok := <-tc.discovery.WatchService():
+		case pairs, ok := <-cc.discovery.WatchService():
 
 			if !ok {
 				continue
@@ -393,11 +393,11 @@ func (tc *ConnCenter) serviceDiscovery() {
 				servers = append(servers, p.Key)
 			}
 
-			tc.selector.UpdateServer(newservers)
+			cc.selector.UpdateServer(newservers)
 			log.Infof("ConnCenter UpdateServer %v", servers)
 
 			var oldmap, newmap map[string]struct{} = make(map[string]struct{}), make(map[string]struct{})
-			for k, _ := range tc.serverPools {
+			for k, _ := range cc.serverPools {
 				oldmap[k] = struct{}{}
 			}
 
@@ -414,28 +414,28 @@ func (tc *ConnCenter) serviceDiscovery() {
 
 			// 关闭不可用的server对应的连接池
 			for host, _ := range oldmap {
-				if pool, ok := tc.serverPools[host]; ok {
+				if pool, ok := cc.serverPools[host]; ok {
 					pool.close()
 				}
-				delete(tc.serverPools, host)
+				delete(cc.serverPools, host)
 			}
 
 			// 创建新的server对应的连接池
 			for host, _ := range newmap {
-				pool, err := newServerConnPool(host, tc.interval)
+				pool, err := newServerConnPool(host, cc.interval)
 				if err != nil {
 					log.Error(err)
 					continue
 				}
-				tc.serverPools[host] = pool
+				cc.serverPools[host] = pool
 			}
 		}
 	}
 
 }
 
-func (tc *ConnCenter) getServices() map[string]string {
-	kvpairs := tc.discovery.GetServices()
+func (cc *ConnCenter) getServices() map[string]string {
+	kvpairs := cc.discovery.GetServices()
 	servers := make(map[string]string)
 	for _, p := range kvpairs {
 		servers[p.Key] = p.Value
@@ -443,22 +443,22 @@ func (tc *ConnCenter) getServices() map[string]string {
 	return servers
 }
 
-func (tc *ConnCenter) GetConn() (interface{}, error) {
-	return tc.getConn()
+func (cc *ConnCenter) GetConn() (interface{}, error) {
+	return cc.getConn()
 }
 
-func (tc *ConnCenter) getConn() (*ThriftConn, error) {
+func (cc *ConnCenter) getConn() (*ThriftConn, error) {
 
 	var host string
-	var serverCount, index int = len(tc.serverPools), 0
+	var serverCount, index int = len(cc.serverPools), 0
 	for {
 		index++
-		host = tc.selector.Select(context.Background(), "", "", host, nil)
+		host = cc.selector.Select(context.Background(), "", "", host, nil)
 		if host == "" {
 			return nil, fmt.Errorf("can not find available serverConnPool")
 		}
 
-		if tc.serverPools[host].Available() {
+		if cc.serverPools[host].Available() {
 			break
 		}
 
@@ -473,34 +473,34 @@ func (tc *ConnCenter) getConn() (*ThriftConn, error) {
 		return nil, fmt.Errorf("can not find available serverConnPool")
 	}
 
-	tc.lock.Lock()
-	if pool, ok := tc.serverPools[host]; ok {
+	cc.lock.Lock()
+	if pool, ok := cc.serverPools[host]; ok {
 		conn := pool.getConn()
 		if conn == nil {
 			log.Errorf("can not find available conn in %s", host)
-			tc.lock.Unlock()
+			cc.lock.Unlock()
 			return nil, fmt.Errorf("can not find available conn in %s", host)
 		}
-		tc.lock.Unlock()
+		cc.lock.Unlock()
 		return conn, nil
 	}
-	tc.lock.Unlock()
+	cc.lock.Unlock()
 
 	log.Errorf("can not find available conn in %s", host)
 	return nil, fmt.Errorf("can not find available conn in %s", host)
 }
 
-func (tc *ConnCenter) PutConn(conn interface{}) error {
-	return tc.putConn(conn.(*ThriftConn))
+func (cc *ConnCenter) PutConn(conn interface{}) error {
+	return cc.putConn(conn.(*ThriftConn))
 }
 
-func (tc *ConnCenter) putConn(conn *ThriftConn) error {
+func (cc *ConnCenter) putConn(conn *ThriftConn) error {
 
-	tc.lock.Lock()
-	if pool, ok := tc.serverPools[conn.host]; ok {
+	cc.lock.Lock()
+	if pool, ok := cc.serverPools[conn.host]; ok {
 		pool.putConn(conn)
 	}
-	tc.lock.Unlock()
+	cc.lock.Unlock()
 
 	//if conn.scpool != nil {
 	//	conn.scpool.close()
@@ -509,17 +509,17 @@ func (tc *ConnCenter) putConn(conn *ThriftConn) error {
 	return fmt.Errorf("can not find serverConnPool %s", conn.host)
 }
 
-func (tc *ConnCenter) GetFailMode() interface{} {
-	return tc.failMode
+func (cc *ConnCenter) GetFailMode() interface{} {
+	return cc.failMode
 }
 
-func (tc *ConnCenter) GetRetries() int {
-	return tc.retries
+func (cc *ConnCenter) GetRetries() int {
+	return cc.retries
 }
 
-func (tc *ConnCenter) SetServerConnPoolUnavailable(serverPool interface{}) {
-	tc.lock.Lock()
-	defer tc.lock.Unlock()
+func (cc *ConnCenter) SetServerConnPoolUnavailable(serverPool interface{}) {
+	cc.lock.Lock()
+	defer cc.lock.Unlock()
 
 	serverPool.(*ServerConnPool).SetAvailable(false)
 }
