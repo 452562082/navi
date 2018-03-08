@@ -15,7 +15,7 @@ func TestEngine_GetConn(t *testing.T) {
 	for i := 0; i < 32; i++ {
 
 		go func() {
-			conn, err := GetConn()
+			conn, err := connCenter.GetConn()
 			if err != nil {
 				t.Fatal(err)
 			}

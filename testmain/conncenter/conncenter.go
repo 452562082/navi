@@ -443,8 +443,8 @@ func (c *ConnCenter) getServices() map[string]string {
 	return servers
 }
 
-func GetConn() (interface{}, error) {
-	return connCenter.getConn()
+func (c *ConnCenter) GetConn() (interface{}, error) {
+	return c.getConn()
 }
 
 func (c *ConnCenter) getConn() (*Conn, error) {
