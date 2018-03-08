@@ -238,11 +238,12 @@ var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePat
 func main() {
 	flag.Parse()
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, *configFilePath)
-	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
+	//err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
+	err := engine.InitConnCenter(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 1, 15, lb.Failover)
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, engine.XEngine, timpl.TProcessor)
+	s.Start(tcomponent.ThriftClient, gen.ThriftSwitcher, engine.XConnCenter, timpl.TProcessor)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)

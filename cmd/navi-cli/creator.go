@@ -102,11 +102,12 @@ func getaddr() (string,error) {
 
 func main() {
 	s := navicli.NewThriftServer(&component.ServiceInitializer{}, "{{.ConfigFilePath}}")
-	err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
+	//err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
+	err := engine.InitConnCenter(s.Config.ZookeeperRpcServicePath(), s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 1, 15, lb.Failover)
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher, engine.XEngine)
+	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher, engine.XConnCenter)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
@@ -206,33 +207,58 @@ import (
 	"kuaishangtong/navi/lb"
 	"kuaishangtong/navi/registry"
 	t "{{.PkgPath}}/gen/thrift/gen-go/gen"
-	"github.com/valyala/fastrand"
+	//"github.com/valyala/fastrand"
 	"sync"
 	"time"
 )
 
-var XEngine *Engine // 全局引擎
+//var XEngine *Engine // 全局引擎
+var XConnCenter *ConnCenter // 全局引擎
 
 var gTimeout int
-var gMaxConns int
+//var gMaxConns int
+var gAllocSize int = 8
 
 type Conn struct {
-	serverHost    *ServerHost
-	host     string
-	interval int
+	//serverHost    *ServerHost
+	scpool		*ServerConnPool
+	host     	string
+	interval 	int
 	*t.{{.ServiceName}}Client
-	closed    bool
-	available bool
+	closed    	bool
+	available 	bool
+
+	reConnFlag chan struct{}
 }
 
-func newConn(serverHost *ServerHost, host string, interval int) (*Conn, error) {
+//func newConn(serverHost *ServerHost, host string, interval int) (*Conn, error) {
+//	var err error
+//	conn := &Conn{
+//		serverHost: serverHost,
+//		host:      host,
+//		interval:  interval,
+//		closed:    false,
+//		available: true,
+//	}
+//
+//	conn.{{.ServiceName}}Client, err = conn.connect()
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	go conn.check()
+//	return conn, nil
+//}
+
+func newConn(pool *ServerConnPool) (*Conn, error) {
 	var err error
 	conn := &Conn{
-		serverHost: serverHost,
-		host:      host,
-		interval:  interval,
-		closed:    false,
-		available: true,
+		scpool:     pool,
+		host:       pool.host,
+		interval:   pool.interval,
+		closed:     false,
+		available:  true,
+		reConnFlag: make(chan struct{}),
 	}
 
 	conn.{{.ServiceName}}Client, err = conn.connect()
@@ -245,36 +271,42 @@ func newConn(serverHost *ServerHost, host string, interval int) (*Conn, error) {
 }
 
 func (c *Conn) check() {
-	ticker := time.NewTicker(time.Duration(c.interval) * time.Second)
-	defer ticker.Stop()
-
 	for !c.closed {
 		select {
-		case <-ticker.C:
-			_, err := c.Ping()
-			if err != nil {
-				log.Error(err)
-				c.available = false
+		case <-c.reConnFlag:
+			c.close()
 
-				newClient, err1 := c.connect()
-				if err1 != nil {
-					log.Error(err1)
-					continue
-				} else {
-					c.close()
-					c.{{.ServiceName}}Client = newClient
-					c.available = true
-					c.serverHost.available = true
+			newClient, err := c.connect()
+			if err != nil {
+				log.Errorf("reconnect to %s err: %v", c.host, err)
+
+				reconnectOK := false
+				for !reconnectOK && !c.closed {
+					ticker := time.NewTicker(1 * time.Second)
+
+					select {
+					case <-ticker.C:
+						newClient, err := c.connect()
+						if err != nil {
+							log.Errorf("reconnect to %s err: %v", c.host, err)
+						} else {
+							c.{{.ServiceName}}Client = newClient
+							c.available = true
+							reconnectOK = true
+						}
+					}
+					ticker.Stop()
 				}
 			} else {
+				c.{{.ServiceName}}Client = newClient
 				c.available = true
 			}
 		}
 	}
 }
 
-func (c *Conn) GetServerHost() (*ServerHost) {
-	return c.serverHost
+func (c *Conn) GetServerConnPool() (*ServerConnPool) {
+	return c.scpool
 }
 
 func (c *Conn) connect() (*t.{{.ServiceName}}Client, error) {
@@ -306,7 +338,21 @@ func (c *Conn) Available() bool {
 	return c.available
 }
 
+//func (c *Conn) close() {
+//	if c.{{.ServiceName}}Client != nil {
+//		c.{{.ServiceName}}Client.InputProtocol.Transport().Close()
+//		c.{{.ServiceName}}Client.OutputProtocol.Transport().Close()
+//		c.{{.ServiceName}}Client.Transport.Close()
+//	}
+//}
+
+func (c *Conn) Reconnect() {
+	c.available = false
+	c.reConnFlag <- struct{}{}
+}
+
 func (c *Conn) close() {
+	c.available = false
 	if c.{{.ServiceName}}Client != nil {
 		c.{{.ServiceName}}Client.InputProtocol.Transport().Close()
 		c.{{.ServiceName}}Client.OutputProtocol.Transport().Close()
@@ -319,243 +365,487 @@ func (c *Conn) Close() {
 	c.close()
 }
 
-type ServerHost struct {
-	host  string
-	lock  *sync.RWMutex
-	conns []*Conn
+//type ServerHost struct {
+//	host  string
+//	lock  *sync.RWMutex
+//	conns []*Conn
+//	available bool
+//}
+
+type ServerConnPool struct {
+	lock      *sync.RWMutex
+	free      []*Conn
+	nextAlloc int
+
+	closed    bool
 	available bool
+	host      string
+	interval  int
 }
 
-func newServerHost(host string, maxConns int) (*ServerHost, error) {
-	serverHost := &ServerHost{
-		host: host,
-		lock: new(sync.RWMutex),
-		available: true,
+func newServerConnPool(host string, interval int) (*ServerConnPool, error) {
+	shpool := &ServerConnPool{
+		free:		make([]*Conn, 0, gAllocSize),
+		nextAlloc: gAllocSize,
+		lock:		&sync.RWMutex{},
+		closed:	false,
+		available:	true,
+		host:		host,
+		interval:	interval,
 	}
 
-	conns := make([]*Conn, maxConns, maxConns)
-	for i := 0; i < maxConns; i++ {
-		conn, err := newConn(serverHost, host, 1)
-		if err != nil {
-			return nil, err
-		}
+	go shpool.stat()
 
-		conns[i] = conn
-	}
-
-	serverHost.conns = conns
-	return serverHost, nil
+	return shpool, nil
 }
 
-func (s *ServerHost) Available() bool {
+//func newServerHost(host string, maxConns int) (*ServerHost, error) {
+//	serverHost := &ServerHost{
+//		host: host,
+//		lock: new(sync.RWMutex),
+//		available: true,
+//	}
+//
+//	conns := make([]*Conn, maxConns, maxConns)
+//	for i := 0; i < maxConns; i++ {
+//		conn, err := newConn(serverHost, host, 1)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		conns[i] = conn
+//	}
+//
+//	serverHost.conns = conns
+//	return serverHost, nil
+//}
+
+func (s *ServerConnPool) Available() bool {
 	return s.available
 }
  
-func (s *ServerHost) SetAvailable(flag bool) {
+func (s *ServerConnPool) SetAvailable(flag bool) {
 	s.available = flag
 }
 
-func (s *ServerHost) closeAllConns() {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+func (s *ServerConnPool) grow() error {
+	conns := make([]*Conn, s.nextAlloc, s.nextAlloc)
 
-	if s.conns != nil {
-		for _, conn := range s.conns {
-			conn.Close()
+	for i := 0; i < len(conns); i++ {
+		conn, err := newConn(s)
+		if err != nil {
+			log.Errorf("ServerConnPool newConn to %s err: %v", s.host, err)
 		}
-		s.conns = s.conns[:0]
+		conns[i] = conn
 	}
-}
 
-func (s *ServerHost) getConn() *Conn {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-
-	if s.conns != nil && len(s.conns) > 0 {
-		length := len(s.conns)
-		i := int(fastrand.Uint32n(uint32(length)))
-
-		loopCount := 0
-		for !s.conns[i].Available() {
-			loopCount++
-			if loopCount == length {
-				return nil
-			}
-			i = (i + 1) % length
-		}
-
-		return s.conns[i]
+	for _, conn := range conns {
+		s.free = append(s.free, conn)
 	}
+
+	s.nextAlloc *= 2
 	return nil
 }
 
-type Engine struct {
-	servers   map[string]*ServerHost
-	discovery registry.ServiceDiscovery
-	selector  lb.Selector
-	failMode 	lb.FailMode
-	lock  *sync.RWMutex
+func (s *ServerConnPool) close() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
-	// Retries retries to send
-	retries int
+	s.closed = true
+	s.closeAllConns()
 }
 
-func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, maxConns int, failMode lb.FailMode) (err error) {
-	gTimeout = timeout
-	gMaxConns = maxConns
-	XEngine = &Engine{
-		servers: make(map[string]*ServerHost),
-		failMode: failMode,
+func (s *ServerConnPool) closeAllConns() {
+	//s.lock.Lock()
+	//defer s.lock.Unlock()
+
+	if s.free != nil {
+		for _, conn := range s.free {
+			conn.Close()
+		}
+		s.free = s.free[:0]
+	}
+}
+
+//func (s *ServerHost) getConn() *Conn {
+//	s.lock.RLock()
+//	defer s.lock.RUnlock()
+//
+//	if s.conns != nil && len(s.conns) > 0 {
+//		length := len(s.conns)
+//		i := int(fastrand.Uint32n(uint32(length)))
+//
+//		loopCount := 0
+//		for !s.conns[i].Available() {
+//			loopCount++
+//			if loopCount == length {
+//				return nil
+//			}
+//			i = (i + 1) % length
+//		}
+//
+//		return s.conns[i]
+//	}
+//	return nil
+//}
+
+func (s *ServerConnPool) getConn() (conn *Conn) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	if len(s.free) == 0 {
+		s.grow()
 	}
 
-	XEngine.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
+	connOK := false
+
+	index := len(s.free) - 1
+
+	for !connOK && index >= 0 {
+
+		conn, s.free = s.free[index], s.free[:index]
+		if conn != nil && conn.Available() {
+			connOK = true
+		} else {
+			if conn != nil {
+				conn.Close()
+			}
+			index = len(s.free) - 1
+		}
+	}
+
+	if !connOK || index < 0 {
+		return nil
+	}
+
+	return conn
+}
+
+func (s *ServerConnPool) putConn(conn *Conn) {
+	// 回收的连接不可用，直接关闭并丢弃
+	if !conn.Available() {
+		conn.Close()
+		return
+	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.free = append(s.free, conn)
+}
+
+func (s *ServerConnPool) reset(size int) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.nextAlloc = size
+
+	for i := size - 1; i < len(s.free); i++ {
+		if conn := s.free[i]; conn != nil {
+			conn.Close()
+		}
+	}
+
+	s.free = s.free[:size]
+	return nil
+}
+
+func (s *ServerConnPool) stat() {
+
+	ticker10 := time.NewTicker(10 * time.Second)
+	defer ticker10.Stop()
+
+	var count int
+
+	for !s.closed {
+		select {
+
+		case <-ticker10.C:
+
+			length := len(s.free)
+			capab := cap(s.free)
+			log.Infof("STAT ServerConnPool [%s]: count of conn %d", s.host, length)
+
+			if capab <= gAllocSize {
+				continue
+			}
+
+			if length > gAllocSize*2 {
+				count++
+			} else {
+				count = 0
+			}
+
+			// 5分钟， 空闲的连接太多，连接池重置，连接数量减半
+			if count >= 30 {
+				s.reset(length / 2)
+				count = 0
+			}
+		}
+	}
+}
+
+//type Engine struct {
+//	servers   map[string]*ServerHost
+//	discovery registry.ServiceDiscovery
+//	selector  lb.Selector
+//	failMode 	lb.FailMode
+//	lock  *sync.RWMutex
+//
+//	// Retries retries to send
+//	retries int
+//}
+
+type ConnCenter struct {
+	serverPools map[string]*ServerConnPool
+	discovery   registry.ServiceDiscovery
+	selector    lb.Selector
+	failMode    lb.FailMode
+
+	interval int
+	retries  int
+
+	closed bool
+
+	lock *sync.RWMutex
+}
+
+//func InitEngine(basePath string, servicePath string, zkhosts []string, timeout, maxConns int, failMode lb.FailMode) (err error) {
+//	gTimeout = timeout
+//	gMaxConns = maxConns
+//	XEngine = &Engine{
+//		servers: make(map[string]*ServerHost),
+//		failMode: failMode,
+//	}
+//
+//	XEngine.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
+//	if err != nil {
+//		return
+//	}
+//
+//	log.Infof("Engine NewZookeeperDiscovery in %s/%s", basePath, servicePath)
+//
+//	selecter := lb.NewSelector(lb.RoundRobin, nil)
+//
+//	initserver := XEngine.getServices()
+//
+//	for key, _ := range initserver {
+//			host, err := newServerHost(key, gMaxConns)
+//			if err != nil {
+//				log.Error(err)
+//				return err
+//			}
+//			XEngine.servers[key] = host
+//			log.Infof("Engine add conn host in %s", key)
+//	}
+//
+//	selecter.UpdateServer(initserver)
+//
+//	XEngine.selector = selecter
+//
+//	XEngine.lock = new(sync.RWMutex)
+//	XEngine.retries = 3
+//
+//	return
+//}
+
+func InitConnCenter(basePath string, servicePath string, zkhosts []string, timeout, interval, connNum int, failMode lb.FailMode) (err error) {
+	gTimeout = timeout
+	gAllocSize = connNum
+
+	XConnCenter = &ConnCenter{
+		serverPools: make(map[string]*ServerConnPool),
+		failMode:    failMode,
+		interval:    interval,
+		lock:        &sync.RWMutex{},
+		retries:     3,
+		closed:      false,
+	}
+
+	XConnCenter.discovery, err = registry.NewZookeeperDiscovery(basePath, servicePath, zkhosts, nil)
 	if err != nil {
 		return
 	}
 
-	log.Infof("Engine NewZookeeperDiscovery in %s/%s", basePath, servicePath)
+	log.Infof("ConnCenter NewZookeeperDiscovery in %s/%s", basePath, servicePath)
 
-	selecter := lb.NewSelector(lb.RoundRobin, nil)
+	initserver := XConnCenter.getServices()
+	selecter := lb.NewSelector(lb.RoundRobin, initserver)
 
-	initserver := XEngine.getServices()
-	
-	for key, _ := range initserver {
-			host, err := newServerHost(key, gMaxConns)
-			if err != nil {
-				log.Error(err)
-				return err
-			}
-			XEngine.servers[key] = host
-			log.Infof("Engine add conn host in %s", key)
+	for host, _ := range initserver {
+		pool, err := newServerConnPool(host, interval)
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+		XConnCenter.serverPools[host] = pool
+		log.Infof("ConnCenter add conn pool into %s", host)
 	}
 
 	selecter.UpdateServer(initserver)
+	XConnCenter.selector = selecter
 
-	XEngine.selector = selecter
-
-	XEngine.lock = new(sync.RWMutex)
-	XEngine.retries = 3
+	go XConnCenter.serviceDiscovery()
 
 	return
 }
 
-func (c *Engine) Close() {
-	for _, host := range c.servers {
-		host.closeAllConns()
+func (c *ConnCenter) Close() {
+	c.closed = true
+	for _, connPool := range c.serverPools {
+		connPool.close()
 	}
 }
 
-func (c *Engine) serviceDiscovery() {
-	ch := c.discovery.WatchService()
+func (c *ConnCenter) serviceDiscovery() {
 
-	for pairs := range ch {
-		newservers := make(map[string]string)
-		for _, p := range pairs {
-			newservers[p.Key] = p.Value
-		}
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
-		c.selector.UpdateServer(newservers)
+	for !c.closed {
+		select {
+		case pairs, ok := <-c.discovery.WatchService():
 
-		var oldmap, newmap map[string]struct{} = make(map[string]struct{}), make(map[string]struct{})
-		for k, _ := range c.servers {
-			oldmap[k] = struct{}{}
-		}
-
-		for k, _ := range newservers {
-			newmap[k] = struct{}{}
-		}
-
-		for k, _ := range newmap {
-			if _, ok := oldmap[k]; ok {
-				delete(oldmap, k)
-				delete(newmap, k)
-			}
-		}
-
-		for key, _ := range oldmap {
-			if host, ok := c.servers[key]; ok {
-				host.closeAllConns()
-			}
-			delete(c.servers, key)
-		}
-
-		for key, _ := range newmap {
-			host, err := newServerHost(key, gMaxConns)
-			if err != nil {
-				log.Error(err)
+			if !ok {
 				continue
 			}
-			c.servers[key] = host
+
+			newservers := make(map[string]string)
+			servers := make([]string, 0, len(newservers))
+			for _, p := range pairs {
+				newservers[p.Key] = p.Value
+				servers = append(servers, p.Key)
+			}
+
+			c.selector.UpdateServer(newservers)
+			log.Infof("ConnCenter UpdateServer %v", servers)
+
+			var oldmap, newmap map[string]struct{} = make(map[string]struct{}), make(map[string]struct{})
+			for k, _ := range c.serverPools {
+				oldmap[k] = struct{}{}
+			}
+
+			for k, _ := range newservers {
+				newmap[k] = struct{}{}
+			}
+
+			for k, _ := range newmap {
+				if _, ok := oldmap[k]; ok {
+					delete(oldmap, k)
+					delete(newmap, k)
+				}
+			}
+
+			// 关闭不可用的server对应的连接池
+			for host, _ := range oldmap {
+				if pool, ok := c.serverPools[host]; ok {
+					pool.close()
+				}
+				delete(c.serverPools, host)
+			}
+
+			// 创建新的server对应的连接池
+			for host, _ := range newmap {
+				pool, err := newServerConnPool(host, c.interval)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+				c.serverPools[host] = pool
+			}
 		}
 	}
+
 }
 
-func (c *Engine) getServices() map[string]string {
+func (c *ConnCenter) getServices() map[string]string {
 	kvpairs := c.discovery.GetServices()
 	servers := make(map[string]string)
 	for _, p := range kvpairs {
 		servers[p.Key] = p.Value
-		log.Debugf("Engine getServices in %s : %s", p.Key, p.Value)
 	}
 	return servers
 }
 
-func (c *Engine) GetConn() (interface{}, error) {
+func (c *ConnCenter) GetConn() (interface{}, error) {
 	return c.getConn()
 }
 
-func (c *Engine) GetFailMode() (interface{}) {
+func (c *ConnCenter) getConn() (*Conn, error) {
+
+	var host string
+	var serverCount, index int = len(c.serverPools), 0
+	for {
+		index++
+		host = c.selector.Select(context.Background(), "", "", host, nil)
+		if host == "" {
+			return nil, fmt.Errorf("can not find available serverConnPool")
+		}
+
+		if c.serverPools[host].Available() {
+			break
+		}
+
+		if serverCount == index {
+			host = ""
+			break
+		}
+	}
+
+	if host == "" {
+		log.Errorf("can not find available serverConnPool")
+		return nil, fmt.Errorf("can not find available serverConnPool")
+	}
+
+	c.lock.Lock()
+	if pool, ok := c.serverPools[host]; ok {
+		conn := pool.getConn()
+		if conn == nil {
+			log.Errorf("can not find available conn in %s", host)
+			c.lock.Unlock()
+			return nil, fmt.Errorf("can not find available conn in %s", host)
+		}
+		c.lock.Unlock()
+		return conn, nil
+	}
+	c.lock.Unlock()
+
+	log.Errorf("can not find available conn in %s", host)
+	return nil, fmt.Errorf("can not find available conn in %s", host)
+}
+
+func (c *ConnCenter) PutConn(conn interface{}) error {
+	return XConnCenter.putConn(conn.(*Conn))
+}
+
+func (c *ConnCenter) putConn(conn *Conn) error {
+
+	c.lock.Lock()
+	if pool, ok := c.serverPools[conn.host]; ok {
+		pool.putConn(conn)
+	}
+	c.lock.Unlock()
+
+	//if conn.scpool != nil {
+	//	conn.scpool.close()
+	//}
+	conn.Close()
+	return fmt.Errorf("can not find serverConnPool %s", conn.host)
+}
+
+func (c *ConnCenter) GetFailMode() (interface{}) {
 	return c.failMode
 }
 
-func (c *Engine) GetRetries() (int) {
+func (c *ConnCenter) GetRetries() (int) {
 	return c.retries
 }
 
-func (c *Engine) SetServerHostUnavailable(serverHost interface{}) {
+func (c *ConnCenter) SetServerConnPoolUnavailable(serverConnPool interface{}) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	
-	serverHost.(*ServerHost).SetAvailable(false)
-}
-
-func (c *Engine) getConn() (*Conn, error) {
-
-	var h string
-	var serverCount, index int = len(c.servers), 0
-	for {
-		index++ 
-		h = c.selector.Select(context.Background(), "", "", h, nil)
-		if h == "" {
-			return nil, fmt.Errorf("can not find available serverhost")
-		}
-
-		if c.servers[h].Available() {
-			break
-		}
-		
-		if serverCount == index {
-			h = ""
-			break
-		}
-	}
-
-	if h == "" {
-		log.Errorf("can not find available serverhost")
-		return nil, fmt.Errorf("can not find available serverhost")
-	}
-
-	if host, ok := c.servers[h]; ok {
-		conn := host.getConn()
-		if conn == nil {
-			log.Errorf("can not find available conn in %s", h)
-			return nil, fmt.Errorf("can not find available conn in %s", h)
-		}
-		return conn, nil
-	}
-
-	log.Errorf("can not find available conn in %s", h)
-	return nil, fmt.Errorf("can not find available conn in %s", h)
+	serverConnPool.(*ServerConnPool).SetAvailable(false)
 }
 `,
 	)

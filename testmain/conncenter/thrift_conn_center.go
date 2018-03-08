@@ -444,7 +444,7 @@ func (tc *ConnCenter) getServices() map[string]string {
 }
 
 func (tc *ConnCenter) GetConn() (interface{}, error) {
-	return connCenter.getConn()
+	return tc.getConn()
 }
 
 func (tc *ConnCenter) getConn() (*ThriftConn, error) {
@@ -491,7 +491,7 @@ func (tc *ConnCenter) getConn() (*ThriftConn, error) {
 }
 
 func (tc *ConnCenter) PutConn(conn interface{}) error {
-	return connCenter.putConn(conn.(*ThriftConn))
+	return tc.putConn(conn.(*ThriftConn))
 }
 
 func (tc *ConnCenter) putConn(conn *ThriftConn) error {
