@@ -490,7 +490,8 @@ func (c *ConnCenter) getConn() (*Conn, error) {
 	return nil, fmt.Errorf("can not find available conn in %s", host)
 }
 
-func PutConn(conn interface{}) error {
+
+func (c *ConnCenter) PutConn(conn interface{}) error {
 	return connCenter.putConn(conn.(*Conn))
 }
 
