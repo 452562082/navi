@@ -7,7 +7,7 @@ import (
 )
 
 func TestEngine_GetConn(t *testing.T) {
-	err := InitConnCenter("/navi/rpcservice", "MyTest/dev", []string{"192.168.1.16:2181"}, ThriftType, 3, 1, 15, lb.Failover)
+	err := InitConnCenter("/navi/rpcservice", "MyTest/dev", []string{"192.168.1.16:2181"}, THRIFT, 3, 1, 15, lb.Failover)
 	if err != nil {
 		t.Fatal(err)
 	}

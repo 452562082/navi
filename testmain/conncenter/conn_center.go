@@ -71,19 +71,21 @@ func (s *ServerConnPool) grow() error {
 			conn, err = newThriftConn(s)
 			if err != nil {
 				log.Errorf("ServerConnPool newThriftConn to %s err: %v", s.host, err)
+			} else {
+				s.SetAvailable(true)
 			}
 		case GRPC:
 			conn, err = newGrpcConn(s)
 			if err != nil {
 				log.Errorf("ServerConnPool newGrpcConn to %s err: %v", s.host, err)
+			} else {
+				s.SetAvailable(true)
 			}
 		default:
 			conn = nil
-			log.Errorf("ServerConnPool [%s] new unknown connect", s.host)
+			log.Errorf("ServerConnPool [%s] new unknown rpc connect", s.host)
 		}
-
 		conns[i] = conn
-		//log.Infof("new conn to %s", s.host)
 	}
 
 	for _, conn := range conns {
@@ -187,13 +189,20 @@ func (s *ServerConnPool) stat() {
 
 		case <-ticker10.C:
 
+			s.lock.Lock()
 			length := len(s.free)
 			capab := cap(s.free)
 			log.Infof("STAT ServerConnPool [%s]: count of conn %d", s.host, length)
 
-			if capab <= gAllocSize {
+			if capab <= gAllocSize || length <= gAllocSize {
+				if length == 0 {
+					s.grow()
+				}
+
+				s.lock.Unlock()
 				continue
 			}
+			s.lock.Unlock()
 
 			if length > gAllocSize*2 {
 				count++
