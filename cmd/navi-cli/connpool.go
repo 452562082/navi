@@ -1,11 +1,17 @@
 package navicli
 
 type ConnPool interface {
-	GetConn() (interface{}, error)
-	PutConn(conn interface{}) error
+	GetConn() (RPCConn, error)
+	PutConn(rpcconn RPCConn) error
 	SetServerConnPoolUnavailable(interface{})
-	//ClearInvalidHost()
-	GetFailMode() (interface{})
-	GetRetries() (int)
+	GetFailMode() interface{}
+	GetRetries() int
 	Close()
+}
+
+type RPCConn interface {
+	Close()
+	Reconnect()
+	Available() bool
+	HostName() string
 }
