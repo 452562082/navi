@@ -15,8 +15,8 @@ var connCenter *ConnCenter // 全局引擎
 
 type RpcType int
 
-var GrpcType RpcType = 0
-var ThriftType RpcType = 1
+var GRPC RpcType = 0
+var THRIFT RpcType = 1
 
 var gTimeout int
 var gAllocSize int = 8
@@ -24,8 +24,7 @@ var gAllocSize int = 8
 type ServerConnPool struct {
 	lock *sync.RWMutex
 
-	typ RpcType
-	//free      []*ThriftConn
+	typ       RpcType
 	free      []navicli.RPCConn
 	nextAlloc int
 
@@ -37,8 +36,7 @@ type ServerConnPool struct {
 
 func newServerConnPool(host string, typ RpcType, interval int) (*ServerConnPool, error) {
 	shpool := &ServerConnPool{
-		typ: typ,
-		//free:      make([]*ThriftConn, 0, gAllocSize),
+		typ:       typ,
 		free:      make([]navicli.RPCConn, 0, gAllocSize),
 		nextAlloc: gAllocSize,
 		lock:      &sync.RWMutex{},
@@ -61,26 +59,6 @@ func (s *ServerConnPool) SetAvailable(flag bool) {
 	s.available = flag
 }
 
-//func (s *ServerConnPool) grow() error {
-//	conns := make([]*ThriftConn, s.nextAlloc, s.nextAlloc)
-//
-//	for i := 0; i < len(conns); i++ {
-//		conn, err := newThriftConn(s)
-//		if err != nil {
-//			log.Errorf("ServerConnPool newThriftConn to %s err: %v", s.host, err)
-//		}
-//		conns[i] = conn
-//		//log.Infof("new conn to %s", s.host)
-//	}
-//
-//	for _, conn := range conns {
-//		s.free = append(s.free, conn)
-//	}
-//
-//	s.nextAlloc *= 2
-//	return nil
-//}
-
 func (s *ServerConnPool) grow() error {
 	conns := make([]navicli.RPCConn, s.nextAlloc, s.nextAlloc)
 
@@ -89,12 +67,12 @@ func (s *ServerConnPool) grow() error {
 		var err error
 
 		switch s.typ {
-		case ThriftType:
+		case THRIFT:
 			conn, err = newThriftConn(s)
 			if err != nil {
 				log.Errorf("ServerConnPool newThriftConn to %s err: %v", s.host, err)
 			}
-		case GrpcType:
+		case GRPC:
 			conn, err = newGrpcConn(s)
 			if err != nil {
 				log.Errorf("ServerConnPool newGrpcConn to %s err: %v", s.host, err)
@@ -367,7 +345,7 @@ func (cc *ConnCenter) getServices() map[string]string {
 	return servers
 }
 
-func (cc *ConnCenter) GetConn() (interface{}, error) {
+func (cc *ConnCenter) GetConn() (navicli.RPCConn, error) {
 	return cc.getConn()
 }
 
@@ -414,8 +392,8 @@ func (cc *ConnCenter) getConn() (navicli.RPCConn, error) {
 	return nil, fmt.Errorf("can not find available conn in %s", host)
 }
 
-func (cc *ConnCenter) PutConn(conn interface{}) error {
-	return cc.putConn(conn.(*ThriftConn))
+func (cc *ConnCenter) PutConn(conn navicli.RPCConn) error {
+	return cc.putConn(conn)
 }
 
 func (cc *ConnCenter) putConn(conn navicli.RPCConn) error {
