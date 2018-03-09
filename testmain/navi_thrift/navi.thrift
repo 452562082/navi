@@ -45,7 +45,7 @@
  *
  * Did you also notice that Thrift supports C style comments?
  */
-namespace go navi
+namespace go navi_thrift
 
 # 这个结构体定义了服务调用者的请求信息
 struct Request {

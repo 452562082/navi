@@ -119,6 +119,24 @@ func (c *Creator) createProto(serviceName string) {
 		`syntax = "proto3";
 package proto;
 
+message PingRequest {}
+
+message PingResponse {
+    string pong = 1;
+}
+
+message ServiceNameRequest {}
+
+message ServiceNameResponse {
+    string service_name = 1;
+}
+
+message ServiceModeRequest {}
+
+message ServiceModeResponse {
+    string service_mode = 1;
+}
+
 message SayHelloRequest {
     string yourName = 1;
 }
@@ -128,7 +146,16 @@ message SayHelloResponse {
 }
 
 service {{.ServiceName}} {
-    rpc sayHello (SayHelloRequest) returns (SayHelloResponse) {}
+    // rpc server必须实现的接口，返回字符串 "pong" 即可
+    rpc Ping(PingRequest) returns (PingResponse) {}
+
+    // rpc server必须实现的接口，返回服务名称，为首字母大写的驼峰格式，例如 "AsvService"
+    rpc ServiceName(ServiceNameRequest) returns (ServiceNameResponse) {}
+
+    // rpc server必须实现的接口，说明该server是以什么模式运行，分为dev和prod；dev为开发版本，prod为生产版本
+    rpc ServiceMode(ServiceModeRequest) returns (ServiceModeResponse) {}
+
+    rpc SayHello (SayHelloRequest) returns (SayHelloResponse) {}
 }
 `,
 	)

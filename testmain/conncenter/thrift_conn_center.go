@@ -1,14 +1,9 @@
 package conncenter
 
 import (
-	"context"
-	"fmt"
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"kuaishangtong/common/utils/log"
-	"kuaishangtong/navi/lb"
-	"kuaishangtong/navi/registry"
-	"kuaishangtong/navi/testmain/navi"
-	"sync"
+	"kuaishangtong/navi/testmain/navi_thrift"
 	"time"
 )
 
@@ -16,7 +11,7 @@ type ThriftConn struct {
 	scpool   *ServerConnPool
 	host     string
 	interval int
-	*navi.NaviServiceClient
+	*navi_thrift.NaviServiceClient
 	closed    bool
 	available bool
 
@@ -83,7 +78,7 @@ func (tc *ThriftConn) GetServerConnPool() *ServerConnPool {
 	return tc.scpool
 }
 
-func (tc *ThriftConn) connect() (*navi.NaviServiceClient, error) {
+func (tc *ThriftConn) connect() (*navi_thrift.NaviServiceClient, error) {
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 
@@ -98,7 +93,7 @@ func (tc *ThriftConn) connect() (*navi.NaviServiceClient, error) {
 		return nil, err
 	}
 
-	client := navi.NewNaviServiceClientFactory(useTransport, protocolFactory)
+	client := navi_thrift.NewNaviServiceClientFactory(useTransport, protocolFactory)
 	if err := transport.Open(); err != nil {
 		transport.Close()
 		useTransport.Close()
