@@ -89,6 +89,7 @@ import (
 	"{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
 	"kuaishangtong/navi/lb"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
 )
 
 func getaddr() (string,error) {
