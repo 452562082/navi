@@ -90,6 +90,7 @@ import (
 	"{{.PkgPath}}/thriftapi/engine"
 	"kuaishangtong/navi/lb"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jmetrics "github.com/uber/jaeger-lib/metrics"
 )
 
 func getaddr() (string,error) {
@@ -121,10 +122,10 @@ func main() {
 			LocalAgentHostPort:  "localhost:6831",
 		},
 	}
-	jMetricsFactory := metrics.NullFactory
+	jMetricsFactory := jmetrics.NullFactory
 
 	closer, err := cfg.InitGlobalTracer(
-		{{.ServiceName}},
+		"{{.ServiceName}}",
 		//jaegercfg.Logger(jLogger),
 		jaegercfg.Metrics(jMetricsFactory),
 	)
