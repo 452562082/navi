@@ -3,6 +3,7 @@ package agent
 import (
 	"fmt"
 	"kuaishangtong/common/utils/log"
+	"strings"
 	"time"
 )
 
@@ -15,8 +16,14 @@ type Agent struct {
 }
 
 // NewServer returns a server.
-func NewAgent(servername, address string, typ string) (*Agent, error) {
+func NewAgent(servername, address string, typ string, is_docker bool) (*Agent, error) {
 	var err error
+
+	fields := strings.Split(address, ":")
+	if len(fields) != 2 {
+		return nil, fmt.Errorf("address %s have no port", address)
+	}
+	address = fmt.Sprintf("127.0.0.1:%s", fields[1])
 
 	a := &Agent{
 		Plugins:    &pluginContainer{},

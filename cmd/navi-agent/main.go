@@ -82,7 +82,8 @@ func main() {
 	zkServers := strings.Split(defaultConfig.Zookeeper.ZookeeperHosts, ";")
 
 	for i := 0; i < serverCount; i++ {
-		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, serverhosts[i], defaultConfig.Server.ServerType)
+
+		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, serverhosts[i], defaultConfig.Server.ServerType, defaultConfig.Server.IsDocker)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -6,7 +6,8 @@
     "server_type": "rpc",
     "server_mode": "dev",
     "server_http_api_json_file": "httpapi.json",
-    "server_name": "MyTest"
+    "server_name": "MyTest",
+    "is_docker": true
   },
   // zk 相关配置
   "zookeeper": {

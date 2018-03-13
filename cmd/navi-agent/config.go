@@ -35,6 +35,7 @@ type serverConf struct {
 	ServerHttpApiJsonFile string `json:"server_http_api_json_file"`
 	ServerName            string `json:"server_name"`
 	ServerHosts           string `json:"server_hosts"`
+	IsDocker              bool   `json:"is_docker"`
 }
 
 type zookeeprConf struct {
