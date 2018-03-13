@@ -26,12 +26,9 @@ ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
 
 SERVER_HOSTS=$(echo $SERVER_HOSTS)
 
-echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
-
-echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
-
-
 update_zookeeper_hosts() {
+
+    echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
 
     if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
         sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
@@ -44,6 +41,8 @@ update_zookeeper_hosts() {
 }
 
 update_server_hosts() {
+
+    echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
 
     if [ "${SERVER_HOSTS}" != "" ];then
         sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' $1
@@ -61,7 +60,7 @@ print_help() {
 
 main() {
 
-    echo "$0 $1"
+    echo "-----> $0 $1"
 
     if [ $1 == "" ];then
        echo_failure "config file does not be designated"
