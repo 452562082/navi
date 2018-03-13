@@ -6,8 +6,8 @@ mkdir -p rpc/bin
 mkdir -p rpc/etc
 
 
-chmod 777 ../cmd/navi-agent/server_example/rpc_server/run.sh
-cd ../cmd/navi-agent/server_example/rpc_server
+chmod 777 ../../cmd/navi-agent/server_example/rpc_server/run.sh
+cd ../../cmd/navi-agent/server_example/rpc_server
 sh -c ./run.sh
 
 cp -a ./mytest $GOPATH/src/kuaishangtong/navi/scripts/rpc/bin
@@ -16,15 +16,15 @@ cd  $GOPATH/src/kuaishangtong/navi/cmd/navi-agent
 
 go build -v
 
-cd ../../scripts
+cd $GOPATH/src/kuaishangtong/navi/scripts/rpcservice
 
-cp -a ./update_config.sh rpc/
+cp -a $GOPATH/src/kuaishangtong/navi/scripts/update_config.sh rpc/
 
-cp -a ./run.sh rpc/
+cp -a $GOPATH/src/kuaishangtong/navi/scripts/rpcservice/run.sh rpc/
 
-cp -a ../cmd/navi-agent/navi-agent rpc/bin
+cp -a $GOPATH/src/kuaishangtong/navi/cmd/navi-agent/navi-agent rpc/bin
 
-cp -a ../cmd/navi-agent/cfg.json rpc/etc
+cp -a $GOPATH/src/kuaishangtong/navi/cmd/navi-agent/cfg.json rpc/etc
 
 cp -a /usr/local/lib/libthriftnb-0.10.0.so rpc/libs
 cp -a /usr/lib64/libevent-2.0.so.5 rpc/libs
