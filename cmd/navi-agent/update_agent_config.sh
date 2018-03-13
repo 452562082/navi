@@ -7,14 +7,6 @@ BLUE_COLOR='\E[1;34m'  #蓝
 PINK='\E[1;35m'      #粉红
 RES='\E[0m'
 
-ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
-
-SERVER_HOSTS=$(echo $SERVER_HOSTS)
-
-echo_warning ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}
-
-echo_warning SERVER_HOSTS = ${SERVER_HOSTS}
-
 echo_success() {
     local str=$1
     echo -e "${GREEN_COLOR}[SUCC]${RES} ${str}"
@@ -29,6 +21,15 @@ echo_failure() {
     local str=$1
     echo -e "${RED_COLOR}[ERROR]${RES} ${str}"
 }
+
+ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
+
+SERVER_HOSTS=$(echo $SERVER_HOSTS)
+
+echo_warning ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}
+
+echo_warning SERVER_HOSTS = ${SERVER_HOSTS}
+
 
 update_zookeeper_hosts() {
 
