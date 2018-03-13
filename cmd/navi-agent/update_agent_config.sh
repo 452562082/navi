@@ -58,7 +58,7 @@ print_help() {
     echo "Usage: update_agent_config.sh [config_file]"
 }
 
-main() {
+agent () {
 
     echo "-----> $0 $1"
 
@@ -86,5 +86,19 @@ main() {
 	fi
 }
 
-main
-exit $?
+case "$1" in
+	agent)
+		agent $2
+		;;
+	gateway)
+		agent $2
+		;;
+	navi)
+		agent $2
+		;;
+	*)
+		echo $"Usage: $0 {agent|gateway|naviservice} [config_file]"
+		RETVAL=1
+esac
+
+exit $RETVAL
