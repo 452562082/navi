@@ -26,7 +26,7 @@ ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
 
 SERVER_HOSTS=$(echo $SERVER_HOSTS)
 
-update_zookeeper_hosts() {
+update_json_zookeeper_hosts() {
 
     echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
 
@@ -40,7 +40,7 @@ update_zookeeper_hosts() {
     fi
 }
 
-update_server_hosts() {
+update_json_server_hosts() {
 
     echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
 
@@ -84,6 +84,31 @@ agent () {
 	fi
 }
 
+navi () {
+    if [ "$1" == "" ];then
+       echo_failure "navi service.yaml config file does not be designated"
+       print_help
+       exit 2
+    fi
+
+    if [ "$1" == "-h" ];then
+       print_help
+       exit 0
+    fi
+
+    update_json_zookeeper_hosts $1
+   	local ret=$?
+	if [ $ret -eq 1 ]; then
+        exit 2
+	fi
+
+	update_json_server_hosts $1
+   	local ret=$?
+	if [ $ret -eq 1 ]; then
+        exit 2
+	fi
+}
+
 case "$1" in
 	agent)
 		agent $2
@@ -92,7 +117,7 @@ case "$1" in
 		agent $2
 		;;
 	navi)
-		agent $2
+		navi $2
 		;;
 	*)
 		echo $"Usage: $0 {agent|gateway|navi} [config_file]"
