@@ -40,7 +40,35 @@ update_json_zookeeper_hosts() {
     fi
 }
 
+update_yaml_zookeeper_hosts() {
+
+    echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
+
+    if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
+        sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
+        echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS}"
+		return 0
+    else
+        echo_failure "environment variable 'ZK_HOSTS' is not set"
+	    return 1
+    fi
+}
+
 update_json_server_hosts() {
+
+    echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
+
+    if [ "${SERVER_HOSTS}" != "" ];then
+        sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' $1
+        echo_success "update server_hosts to ${SERVER_HOSTS}"
+		return 0
+    else
+        echo_failure "environment variable 'SERVER_HOSTS' is not set"
+	    return 1
+    fi
+}
+
+update_yaml_server_hosts() {
 
     echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
 
@@ -58,35 +86,10 @@ print_help() {
     echo "Usage: update_agent_config.sh [config_file]"
 }
 
-agent () {
+agent() {
 
     if [ "$1" == "" ];then
        echo_failure "agent config file does not be designated"
-       print_help
-       exit 2
-    fi
-
-    if [ "$1" == "-h" ];then
-       print_help
-       exit 0
-    fi
-
-    update_zookeeper_hosts $1
-   	local ret=$?
-	if [ $ret -eq 1 ]; then
-        exit 2
-	fi
-
-	update_server_hosts $1
-   	local ret=$?
-	if [ $ret -eq 1 ]; then
-        exit 2
-	fi
-}
-
-navi () {
-    if [ "$1" == "" ];then
-       echo_failure "navi service.yaml config file does not be designated"
        print_help
        exit 2
     fi
@@ -103,6 +106,31 @@ navi () {
 	fi
 
 	update_json_server_hosts $1
+   	local ret=$?
+	if [ $ret -eq 1 ]; then
+        exit 2
+	fi
+}
+
+navi() {
+    if [ "$1" == "" ];then
+       echo_failure "navi service.yaml config file does not be designated"
+       print_help
+       exit 2
+    fi
+
+    if [ "$1" == "-h" ];then
+       print_help
+       exit 0
+    fi
+
+    update_yaml_zookeeper_hosts $1
+   	local ret=$?
+	if [ $ret -eq 1 ]; then
+        exit 2
+	fi
+
+	update_yaml_server_hosts $1
    	local ret=$?
 	if [ $ret -eq 1 ]; then
         exit 2
