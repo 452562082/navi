@@ -1,5 +1,7 @@
 #!/bin/sh
 
+RETVAL=0
+
 ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
 
 SERVER_HOSTS=$(echo $SERVER_HOSTS)
@@ -36,13 +38,15 @@ main() {
     update_zookeeper_hosts
    	local ret=$?
 	if [ $ret -eq 1 ]; then
-       exit 1
+	    RETVAL=1
+        return RETVAL
 	fi
 
 	update_server_hosts
    	local ret=$?
 	if [ $ret -eq 1 ]; then
-       exit 1
+	    RETVAL=1
+        return RETVAL
 	fi
 }
 
