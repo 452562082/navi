@@ -25,3 +25,5 @@ COPY ./mytest /go/src/mytest
 ENTRYPOINT [\"sh\", \"-c\", \"/go/src/mytest/update_config.sh\"]
 CMD [\"sh\", \"-c\", \"/go/src/mytest/run.sh\"]
 " > Dockerfile
+
+docker build -t mytest:alpha .
