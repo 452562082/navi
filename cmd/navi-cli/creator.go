@@ -39,6 +39,7 @@ func (c *Creator) createThriftProject(serviceName string) {
 	c.generateThriftHTTPMain()
 	c.generateThriftHTTPComponent()
 	c.generateThriftConnPool()
+	c.generateRunShell("thrift")
 	c.generateServiceMain("thrift")
 
 	g := Generator{

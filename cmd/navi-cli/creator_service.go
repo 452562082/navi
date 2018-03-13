@@ -164,6 +164,32 @@ func (s *{{.ServiceName}}) SayHello(ctx context.Context, req *proto.SayHelloRequ
 	)
 }
 
+func (c *Creator) generateRunShell(rpcType string) {
+	type shellMainValues struct {
+		ConfigFileName			string
+	}
+	if rpcType == "grpc" {
+		//TODO
+	} else if rpcType == "thrift" {
+		writeFileWithTemplate(
+			c.c.ServiceRootPathAbsolute()+"/run.sh",
+			shellMainValues{ConfigFileName:"service"},
+			shellMainThrift,
+		)
+	}
+}
+
+var shellMainThrift string = `#!/bin/bash
+
+THRIFT_HOST=$THRIFT_HOST
+THRIFT_PORT=$THRIFT_PORT
+ZK_ADDRS=$ZK_ADDRS
+
+sed -i 's/thrift_service_host:\(.*\)/$thrift_service_host: {THRIFT_HOST}/g' {{.ConfigFileName}}.yaml
+sed -i 's/thrift_service_port:\(.*\)/grpc_service_port: {THRIFT_PORT}/g' {{.ConfigFileName}}.yaml
+sed -i 's/zookeeper_servers_addr:/(.*/)\zookeeper_servers_addr: {ZK_ADDRS}/g' {{.ConfigFileName}}.yaml
+`
+
 func (c *Creator) generateServiceMain(rpcType string) {
 	type rootMainValues struct {
 		PkgPath        string
