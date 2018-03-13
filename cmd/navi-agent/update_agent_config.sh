@@ -120,7 +120,7 @@ case "$1" in
 		navi $2
 		;;
 	*)
-		echo $"Usage: $0 {agent|gateway|navi} [config_file]"
+		echo -e "${YELOW_COLOR}Usage: $0 {agent|gateway|navi} [config_file]${str}"
 		RETVAL=1
 esac
 
