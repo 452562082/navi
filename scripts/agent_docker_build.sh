@@ -28,6 +28,10 @@ cp -a ../cmd/navi-agent/cfg.json rpc/etc
 
 cp -a /usr/local/lib/libthriftnb-0.10.0.so rpc/libs
 
+cp -a /usr/lib64/libevent-2.0.so.5 rpc/libs
+
+cp -a /usr/lib64/libevent-2.0.so.5.1.9 rpc/libs
+
 
 
 echo "FROM centos:7
