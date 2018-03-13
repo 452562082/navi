@@ -55,10 +55,22 @@ update_server_hosts() {
     fi
 }
 
+print_help() {
+    echo "update_agent_config.sh [config_file]"
+}
+
 main() {
 
     if [ "$1" == "" ];then
        echo_failure "config file does not be designated"
+       print_help
+       return 2
+
+    fi
+
+    if [ "$1" == "-h" ];then
+       print_help
+       return 0
     fi
 
     update_zookeeper_hosts $1
