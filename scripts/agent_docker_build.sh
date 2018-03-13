@@ -35,8 +35,8 @@ cp -a //usr/local/lib/libthrift-0.10.0.so rpc/libs
 
 echo "FROM centos:7
 COPY ./rpc /rpc
-#ENTRYPOINT [\"/rpc/update_config.sh\", \"agent\", \"/rpc/etc/cfg.json\"]
-#CMD [\"/rpc/run.sh\"]
+ENTRYPOINT [\"/rpc/update_config.sh\", \"agent\", \"/rpc/etc/cfg.json\"]
+CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 
 docker build -t mytest:alpha .
