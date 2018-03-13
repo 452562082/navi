@@ -14,7 +14,7 @@ echo_success() {
 
 echo_warning() {
     local str=$1
-    echo -e "${YELOW_COLOR}[SUCC]${RES} ${str}"
+    echo -e "${YELOW_COLOR}[WARN]${RES} ${str}"
 }
 
 echo_failure() {
