@@ -17,19 +17,19 @@ echo SERVER_HOSTS = ${SERVER_HOSTS}
 
 echo_success() {
     local str=$1
-    echo -e  "${GREEN_COLOR}${str}${RES}"
+    echo -e "${GREEN_COLOR}[SUCC]${RES} ${str}"
 }
 
 echo_failure() {
     local str=$1
-    echo -e  "${GREEN_COLOR}${str}${RES}"
+    echo -e "${RED_COLOR}[ERROR]${RES} ${str}"
 }
 
 update_zookeeper_hosts() {
 
     if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
         sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' cfg.json
-        echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS} success"
+        echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS}"
 		return 0
     else
         echo_failure "environment variable 'ZK_HOSTS' is not set"
@@ -41,7 +41,7 @@ update_server_hosts() {
 
     if [ "${SERVER_HOSTS}" != "" ];then
         sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' cfg.json
-        echo_success "update server_hosts_hosts to ${SERVER_HOSTS} success"
+        echo_success "update server_hosts_hosts to ${SERVER_HOSTS}"
 		return 0
     else
         echo_failure "environment variable 'SERVER_HOSTS' is not set"
