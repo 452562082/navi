@@ -83,7 +83,7 @@ update_yaml_server_hosts() {
 }
 
 print_help() {
-    echo "Usage: update_agent_config.sh [config_file]"
+    echo -e "${YELOW_COLOR}Usage: $0 {agent|gateway|navi} [config_file] ${RES}"
 }
 
 agent() {
