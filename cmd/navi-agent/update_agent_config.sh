@@ -11,13 +11,18 @@ ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
 
 SERVER_HOSTS=$(echo $SERVER_HOSTS)
 
-echo ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}
+echo_warning ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}
 
-echo SERVER_HOSTS = ${SERVER_HOSTS}
+echo_warning SERVER_HOSTS = ${SERVER_HOSTS}
 
 echo_success() {
     local str=$1
     echo -e "${GREEN_COLOR}[SUCC]${RES} ${str}"
+}
+
+echo_warning() {
+    local str=$1
+    echo -e "${YELOW_COLOR}[SUCC]${RES} ${str}"
 }
 
 echo_failure() {
