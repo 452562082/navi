@@ -34,7 +34,7 @@ echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
 update_zookeeper_hosts() {
 
     if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
-        sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' cfg.json
+        sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
         echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS}"
 		return 0
     else
@@ -46,8 +46,8 @@ update_zookeeper_hosts() {
 update_server_hosts() {
 
     if [ "${SERVER_HOSTS}" != "" ];then
-        sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' cfg.json
-        echo_success "update server_hosts_hosts to ${SERVER_HOSTS}"
+        sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' $1
+        echo_success "update server_hosts to ${SERVER_HOSTS}"
 		return 0
     else
         echo_failure "environment variable 'SERVER_HOSTS' is not set"
@@ -56,13 +56,18 @@ update_server_hosts() {
 }
 
 main() {
-    update_zookeeper_hosts
+
+    if [ "$1" == "" ];then
+       echo_failure "config file does not be designated"
+    fi
+
+    update_zookeeper_hosts $1
    	local ret=$?
 	if [ $ret -eq 1 ]; then
         return 2
 	fi
 
-	update_server_hosts
+	update_server_hosts $1
    	local ret=$?
 	if [ $ret -eq 1 ]; then
         return 2
