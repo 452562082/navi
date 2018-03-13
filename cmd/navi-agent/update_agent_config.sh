@@ -26,9 +26,9 @@ ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
 
 SERVER_HOSTS=$(echo $SERVER_HOSTS)
 
-echo_warning ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}
+echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
 
-echo_warning SERVER_HOSTS = ${SERVER_HOSTS}
+echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
 
 
 update_zookeeper_hosts() {
