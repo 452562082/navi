@@ -16,7 +16,7 @@ cd ../../scripts
 
 cp -a ./update_config.sh mytest/
 
-cp -a ./run.sh.sh mytest/
+cp -a ./run.sh mytest/
 
 cp -a ../cmd/navi-agent/navi-agent mytest/
 
