@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mkdir mytest
+mkdir -p mytest/logs
 
 chmod 777 ../cmd/navi-agent/server_example/rpc_server/run.sh
 cd ../cmd/navi-agent/server_example/rpc_server
@@ -22,7 +22,7 @@ cp -a ../cmd/navi-agent/navi-agent mytest/
 
 cp -a ../cmd/navi-agent/cfg.json mytest/
 
-echo "FROM busybox
+echo "FROM centos:7
 COPY ./mytest /go/src/mytest
 #ENTRYPOINT [\"/go/src/mytest/update_config.sh\", \"agent\", \"/go/src/mytest/cfg.json\"]
 #CMD [\"/go/src/mytest/run.sh\"]
