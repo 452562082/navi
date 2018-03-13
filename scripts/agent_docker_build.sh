@@ -22,7 +22,7 @@ cp -a ../cmd/navi-agent/cfg.json mytest/
 
 echo "FROM busybox
 COPY ./mytest /go/src/mytest
-ENTRYPOINT [\"sh\", \"-c\", \"/go/src/mytest/update_config.sh\"]
+ENTRYPOINT [\"sh\", \"-c\", \"/go/src/mytest/update_config.sh\", \"agent\", \"/go/src/mytest/cfg.json\"]
 CMD [\"sh\", \"-c\", \"/go/src/mytest/run.sh\"]
 " > Dockerfile
 

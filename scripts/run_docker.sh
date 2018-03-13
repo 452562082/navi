@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker run
+docker run -it --env-file=env.ini mytest:alpha bash
