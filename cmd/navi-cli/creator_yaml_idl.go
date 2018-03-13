@@ -26,8 +26,6 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   grpc_service_host: 127.0.0.1
   grpc_service_port: 50051
   thrift_service_name: {{.ServiceName}}
-  thrift_service_host: 127.0.0.1
-  thrift_service_port: 50052
   service_version_mode: dev
   service_version: 1.0
   ip_filter_path: navi/ipfilter
