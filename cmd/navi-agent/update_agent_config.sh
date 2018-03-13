@@ -60,10 +60,8 @@ print_help() {
 
 agent () {
 
-    echo "-----> $0 $1"
-
     if [ "$1" == "" ];then
-       echo_failure "config file does not be designated"
+       echo_failure "agent config file does not be designated"
        print_help
        exit 2
     fi
@@ -76,13 +74,13 @@ agent () {
     update_zookeeper_hosts $1
    	local ret=$?
 	if [ $ret -eq 1 ]; then
-        return 2
+        exit 2
 	fi
 
 	update_server_hosts $1
    	local ret=$?
 	if [ $ret -eq 1 ]; then
-        return 2
+        exit 2
 	fi
 }
 
@@ -97,7 +95,7 @@ case "$1" in
 		agent $2
 		;;
 	*)
-		echo $"Usage: $0 {agent|gateway|naviservice} [config_file]"
+		echo $"Usage: $0 {agent|gateway|navi} [config_file]"
 		RETVAL=1
 esac
 
