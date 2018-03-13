@@ -15,8 +15,8 @@ const (
 	grpcServiceHost               = "grpc_service_host"
 	grpcServicePort               = "grpc_service_port"
 	thriftServiceName             = "thrift_service_name"
-	thriftServiceHost             = "thrift_service_host"
-	thriftServicePort             = "thrift_service_port"
+	//thriftServiceHost             = "thrift_service_host"
+	//thriftServicePort             = "thrift_service_port"
 	maxConnNum						 = "max_conn_num"
 	serviceVersionMode			 = "service_version_mode"
 	serviceVersion 				 = "service_version"
@@ -210,13 +210,13 @@ func (c *Config) ThriftServiceName() string {
 	return c.configs[thriftServiceName]
 }
 
-func (c *Config) ThriftServiceHost() string {
-	return c.configs[thriftServiceHost]
-}
-
-func (c *Config) ThriftServicePort() string {
-	return c.configs[thriftServicePort]
-}
+//func (c *Config) ThriftServiceHost() string {
+//	return c.configs[thriftServiceHost]
+//}
+//
+//func (c *Config) ThriftServicePort() string {
+//	return c.configs[thriftServicePort]
+//}
 
 func (c *Config) MaxConnNum() int {
 	num, err := strconv.Atoi(c.configs[maxConnNum])

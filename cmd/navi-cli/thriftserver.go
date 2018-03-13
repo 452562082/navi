@@ -38,7 +38,7 @@ func (s *ThriftServer) Start(clientCreator thriftClientCreator, sw switcher, con
 	registerTProcessor func() thrift.TProcessor) {
 	log.Infof("Starting %s...", s.Config.ThriftServiceName())
 	s.Initializer.InitService(s)
-	s.thriftServer = s.startThriftServiceInternal(registerTProcessor, false)
+	//s.thriftServer = s.startThriftServiceInternal(registerTProcessor, false)
 	time.Sleep(time.Second * 1)
 	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
 	s.connpool = connpool
@@ -54,10 +54,10 @@ func (s *ThriftServer) StartHTTPServer(clientCreator thriftClientCreator, sw swi
 }
 
 // StartThriftService starts a Thrift service
-func (s *ThriftServer) StartThriftService(registerTProcessor func() thrift.TProcessor) {
+/*func (s *ThriftServer) StartThriftService(registerTProcessor func() thrift.TProcessor) {
 	s.Initializer.InitService(s)
 	s.thriftServer = s.startThriftServiceInternal(registerTProcessor, true)
-}
+}*/
 
 func (s *ThriftServer) startThriftHTTPServerInternal(clientCreator thriftClientCreator, sw switcher) *http.Server {
 	log.Info("Starting HTTP Server...")
@@ -65,7 +65,7 @@ func (s *ThriftServer) startThriftHTTPServerInternal(clientCreator thriftClientC
 	return startHTTPServer(s)
 }
 
-func (s *ThriftServer) startThriftServiceInternal(registerTProcessor func() thrift.TProcessor, alone bool) *thrift.TSimpleServer {
+/*func (s *ThriftServer) startThriftServiceInternal(registerTProcessor func() thrift.TProcessor, alone bool) *thrift.TSimpleServer {
 	port := s.Config.ThriftServicePort()
 	log.Infof("Starting Thrift Service at :%s...", port)
 
@@ -79,7 +79,7 @@ func (s *ThriftServer) startThriftServiceInternal(registerTProcessor func() thri
 	go server.Serve()
 	log.Info("Thrift Service started")
 	return server
-}
+}*/
 
 // ThriftService returns a Thrift client instance,
 // example: client := turbo.ThriftService().(proto.YourServiceClient)
