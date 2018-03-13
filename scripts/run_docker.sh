@@ -1,3 +1,4 @@
 #!/bin/sh
 
-docker run -it --env-file=env.ini mytest:alpha bash
+docker run -d --env-file=env.ini -p9292:9292 mytest:alpha
+#docker run -it --env-file=env.ini -p9292:9292 mytest:alpha /bin/sh
