@@ -39,7 +39,6 @@ func (c *Creator) createThriftProject(serviceName string) {
 	c.generateThriftHTTPMain()
 	c.generateThriftHTTPComponent()
 	c.generateThriftConnPool()
-	c.generateRunShell("thrift")
 	c.generateServiceMain("thrift")
 
 	g := Generator{
@@ -111,80 +110,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Recommended configuration for production.
-	cfg := jaegercfg.Configuration{
-		Sampler: &jaegercfg.SamplerConfig{
-			Type:  "const",
-			Param: 1,
-		},
-		Reporter: &jaegercfg.ReporterConfig{
-			LogSpans:            true,
-			BufferFlushInterval: 1 * time.Second,
-			LocalAgentHostPort:  "localhost:6831",
-		},
-	}
-	jMetricsFactory := jmetrics.NullFactory
-
-	closer, err := cfg.InitGlobalTracer(
-		"{{.ServiceName}}",
-		//jaegercfg.Logger(jLogger),
-		jaegercfg.Metrics(jMetricsFactory),
-	)
-	if err != nil {
-		log.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
-		return
-	}
-	defer closer.Close()
-
 	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher, engine.XConnCenter)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
-
-	//服务注册
-	address, err := getaddr()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	port := fmt.Sprintf("%d", s.Config.HTTPPort())
-
-	r := &registry.ZooKeeperRegister {
-		ServiceAddress: address+":"+port,
-		ZooKeeperServers:   s.Config.ZookeeperServersAddr(),
-		BasePath:       	s.Config.ZookeeperHttpServicePath(),
-		Mode:				s.Config.ServiceVersionMode(),
-		Metrics:         	metrics.NewRegistry(),
-		UpdateInterval:   	2 * time.Second,
-	}
-
-	err = r.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Infof("Register %s host to Registry", s.Config.ThriftServiceName())
-	err = r.Register(s.Config.ThriftServiceName(), nil, "")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	kv, err := libkv.NewStore(store.ZK, r.ZooKeeperServers, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// 注册URL接口到zookeeper上，后续由admin后台手动管理，可删除该部分代码
-	for _, v := range s.Config.UrlMappings() {
-		path := strFirstToUpper(v[1])
-
-		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/" + s.Config.ThriftServiceName() + "/" + s.Config.ServiceVersionMode() + path
-		log.Infof("register url %s to registry in service %s", key, s.Config.ThriftServiceName())
-		err = kv.Put(key, nil, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
 
 	select {
 	case <-exit:
