@@ -169,6 +169,7 @@ func (c *Creator) generateServiceMain(rpcType string) {
 	type rootMainValues struct {
 		PkgPath        string
 		ConfigFilePath string
+		ServiceName    string
 	}
 	if rpcType == "grpc" {
 		writeFileWithTemplate(
@@ -179,7 +180,7 @@ func (c *Creator) generateServiceMain(rpcType string) {
 	} else if rpcType == "thrift" {
 		writeFileWithTemplate(
 			c.c.ServiceRootPathAbsolute()+ "/" + c.c.ThriftServiceName() + ".go",
-			rootMainValues{PkgPath: c.PkgPath, ConfigFilePath: c.c.ServiceRootPathAbsolute() + "/service.yaml"},
+			rootMainValues{PkgPath: c.PkgPath, ConfigFilePath: c.c.ServiceRootPathAbsolute() + "/service.yaml",ServiceName: c.c.ThriftServiceName()},
 			rootMainThrift,
 		)
 	}
