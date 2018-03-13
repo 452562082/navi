@@ -35,9 +35,7 @@ cp -a /usr/local/lib/libthrift-0.10.0.so rpc/libs
 
 echo "FROM centos:7
 COPY ./rpc /rpc
-RUN chmod 777 /rpc/*.sh \
-    && export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
-# ENTRYPOINT [\"/rpc/update_config.sh\", \"agent\", \"/rpc/etc/cfg.json\"]
+RUN chmod 777 /rpc/*.sh 
 CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 

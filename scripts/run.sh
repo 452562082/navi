@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
+export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
 
 /rpc/update_config.sh agent /rpc/etc/cfg.json
 
