@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
+#export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
 
 echo "start mytest"
 /rpc/bin/mytest 9292 >/rpc/logs/mytest.log 2>&1
