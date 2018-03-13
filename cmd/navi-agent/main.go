@@ -26,14 +26,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"kuaishangtong/common/utils/daemon"
-	"kuaishangtong/common/utils/log"
-	"kuaishangtong/navi/agent"
-	"kuaishangtong/navi/registry"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
 	metrics "github.com/rcrowley/go-metrics"
 	"io/ioutil"
+	"kuaishangtong/common/utils/daemon"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/agent"
+	"kuaishangtong/navi/registry"
 	"strings"
 	"time"
 )
@@ -69,11 +69,20 @@ func main() {
 			logSet.MaxDays)
 	}
 
-	serverCount := len(defaultConfig.Server.ServerHosts)
+	serverhosts := strings.Split(defaultConfig.Server.ServerHosts, ";")
+
+	serverCount := len(serverhosts)
 
 	var agents []*agent.Agent = make([]*agent.Agent, serverCount, serverCount)
+
+	//zkServers, err := env.GetZookeeperHosts()
+	//if err != nil {
+	//	zkServers = strings.Split(defaultConfig.Zookeeper.ZookeeperHosts, ";")
+	//}
+	zkServers := strings.Split(defaultConfig.Zookeeper.ZookeeperHosts, ";")
+
 	for i := 0; i < serverCount; i++ {
-		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, defaultConfig.Server.ServerHosts[i], defaultConfig.Server.ServerType)
+		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, serverhosts[i], defaultConfig.Server.ServerType)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -88,11 +97,11 @@ func main() {
 			}
 
 			r := &registry.ZooKeeperRegister{
-				ServiceAddress:   defaultConfig.Server.ServerHosts[index],
-				ZooKeeperServers: defaultConfig.Zookeeper.ZookeeperHosts,
+				ServiceAddress:   serverhosts[index],
+				ZooKeeperServers: zkServers,
 				BasePath:         basePath,
-				Metrics:        metrics.NewRegistry(),
-				UpdateInterval: 2 * time.Second,
+				Metrics:          metrics.NewRegistry(),
+				UpdateInterval:   2 * time.Second,
 			}
 
 			err = r.Start()
@@ -127,7 +136,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		urlRegistry, err := libkv.NewStore(store.ZK, defaultConfig.Zookeeper.ZookeeperHosts, nil)
+		urlRegistry, err := libkv.NewStore(store.ZK, zkServers, nil)
 		if err != nil {
 			log.Fatal(err)
 		}

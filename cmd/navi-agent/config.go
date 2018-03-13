@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"kuaishangtong/common/utils/json"
-	"kuaishangtong/common/utils/log"
 	"io"
 	"io/ioutil"
+	"kuaishangtong/common/utils/json"
+	"kuaishangtong/common/utils/log"
 	"strings"
 )
 
@@ -30,18 +30,18 @@ type Config struct {
 }
 
 type serverConf struct {
-	ServerType            string   `json:"server_type"`
-	ServerMode            string   `json:"server_mode"`
-	ServerHttpApiJsonFile string   `json:"server_http_api_json_file"`
-	ServerName            string   `json:"server_name"`
-	ServerHosts           []string `json:"server_hosts"`
+	ServerType            string `json:"server_type"`
+	ServerMode            string `json:"server_mode"`
+	ServerHttpApiJsonFile string `json:"server_http_api_json_file"`
+	ServerName            string `json:"server_name"`
+	ServerHosts           string `json:"server_hosts"`
 }
 
 type zookeeprConf struct {
-	ZookeeperHosts           []string `json:"zookeeper_hosts"`
-	ZookeeperRPCServicePath  string   `json:"zookeeper_rpc_service_path"`
-	ZookeeperHTTPServicePath string   `json:"zookeeper_http_service_path"`
-	ZookeeperURLServicePath  string   `json:"zookeeper_url_service_path"`
+	ZookeeperHosts           string `json:"zookeeper_hosts"`
+	ZookeeperRPCServicePath  string `json:"zookeeper_rpc_service_path"`
+	ZookeeperHTTPServicePath string `json:"zookeeper_http_service_path"`
+	ZookeeperURLServicePath  string `json:"zookeeper_url_service_path"`
 }
 
 type logConf struct {
@@ -106,10 +106,10 @@ func (c *Config) init(filename string) error {
 	log.Noticef("[agent] server_hosts: %s", c.Server.ServerHosts)
 
 	/* zk */
-	if c.Zookeeper.ZookeeperHosts == nil || len(c.Zookeeper.ZookeeperHosts) == 0 {
-		return fmt.Errorf("zookeeper_hosts can not be nil")
+	if len(c.Zookeeper.ZookeeperHosts) == 0 {
+		return fmt.Errorf("zookeeper_hosts can not be \"\"")
 	}
-	log.Noticef("[agent] zookeeper_hosts: %v", c.Zookeeper.ZookeeperHosts)
+	log.Noticef("[agent] zookeeper_hosts: %s", c.Zookeeper.ZookeeperHosts)
 
 	if strings.EqualFold(c.Server.ServerType, "rpc") && len(c.Zookeeper.ZookeeperRPCServicePath) == 0 {
 		return fmt.Errorf("server_type is 'rpc', zookeeper_rpc_service_path can not be \"\"")

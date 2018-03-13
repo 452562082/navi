@@ -2,6 +2,7 @@ package constants
 
 import (
 	"github.com/astaxie/beego"
+	"kuaishangtong/common/env"
 	"strings"
 )
 
@@ -14,7 +15,13 @@ const PROD_MODE = "prod"
 const DEV_MODE = "dev"
 
 func init() {
-	ZookeeperHosts = beego.AppConfig.Strings("zookeeper.hosts")
+
+	if zkHosts, err := env.GetZookeeperHosts(); err == nil {
+		ZookeeperHosts = zkHosts
+	} else {
+		ZookeeperHosts = beego.AppConfig.Strings("zookeeper.hosts")
+	}
+
 	URLServicePath = beego.AppConfig.String("zookeeper.url_service_path")
 	HTTPServicePath = beego.AppConfig.String("zookeeper.http_service_path")
 	IPFilterPath = beego.AppConfig.String("zookeeper.ip_filter_path")
