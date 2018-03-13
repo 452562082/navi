@@ -3,11 +3,12 @@
 mkdir mytest
 
 chmod 777 ../cmd/navi-agent/server_example/rpc_server/run.sh
-sh -c ../cmd/navi-agent/server_example/rpc_server/run.sh
+cd ../cmd/navi-agent/server_example/rpc_server
+sh -c ./run.sh
 
-cp -a ../cmd/navi-agent/server_example/rpc_server/mytest mytest/
+cp -a ./mytest $GOPATH/src/kuaishangtong/navi/scripts/mytest/
 
-cd ../cmd/navi-agent
+cd  $GOPATH/src/kuaishangtong/navi/cmd/navi-agent
 
 go build -v
 
