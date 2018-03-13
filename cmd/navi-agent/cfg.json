@@ -6,7 +6,7 @@
     "server_type": "rpc",
     "server_mode": "dev",
     "server_http_api_json_file": "httpapi.json",
-    "server_name": "AsrService"
+    "server_name": "MyTest"
   },
   // zk 相关配置
   "zookeeper": {
