@@ -1,12 +1,16 @@
 #!/bin/sh
 
-mkdir -p mytest/logs
+mkdir -p rpc/logs
+mkdir -p rpc/libs
+mkdir -p rpc/bin
+mkdir -p rpc/etc
+
 
 chmod 777 ../cmd/navi-agent/server_example/rpc_server/run.sh
 cd ../cmd/navi-agent/server_example/rpc_server
 sh -c ./run.sh
 
-cp -a ./mytest $GOPATH/src/kuaishangtong/navi/scripts/mytest/
+cp -a ./mytest $GOPATH/src/kuaishangtong/navi/scripts/rpc/bin
 
 cd  $GOPATH/src/kuaishangtong/navi/cmd/navi-agent
 
@@ -14,18 +18,22 @@ go build -v
 
 cd ../../scripts
 
-cp -a ./update_config.sh mytest/
+cp -a ./update_config.sh rpc/
 
-cp -a ./run.sh mytest/
+cp -a ./run.sh rpc/
 
-cp -a ../cmd/navi-agent/navi-agent mytest/
+cp -a ../cmd/navi-agent/navi-agent rpc/bin
 
-cp -a ../cmd/navi-agent/cfg.json mytest/
+cp -a ../cmd/navi-agent/cfg.json rpc/etc
+
+cp -a /usr/local/lib/libthriftnb-0.10.0.so rpc/libs
+
+
 
 echo "FROM centos:7
-COPY ./mytest /go/src/mytest
-#ENTRYPOINT [\"/go/src/mytest/update_config.sh\", \"agent\", \"/go/src/mytest/cfg.json\"]
-#CMD [\"/go/src/mytest/run.sh\"]
+COPY ./rpc /rpc
+#ENTRYPOINT [\"/rpc/update_config.sh\", \"agent\", \"/rpc/etc/cfg.json\"]
+#CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 
 docker build -t mytest:alpha .
