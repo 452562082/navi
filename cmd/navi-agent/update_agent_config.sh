@@ -6,6 +6,7 @@ SERVER_HOSTS=$(echo $SERVER_HOSTS)
 
 echo ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}
 
+echo SERVER_HOSTS = ${SERVER_HOSTS}
 
 update_zookeeper_hosts() {
 
