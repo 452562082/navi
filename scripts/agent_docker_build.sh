@@ -37,8 +37,8 @@ echo "FROM centos:7
 COPY ./rpc /rpc
 RUN chmod 777 /rpc/*.sh \
     && export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
-ENTRYPOINT [\"/rpc/update_config.sh\", \"agent\", \"/rpc/etc/cfg.json\"]
-CMD [\"/rpc/bin/mytest\", \"9292\"]
+# ENTRYPOINT [\"/rpc/update_config.sh\", \"agent\", \"/rpc/etc/cfg.json\"]
+CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 
 docker build -t mytest:alpha .
