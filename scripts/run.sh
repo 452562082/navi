@@ -11,4 +11,4 @@ sleep 3
 echo "start navi-agent"
 
 #nohup /rpc/bin/navi-agent -c /rpc/etc/cfg.json >/rpc/logs/agent.log 2>&1 &
-/rpc/bin/navi-agent -c /rpc/etc/cfg.json >/rpc/logs/agent.log 2>&1
+/rpc/bin/navi-agent -c /rpc/etc/cfg.json

@@ -59,7 +59,7 @@ func main() {
 	log.SetLogFuncCall(logSet.ShowLines)
 	log.SetColor(logSet.Coloured)
 	log.SetLevel(logSet.Level)
-	if _flags.Daemon || logSet.Enable {
+	if _flags.Daemon || logSet.Enable || defaultConfig.Server.IsDocker {
 		log.SetLogFile(
 			logSet.File,
 			logSet.Level,

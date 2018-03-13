@@ -30,6 +30,7 @@ class MyTestHandler : virtual public MyTestIf {
 
   void Ping(std::string& _return) {
     // Your implementation goes here
+    printf("ping --> pong");
     _return = "pong";
   }
 
