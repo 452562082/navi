@@ -62,16 +62,15 @@ main() {
 
     echo "-----> $0 $1"
 
-    if [ $1 == "" ];then
+    if [ "$1" == "" ];then
        echo_failure "config file does not be designated"
        print_help
-       return 2
-
+       exit 2
     fi
 
-    if [ $1 == "-h" ];then
+    if [ "$1" == "-h" ];then
        print_help
-       return 0
+       exit 0
     fi
 
     update_zookeeper_hosts $1
