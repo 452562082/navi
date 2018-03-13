@@ -2,7 +2,8 @@
 
 mkdir mytest
 
-sh ../cmd/navi-agent/server_example/rpc_server/run.sh
+chmod 777 ../cmd/navi-agent/server_example/rpc_server/run.sh
+sh -c ../cmd/navi-agent/server_example/rpc_server/run.sh
 
 cp -a ../cmd/navi-agent/server_example/rpc_server/mytest mytest/
 
