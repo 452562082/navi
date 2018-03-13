@@ -39,6 +39,7 @@ func (c *Creator) createThriftProject(serviceName string) {
 	c.generateThriftHTTPMain()
 	c.generateThriftHTTPComponent()
 	c.generateThriftConnPool()
+	c.generateRunShell("thrift")
 	c.generateServiceMain("thrift")
 
 	g := Generator{
@@ -89,6 +90,8 @@ import (
 	"{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
 	"kuaishangtong/navi/lb"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jmetrics "github.com/uber/jaeger-lib/metrics"
 )
 
 func getaddr() (string,error) {
@@ -107,6 +110,32 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Recommended configuration for production.
+	cfg := jaegercfg.Configuration{
+		Sampler: &jaegercfg.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &jaegercfg.ReporterConfig{
+			LogSpans:            true,
+			BufferFlushInterval: 1 * time.Second,
+			LocalAgentHostPort:  "localhost:6831",
+		},
+	}
+	jMetricsFactory := jmetrics.NullFactory
+
+	closer, err := cfg.InitGlobalTracer(
+		"{{.ServiceName}}",
+		//jaegercfg.Logger(jLogger),
+		jaegercfg.Metrics(jMetricsFactory),
+	)
+	if err != nil {
+		log.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
+		return
+	}
+	defer closer.Close()
+
 	s.StartHTTPServer(component.ThriftClient, gen.ThriftSwitcher, engine.XConnCenter)
 
 	exit := make(chan os.Signal, 1)
@@ -803,7 +832,7 @@ func (c *ConnCenter) getConn() (*Conn, error) {
 		if conn == nil {
 			log.Errorf("can not find available conn in %s", host)
 			c.lock.Unlock()
-			return nil, fmt.Errorf("can not find available conn in %s", host)
+			return nil, fmt.Errorf("conn is nil in %s", host)
 		}
 		c.lock.Unlock()
 		return conn, nil

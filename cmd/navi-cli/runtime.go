@@ -12,12 +12,14 @@ import (
 	"strings"
 
 	"kuaishangtong/common/utils/log"
+	glog "github.com/opentracing/opentracing-go/log"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
+	"github.com/opentracing/opentracing-go"
 )
 
 type switcher func(s Servable, methodName string, resp http.ResponseWriter, req *http.Request) (interface{}, error)
@@ -97,10 +99,25 @@ func doRequest(s Servable, methodName string, resp http.ResponseWriter, req *htt
 		components(req).errorHandlerFunc()(resp, req, err)
 		return
 	}
+
+	textCarrier := opentracing.HTTPHeadersCarrier(req.Header)
+	wireSpanContext, err := opentracing.GlobalTracer().Extract(
+		opentracing.HTTPHeaders, textCarrier)
+	if err != nil {
+		log.Errorf("req remoteAddr: %s for url %s Extract err: %v", req.RemoteAddr, req.URL.Path, err)
+	}
+
+	httpServerSpan := opentracing.GlobalTracer().StartSpan(
+		req.URL.Path,
+		opentracing.ChildOf(wireSpanContext))
+	httpServerSpan.SetTag("component", "http server")
+	defer httpServerSpan.Finish()
+
 	serviceResp, err := switcherFunc(s, methodName, resp, req)
 	if err != nil {
 		log.Infof("request RemoteAddr: %s, url: %s, error: %v", req.Header.Get("RemoteAddr"), req.URL.Path, err)
 		components(req).errorHandlerFunc()(resp, req, err)
+		httpServerSpan.LogFields(glog.Error(err))
 		return
 	}
 	log.Infof("request RemoteAddr: %s, url: %s, success", req.Header.Get("RemoteAddr"), req.URL.Path)
