@@ -20,11 +20,11 @@ go build -v
 cd $GOPATH/src/kuaishangtong/navi/scripts/rpcservice
 
 # 将 脚本，navi-agent 及配置文件拷贝到 rpc 下
-chmod 777 $GOPATH/src/kuaishangtong/navi/scripts/update_config.sh
 cp -a $GOPATH/src/kuaishangtong/navi/scripts/update_config.sh rpc/
+chmod 777 rpc/update_config.sh
 
-chmod 777 $GOPATH/src/kuaishangtong/navi/scripts/rpcservice/run.sh
 cp -a $GOPATH/src/kuaishangtong/navi/scripts/rpcservice/run.sh rpc/
+chmod 777 rpc/run.sh
 
 cp -a $GOPATH/src/kuaishangtong/navi/cmd/navi-agent/navi-agent rpc/bin
 
@@ -42,3 +42,5 @@ CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 #
 docker build -t mytest:alpha .
+
+rm -rf ./rpc
