@@ -326,7 +326,7 @@ func serviceRegistry(s *navicli.ThriftServer) {
 		UpdateInterval:   	2 * time.Second,
 	}
 
-	err = r.Start()
+	err := r.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
