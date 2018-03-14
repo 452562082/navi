@@ -16,15 +16,14 @@ navi_builder create $ServiceName
 cd $GOPATH/src/$ServiceName
 go build -v
 
-#将MyTest 拷贝到 rpc/bin 下
-#cp -a ./MyTest $GOPATH/src/kuaishangtong/navi/scripts/httpservice/rpc/bin
+cd $GOPATH/src/kuaishangtong/navi/scripts/httpservice
 
 #将脚本及配置文件拷贝到 rpc 下
 cp -a $GOPATH/src/kuaishangtong/navi/scripts/update_config.sh rpc/
 
 cp -a $GOPATH/src/kuaishangtong/navi/scripts/httpservice/run.sh rpc/
 
-cp -a $GOPATH/src/kuaishangtong/cmd/navi-agent/navi-agent rpc/bin
+cp -a $GOPATH/src/$ServiceName/$ServiceName rpc/bin
 
 cp -a $GOPATH/src/$ServiceName/service.yaml rpc/etc
 
@@ -35,6 +34,7 @@ rm -rf $GOPATH/src/$ServiceName
 echo "FROM centos:7
 COPY ./rpc /rpc
 RUN chmod 777 /rpc/*.sh
+CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 
-docker build -t mytest:alpha .
+docker build -t mytest_http:alpha .

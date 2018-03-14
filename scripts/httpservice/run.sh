@@ -4,4 +4,4 @@
 
 echo "start navi-httpservice"
 
-/rpc/bin/MyTest
+/rpc/bin/MyTest -path ./service.yaml
