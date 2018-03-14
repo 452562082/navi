@@ -21,8 +21,7 @@ func (c *Creator) CreateProject(serviceName string, force bool) {
 	if !force {
 		c.validateServiceRootPath(nil)
 	}
-	//rootPath := GOPATH() + "/src/"
-	rootPath := "/"
+	rootPath := GOPATH() + "/src/"
 	c.createRootFolder(rootPath + c.PkgPath)
 	c.createServiceYaml(rootPath+c.PkgPath, serviceName, "service")
 	c.c = NewConfig(c.RpcType, rootPath+c.PkgPath+"/service.yaml")
