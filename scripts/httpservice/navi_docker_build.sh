@@ -34,6 +34,7 @@ rm -rf $GOPATH/src/$ServiceName
 echo "FROM centos:7
 COPY ./rpc /rpc
 RUN chmod 777 /rpc/*.sh
+CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 
 docker build -t mytest_http:alpha .
