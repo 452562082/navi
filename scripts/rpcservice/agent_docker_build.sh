@@ -43,4 +43,4 @@ CMD [\"/rpc/run.sh\"]
 #
 docker build -t mytest:alpha .
 
-rm -rf ./rpc
+#rm -rf ./rpc
