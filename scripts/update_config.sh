@@ -45,7 +45,8 @@ update_yaml_zookeeper_hosts() {
     echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
 
     if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
-        sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
+        #sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
+		sed -i 's/\(zookeeper_hosts: \)\(.*\)/\1'"${ZOOKEEPER_HOSTS}"'/g' $1
         echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS}"
 		return 0
     else
