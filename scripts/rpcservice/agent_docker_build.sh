@@ -35,7 +35,7 @@ cp -a /usr/lib64/libevent-2.0.so.5.1.9 rpc/libs
 cp -a /usr/local/lib/libthrift-0.10.0.so rpc/libs
 
 echo "FROM centos:7
-COPY ./rpc /rpc
+COPY ./rpc/* /rpc
 RUN chmod 777 /rpc/*.sh
 #CMD [\"/rpc/run.sh\"]
 " > Dockerfile
