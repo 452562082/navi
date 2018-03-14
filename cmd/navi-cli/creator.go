@@ -72,7 +72,6 @@ func (c *Creator) generateThriftHTTPMain() {
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
