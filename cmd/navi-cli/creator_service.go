@@ -233,6 +233,12 @@ import (
 	"syscall"
 	"fmt"
 	"flag"
+	"kuaishangtong/navi/registry"
+	"github.com/docker/libkv"
+	"github.com/docker/libkv/store"
+	metrics "github.com/rcrowley/go-metrics"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jmetrics "github.com/uber/jaeger-lib/metrics"
 )
 
 var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePath")
