@@ -39,7 +39,7 @@ COPY rpc /rpc
 RUN chmod +x /rpc/update_config.sh \
     && chmod +x /rpc/run.sh \
     && chmod +x /rpc/bin/*
-CMD [\"/rpc/run.sh\"]
+CMD [\"chmod\", \"+x\", \"/rpc/run.sh\", \"&&\" , \"/rpc/run.sh\"]
 " > Dockerfile
 #
 docker build -t mytest:alpha .
