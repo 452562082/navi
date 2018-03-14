@@ -21,9 +21,11 @@ func (c *Creator) CreateProject(serviceName string, force bool) {
 	if !force {
 		c.validateServiceRootPath(nil)
 	}
-	c.createRootFolder(GOPATH() + "/src/" + c.PkgPath)
-	c.createServiceYaml(GOPATH()+"/src/"+c.PkgPath, serviceName, "service")
-	c.c = NewConfig(c.RpcType, GOPATH()+"/src/"+c.PkgPath+"/service.yaml")
+	//rootPath := GOPATH() + "/src/"
+	rootPath := "/"
+	c.createRootFolder(rootPath + c.PkgPath)
+	c.createServiceYaml(rootPath+c.PkgPath, serviceName, "service")
+	c.c = NewConfig(c.RpcType, rootPath+c.PkgPath+"/service.yaml")
 	if c.RpcType == "grpc" {
 		c.createGrpcProject(serviceName)
 	} else if c.RpcType == "thrift" {
