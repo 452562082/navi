@@ -6,6 +6,8 @@ YELOW_COLOR='\E[1;33m' #黄
 BLUE_COLOR='\E[1;34m'  #蓝
 PINK='\E[1;35m'      #粉红
 RES='\E[0m'
+RETVAL=0
+
 
 echo_success() {
     local str=$1
@@ -150,7 +152,7 @@ case "$1" in
 		;;
 	*)
 		echo -e "${YELOW_COLOR}Usage: $0 {agent|gateway|navi} [config_file] ${RES}"
-		RETVAL=1
+		exit 1
 esac
 
 exit $RETVAL
