@@ -131,6 +131,7 @@ func (s *ServerConnPool) getConn() (conn navicli.RPCConn) {
 	for !connOK && index >= 0 {
 
 		conn, s.free = s.free[index], s.free[:index]
+
 		if conn != nil && conn.Available() {
 			connOK = true
 		} else {

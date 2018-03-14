@@ -2,6 +2,8 @@
 
 export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
 
+chmod 777 /rpc/bin/*
+chmod 777 /rpc/*.sh
 /rpc/update_config.sh agent /rpc/etc/cfg.json
 
 echo "start mytest"
