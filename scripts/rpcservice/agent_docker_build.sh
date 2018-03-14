@@ -20,8 +20,10 @@ go build -v
 cd $GOPATH/src/kuaishangtong/navi/scripts/rpcservice
 
 # 将 脚本，navi-agent 及配置文件拷贝到 rpc 下
+chmod 777 $GOPATH/src/kuaishangtong/navi/scripts/update_config.sh
 cp -a $GOPATH/src/kuaishangtong/navi/scripts/update_config.sh rpc/
 
+chmod 777 $GOPATH/src/kuaishangtong/navi/scripts/rpcservice/run.sh
 cp -a $GOPATH/src/kuaishangtong/navi/scripts/rpcservice/run.sh rpc/
 
 cp -a $GOPATH/src/kuaishangtong/navi/cmd/navi-agent/navi-agent rpc/bin
@@ -36,10 +38,7 @@ cp -a /usr/local/lib/libthrift-0.10.0.so rpc/libs
 
 echo "FROM centos:7
 COPY rpc /rpc
-RUN chmod +x /rpc/update_config.sh \
-    && chmod +x /rpc/run.sh \
-    && chmod +x /rpc/bin/*
-CMD [\"chmod\", \"+x\", \"/rpc/run.sh\", \"&&\" , \"/rpc/run.sh\"]
+CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 #
 docker build -t mytest:alpha .

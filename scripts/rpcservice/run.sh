@@ -25,22 +25,17 @@ echo_failure() {
 }
 
 update_config() {
-    chmod +x /rpc/bin/*
-    chmod +x /rpc/*.sh
     /rpc/update_config.sh agent /rpc/etc/cfg.json
 }
 
 start_rpc_server() {
     export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
-
     echo_success "start mytest"
-
     nohup /rpc/bin/mytest 9292 >/rpc/logs/mytest.log 2>&1 &
 }
 
 start_agent() {
     echo_success "start navi-agent"
-
     /rpc/bin/navi-agent -c /rpc/etc/cfg.json
 }
 
