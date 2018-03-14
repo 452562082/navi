@@ -311,10 +311,10 @@ func serviceRegistry(s *navicli.ThriftServer) {
 	if s.Config.IsDocker() {
 		address = s.Config.HTTPHost()
 	}else {
-		address, err := getaddr()
-		if err != nil {
+		address, _ = getaddr()
+		/*if err != nil {
 			log.Fatal(err)
-		}
+		}*/
 	}
 
 	r := &registry.ZooKeeperRegister {
