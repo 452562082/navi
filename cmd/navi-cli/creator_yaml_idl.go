@@ -20,6 +20,8 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   environment: development
   service_root_path: {{.ServiceRoot}}
   turbo_log_path: log
+  http_host: 127.0.0.1:8081
+  is_docker: false
   http_port: 8081
   max_conn_num: 10
   grpc_service_name: {{.ServiceName}}

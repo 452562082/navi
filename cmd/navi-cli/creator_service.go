@@ -307,15 +307,18 @@ func getaddr() (string,error) {
 
 func serviceRegistry(s *navicli.ThriftServer) {
 	//服务注册
-	address, err := getaddr()
-	if err != nil {
-		log.Fatal(err)
+	var address string
+	if s.Config.IsDocker() {
+		address = s.Config.HTTPHost()
+	}else {
+		address, err := getaddr()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
-	port := fmt.Sprintf("%d", s.Config.HTTPPort())
-
 	r := &registry.ZooKeeperRegister {
-		ServiceAddress: address+":"+port,
+		ServiceAddress: address,
 		ZooKeeperServers:   s.Config.ZookeeperServersAddr(),
 		BasePath:       	s.Config.ZookeeperHttpServicePath(),
 		Mode:				s.Config.ServiceVersionMode(),

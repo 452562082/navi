@@ -15,6 +15,7 @@ const (
 	grpcServiceHost               = "grpc_service_host"
 	grpcServicePort               = "grpc_service_port"
 	thriftServiceName             = "thrift_service_name"
+	isDocker						= "is_docker"
 	//thriftServiceHost             = "thrift_service_host"
 	//thriftServicePort             = "thrift_service_port"
 	maxConnNum						 = "max_conn_num"
@@ -25,6 +26,7 @@ const (
 	zookeeperURLServicePath       = "zookeeper_url_service_path"
 	zookeeperHttpServicePath      = "zookeeper_http_service_path"
 	zookeeperRpcServicePath       = "zookeeper_rpc_service_path"
+	httpHost						= "http_host"
 	httpPort                      = "http_port"
 	filterProtoJson               = "filter_proto_json"
 	filterProtoJsonEmitZeroValues = "filter_proto_json_emit_zerovalues"
@@ -210,6 +212,13 @@ func (c *Config) ThriftServiceName() string {
 	return c.configs[thriftServiceName]
 }
 
+func (c *Config) IsDocker() bool {
+	flag, err := strconv.ParseBool(c.configs[isDocker])
+	if err != nil {
+		return false
+	}
+	return flag
+}
 //func (c *Config) ThriftServiceHost() string {
 //	return c.configs[thriftServiceHost]
 //}
@@ -252,6 +261,10 @@ func (c *Config) ZookeeperHttpServicePath() string {
 
 func (c *Config) ZookeeperRpcServicePath() string {
 	return c.configs[zookeeperRpcServicePath]
+}
+
+func (c *Config) HTTPHost() string {
+	return c.configs[httpHost]
 }
 
 func (c *Config) HTTPPort() int64 {

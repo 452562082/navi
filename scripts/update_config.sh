@@ -48,7 +48,7 @@ update_yaml_zookeeper_hosts() {
 
     if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
         #sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
-		sed -i 's/\(zookeeper_hosts: \)\(.*\)/\1'"${ZOOKEEPER_HOSTS}"'/g' $1
+		sed -i 's/\(zookeeper_servers_addr: \)\(.*\)/\1'"${ZOOKEEPER_HOSTS}"'/g' $1
         echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS}"
 		return 0
     else
@@ -76,7 +76,8 @@ update_yaml_server_hosts() {
     echo_warning "SERVER_HOSTS = ${SERVER_HOSTS}"
 
     if [ "${SERVER_HOSTS}" != "" ];then
-        sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' $1
+        #sed -i 's/\("server_hosts": "\).*/\1'"${SERVER_HOSTS}"'",/g' $1
+        sed -i 's/\(http_host: \)\(.*\)/\1'"${SERVER_HOSTS}"'/g' $1
         echo_success "update server_hosts to ${SERVER_HOSTS}"
 		return 0
     else
