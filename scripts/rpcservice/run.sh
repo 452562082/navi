@@ -41,9 +41,8 @@ start_agent() {
 
 main () {
     update_config
-    local ret = $?
 
-    if [ ret != "0" ]; then
+    if [ $? != "0" ]; then
         echo_failure "update_config failed"
         exit 2
     fi
