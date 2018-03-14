@@ -81,16 +81,10 @@ import (
 	
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/cmd/navi-cli"
-	"kuaishangtong/navi/registry"
-	"github.com/docker/libkv"
-	"github.com/docker/libkv/store"
-	metrics "github.com/rcrowley/go-metrics"
 	"{{.PkgPath}}/gen"
 	"{{.PkgPath}}/thriftapi/component"
 	"{{.PkgPath}}/thriftapi/engine"
 	"kuaishangtong/navi/lb"
-	jaegercfg "github.com/uber/jaeger-client-go/config"
-	jmetrics "github.com/uber/jaeger-lib/metrics"
 )
 
 func getaddr() (string,error) {
