@@ -11,7 +11,7 @@ cd $GOPATH/src/kuaishangtong/navi/cmd/navi-cli/navi_builder
 go build -v
 
 # 编译http_server MyTest
-navi_builder create $ServiceName
+$GOPATH/src/kuaishangtong/navi/cmd/navi-cli/navi_builder/navi_builder create $ServiceName
 cd $GOPATH/src/$ServiceName
 go build -v
 
