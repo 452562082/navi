@@ -232,7 +232,10 @@ import (
 	"os"
 	"syscall"
 	"fmt"
+	"net"
 	"flag"
+	"strings"
+	"time"
 	"kuaishangtong/navi/registry"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
@@ -293,7 +296,16 @@ func main() {
 	fmt.Println("Service stopped")
 }
 
-func serviceRegistry(s *ThriftServer) {
+func getaddr() (string,error) {
+	conn, err := net.Dial("udp", "www.google.com.hk:80")
+	if err != nil {
+		return "", err
+	}
+	defer conn.Close()
+	return strings.Split(conn.LocalAddr().String(),":")[0], nil
+}
+
+func serviceRegistry(s *navicli.ThriftServer) {
 	//服务注册
 	address, err := getaddr()
 	if err != nil {
@@ -338,5 +350,22 @@ func serviceRegistry(s *ThriftServer) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func strFirstToUpper(str string) string {
+
+	var upperStr string
+	vv := []rune(str)
+	for i := 0; i < len(vv); i++ {
+		if i == 0 {
+			if vv[i] >= 97 && vv[i] <= 122 {
+				vv[i] -= 32
+			}
+			upperStr += string(vv[i])
+		} else {
+			upperStr += string(vv[i])
+		}
+	}
+	return upperStr
 }
 `

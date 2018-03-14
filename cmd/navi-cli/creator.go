@@ -72,12 +72,9 @@ func (c *Creator) generateThriftHTTPMain() {
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
-	"time"
 	
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/cmd/navi-cli"
@@ -86,15 +83,6 @@ import (
 	"{{.PkgPath}}/thriftapi/engine"
 	"kuaishangtong/navi/lb"
 )
-
-func getaddr() (string,error) {
-	conn, err := net.Dial("udp", "www.google.com.hk:80")
-	if err != nil {
-		return "", err
-	}
-	defer conn.Close()
-	return strings.Split(conn.LocalAddr().String(),":")[0], nil
-}
 
 func main() {
 	s := navicli.NewThriftServer(&component.ServiceInitializer{}, "{{.ConfigFilePath}}")
@@ -117,23 +105,7 @@ func main() {
 	s.Stop()
 	log.Info("Service stopped")
 }
-
-func strFirstToUpper(str string) string {
-
-	var upperStr string
-	vv := []rune(str)
-	for i := 0; i < len(vv); i++ {
-		if i == 0 {
-			if vv[i] >= 97 && vv[i] <= 122 {
-				vv[i] -= 32
-			}
-			upperStr += string(vv[i]) 
-		} else {
-			upperStr += string(vv[i])
-		}
-	}
-	return upperStr
-}`,
+`,
 	)
 }
 
