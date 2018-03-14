@@ -34,7 +34,7 @@ rm -rf $GOPATH/src/$ServiceName
 #构建Docker镜像
 echo "FROM centos:7
 COPY ./navi /navi
-CMD [\"/navi/run.sh\"]
+#CMD [\"/navi/run.sh\"]
 " > Dockerfile
 
 docker build -t mytest_http:alpha .
