@@ -1,7 +1,5 @@
 #!/bin/sh
 
-/rpc/update_config.sh navi /rpc/etc/service.yaml
-
+/navi/update_config.sh navi /navi/etc/service.yaml
 echo "start navi-httpservice"
-
-/rpc/bin/MyTest -path ./service.yaml
+/navi/bin/MyTest -path /navi/etc/service.yaml
