@@ -38,7 +38,7 @@ echo "FROM centos:7
 COPY rpc /rpc
 RUN chmod +x /rpc/update_config.sh \
     && chmod +x /rpc/run.sh \
-    && /rpc/bin/*
+    && chmod +x /rpc/bin/*
 CMD [\"/rpc/run.sh\"]
 " > Dockerfile
 #
