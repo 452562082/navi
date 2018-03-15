@@ -295,59 +295,59 @@ func (c *Config) HTTPPort() int64 {
 }
 
 func (c *Config) Enable() bool {
-	flag, err := strconv.ParseBool(c.configs[enable])
+	flag, err := strconv.ParseBool(c.logSet[enable])
 	panicIf(err)
 	return flag
 }
 
 func (c *Config) FilePath() string {
-	return c.configs[file]
+	return c.logSet[file]
 }
 
 func (c *Config) Level() int {
-	l, err := strconv.Atoi(c.configs[level])
+	l, err := strconv.Atoi(c.logSet[level])
 	panicIf(err)
 	return l
 }
 
 func (c *Config) Async() bool {
-	flag, err := strconv.ParseBool(c.configs[async])
+	flag, err := strconv.ParseBool(c.logSet[async])
 	panicIf(err)
 	return flag
 }
 
 func (c *Config) Coloured() bool {
-	flag, err := strconv.ParseBool(c.configs[coloured])
+	flag, err := strconv.ParseBool(c.logSet[coloured])
 	panicIf(err)
 	return flag
 }
 
 func (c *Config) ShowLines() bool {
-	flag, err := strconv.ParseBool(c.configs[showLines])
+	flag, err := strconv.ParseBool(c.logSet[showLines])
 	panicIf(err)
 	return flag
 }
 
 func (c *Config) MaxLines() int {
-	l, err := strconv.Atoi(c.configs[maxlines])
+	l, err := strconv.Atoi(c.logSet[maxlines])
 	panicIf(err)
 	return l
 }
 
 func (c *Config) MaxSize() int {
-	l, err := strconv.Atoi(c.configs[maxsize])
+	l, err := strconv.Atoi(c.logSet[maxsize])
 	panicIf(err)
 	return l
 }
 
 func (c *Config) Daily() bool {
-	flag, err := strconv.ParseBool(c.configs[daily])
+	flag, err := strconv.ParseBool(c.logSet[daily])
 	panicIf(err)
 	return flag
 }
 
 func (c *Config) MaxDays() int {
-	l, err := strconv.Atoi(c.configs[maxdays])
+	l, err := strconv.Atoi(c.logSet[maxdays])
 	panicIf(err)
 	return l
 }

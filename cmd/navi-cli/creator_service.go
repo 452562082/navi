@@ -287,7 +287,6 @@ func main() {
 
 	serviceRegistry(s)
 
-	fmt.Println(s.Config.IsDocker())
 	// log 设置
 	log.SetLogFuncCall(s.Config.ShowLines())
 	log.SetColor(s.Config.Coloured())
