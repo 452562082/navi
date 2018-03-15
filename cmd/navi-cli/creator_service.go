@@ -293,7 +293,7 @@ func main() {
 	log.SetLevel(s.Config.Level())
 	if s.Config.Enable() || s.Config.IsDocker() {
 		log.SetLogFile(
-			s.Config.File(),
+			s.Config.FilePath(),
 			s.Config.Level(),
 			s.Config.Daily(),
 			s.Config.Coloured(),
