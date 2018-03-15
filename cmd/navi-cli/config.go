@@ -325,6 +325,7 @@ func (c *Config) Coloured() bool {
 }
 
 func (c *Config) ShowLines() bool {
+	fmt.Printf("showlines: %v",c.configs[showLines])
 	flag, err := strconv.ParseBool(c.configs[showLines])
 	panicIf(err)
 	return flag
