@@ -287,6 +287,21 @@ func main() {
 
 	serviceRegistry(s)
 
+	// log 设置
+	log.SetLogFuncCall(s.Config.ShowLines())
+	log.SetColor(s.Config.Coloured())
+	log.SetLevel(s.Config.Level())
+	if s.Config.Enable() || s.Config.IsDocker() {
+		log.SetLogFile(
+			s.Config.File(),
+			s.Config.Level(),
+			s.Config.Daily(),
+			s.Config.Coloured(),
+			s.Config.ShowLines(),
+			s.Config.MaxDays())
+	}
+	fmt.Println("log setup is complete.")
+
 	select {
 	case <-exit:
 		fmt.Println("Service is stopping...")

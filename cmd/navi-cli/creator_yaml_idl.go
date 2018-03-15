@@ -39,6 +39,30 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
 urlmapping:
   - POST /hello SayHello
   - POST /savewave SaveWave
+
+log:
+    # 开启日志文件
+   enable: true
+    # 日志文件路径
+   file: /rpc/logs/agent.log
+    # 日志等级
+    # Fatal:0, Error:1, Alert:2, Warn:3
+    # Notice:4, Info:5, Debug:6, Trace:7
+   level: 6
+    # 异步日志
+   async: false
+    # 日志等级配色
+   coloured: true
+    # 日志显示行号
+   show_lines: true
+    # 日志最大行数
+   maxlines: 5000000
+    # 日志最大容量
+   maxsize: 536870912
+    # 日志隔天回滚
+   daily: true
+    # 保存日志最大天数
+   maxdays: 15
 `)
 }
 

@@ -41,6 +41,17 @@ const (
 	postprocessors = "postprocessors"
 	hijackers      = "hijackers"
 	convertors     = "convertors"
+
+	enable					= "enable"
+	file					= "file"
+	level					= "level"
+	async					= "async"
+	coloured				= "coloured"
+	showLines				= "show_lines"
+	maxlines				= "maxlines"
+	maxsize				= "maxsize"
+	daily					= "daily"
+	maxdays				= "maxdays"
 )
 
 // GOPATH inits the GOPATH turbo used.
@@ -61,6 +72,7 @@ type Config struct {
 	configs       map[string]string
 	fieldMappings map[string][]string
 	mappings      map[string][][3]string
+	logSet 		  map[string]string
 }
 
 // NewConfig loads the config file at 'configFilePath', and returns a Config struct ptr
@@ -84,6 +96,7 @@ func (c *Config) loadServiceConfig() {
 	panicIf(err)
 	c.loadUrlMap()
 	c.loadConfigs()
+	c.loadLogSet()
 	c.loadComponents()
 }
 
@@ -130,6 +143,10 @@ func (c *Config) loadConvertor() [][3]string {
 
 func (c *Config) loadConfigs() {
 	c.configs = c.GetStringMapString("config")
+}
+
+func (c *Config) loadLogSet() {
+	c.logSet = c.GetStringMapString("log")
 }
 
 var matchKey = regexp.MustCompile("^(.*)\\[")
@@ -275,6 +292,64 @@ func (c *Config) HTTPPort() int64 {
 	i, err := strconv.ParseInt(p, 10, 64)
 	logErrorIf(err)
 	return i
+}
+
+func (c *Config) Enable() bool {
+	flag, err := strconv.ParseBool(c.configs[enable])
+	panicIf(err)
+	return flag
+}
+
+func (c *Config) FilePath() string {
+	return c.configs[file]
+}
+
+func (c *Config) Level() int {
+	l, err := strconv.Atoi(c.configs[level])
+	panicIf(err)
+	return l
+}
+
+func (c *Config) Async() bool {
+	flag, err := strconv.ParseBool(c.configs[async])
+	panicIf(err)
+	return flag
+}
+
+func (c *Config) Coloured() bool {
+	flag, err := strconv.ParseBool(c.configs[coloured])
+	panicIf(err)
+	return flag
+}
+
+func (c *Config) ShowLines() bool {
+	flag, err := strconv.ParseBool(c.configs[showLines])
+	panicIf(err)
+	return flag
+}
+
+func (c *Config) MaxLines() int {
+	l, err := strconv.Atoi(c.configs[maxlines])
+	panicIf(err)
+	return l
+}
+
+func (c *Config) MaxSize() int {
+	l, err := strconv.Atoi(c.configs[maxsize])
+	panicIf(err)
+	return l
+}
+
+func (c *Config) Daily() bool {
+	flag, err := strconv.ParseBool(c.configs[daily])
+	panicIf(err)
+	return flag
+}
+
+func (c *Config) MaxDays() int {
+	l, err := strconv.Atoi(c.configs[maxdays])
+	panicIf(err)
+	return l
 }
 
 func (c *Config) FilterProtoJson() bool {
