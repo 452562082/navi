@@ -144,12 +144,10 @@ func (c *Config) loadConvertor() [][3]string {
 
 func (c *Config) loadConfigs() {
 	c.configs = c.GetStringMapString("config")
-	fmt.Println(c.configs)
 }
 
 func (c *Config) loadLogSet() {
 	c.logSet = c.GetStringMapString("log")
-	fmt.Println(c.logSet)
 }
 
 var matchKey = regexp.MustCompile("^(.*)\\[")
