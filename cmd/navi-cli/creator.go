@@ -748,6 +748,8 @@ func (c *ConnCenter) putConn(conn *Conn) error {
 	c.lock.Lock()
 	if pool, ok := c.serverPools[conn.host]; ok {
 		pool.putConn(conn)
+		c.lock.Unlock()
+		return nil
 	}
 	c.lock.Unlock()
 

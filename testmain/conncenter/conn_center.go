@@ -409,7 +409,9 @@ func (cc *ConnCenter) PutConn(conn navicli.RPCConn) error {
 func (cc *ConnCenter) putConn(conn navicli.RPCConn) error {
 	cc.lock.Lock()
 	if pool, ok := cc.serverPools[conn.HostName()]; ok {
+		cc.lock.Unlock()
 		pool.putConn(conn)
+		return nil
 	}
 	cc.lock.Unlock()
 
