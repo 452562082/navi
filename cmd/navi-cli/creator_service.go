@@ -300,7 +300,7 @@ func main() {
 			s.Config.ShowLines(),
 			s.Config.MaxDays())
 	}
-	fmt.Println("log setup is complete.")
+	log.Info("log setup is complete.")
 
 	select {
 	case <-exit:
