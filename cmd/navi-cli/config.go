@@ -144,6 +144,7 @@ func (c *Config) loadConvertor() [][3]string {
 
 func (c *Config) loadConfigs() {
 	c.configs = c.GetStringMapString("config")
+	fmt.Println(c.configs)
 }
 
 func (c *Config) loadLogSet() {
@@ -325,7 +326,6 @@ func (c *Config) Coloured() bool {
 }
 
 func (c *Config) ShowLines() bool {
-	fmt.Printf("showlines: %v",c.configs[showLines])
 	flag, err := strconv.ParseBool(c.configs[showLines])
 	panicIf(err)
 	return flag
