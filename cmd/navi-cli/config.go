@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"fmt"
 )
 
 const (
@@ -147,6 +148,7 @@ func (c *Config) loadConfigs() {
 
 func (c *Config) loadLogSet() {
 	c.logSet = c.GetStringMapString("log")
+	fmt.Println(c.logSet)
 }
 
 var matchKey = regexp.MustCompile("^(.*)\\[")
