@@ -5,7 +5,11 @@ services:
 #      context: ./
 #      dockerfile: Dockerfile
     image: localhost:5000/mytest_http:alpha
-    env_file: ../env.ini
+    #env_file: ../env.ini
+    environment:
+      - ZK_HOSTS: 192.168.1.16:2181
+      - SERVER_HOSTS: 192.168.1.16:9292
+      - KAFKA_HOSTS: 192.168.1.16:9092
     ports:
       - "8081:8081"
     volumes:
@@ -14,7 +18,10 @@ services:
       - zookeeper
   web2:
     image: localhost:5000/mytest_http:alpha
-    env_file: ../env.ini
+    environment:
+      - ZK_HOSTS: 192.168.1.16:2181
+      - SERVER_HOSTS: 192.168.1.16:9293
+      - KAFKA_HOSTS: 192.168.1.16:9092
     ports:
       - "8082:8081"
     volumes:
@@ -23,7 +30,10 @@ services:
       - zookeeper
   web3:
     image: localhost:5000/mytest_http:alpha
-    env_file: ../env.ini
+    environment:
+      - ZK_HOSTS: 192.168.1.16:2181
+      - SERVER_HOSTS: 192.168.1.16:9294
+      - KAFKA_HOSTS: 192.168.1.16:9092
     ports:
       - "8083:8081"
     volumes:
