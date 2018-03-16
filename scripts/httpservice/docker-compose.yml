@@ -4,7 +4,7 @@ services:
 #    build:
 #      context: ./
 #      dockerfile: Dockerfile
-    image: localhost:5000/mytest_http:alpha
+    image: mytest_http:alpha
     #env_file: ../env.ini
     environment:
       ZK_HOSTS: 192.168.1.16:2181
@@ -17,7 +17,7 @@ services:
     depends_on:
       - zookeeper
   web2:
-    image: localhost:5000/mytest_http:alpha
+    image: mytest_http:alpha
     environment:
       ZK_HOSTS: 192.168.1.16:2181
       SERVER_HOSTS: 192.168.1.16:9293
@@ -29,7 +29,7 @@ services:
     depends_on:
       - zookeeper
   web3:
-    image: localhost:5000/mytest_http:alpha
+    image: mytest_http:alpha
     environment:
       ZK_HOSTS: 192.168.1.16:2181
       SERVER_HOSTS: 192.168.1.16:9294

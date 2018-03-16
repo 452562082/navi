@@ -44,7 +44,7 @@ log:
     # 开启日志文件
    enable: true
     # 日志文件路径
-   file: /rpc/logs/navi.log
+   file: /navi/logs/navi.log
     # 日志等级
     # Fatal:0, Error:1, Alert:2, Warn:3
     # Notice:4, Info:5, Debug:6, Trace:7
