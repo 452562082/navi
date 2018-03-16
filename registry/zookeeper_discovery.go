@@ -62,25 +62,6 @@ func NewZookeeperDiscoveryWithStore(basePath string, kv store.Store) (ServiceDis
 		log.Errorf("cannot create zk path %s: %v", basePath, err)
 		return nil, err
 	}
-	//
-	//nodePath := fmt.Sprintf("%s/%s", basePath, name)
-	//err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
-	//if err != nil {
-	//	log.Errorf("cannot create zk path %s: %v", nodePath, err)
-	//	return err
-	//}
-	//
-	//if p.Mode != "" {
-	//	nodePath = fmt.Sprintf("%s/%s/%s", p.BasePath, name, p.Mode)
-	//} else {
-	//	nodePath = fmt.Sprintf("%s/%s", p.BasePath, name)
-	//}
-	//
-	//err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
-	//if err != nil {
-	//	log.Errorf("cannot create zk path %s: %v", nodePath, err)
-	//	return err
-	//}
 
 	ps, err := kv.List(basePath)
 	if err != nil {
