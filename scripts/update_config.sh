@@ -86,6 +86,20 @@ update_yaml_server_hosts() {
     fi
 }
 
+update_yaml_file() {
+
+    echo_warning "LOG_FILE = ${LOG_FILE}"
+
+    if [ "${LOG_FILE}" != "" ];then
+        sed -i 's/\(file: \)\(.*\)/\1'"${LOG_FILE}"'/g' $1
+        echo_success "update file to ${LOG_FILE}"
+		return 0
+    else
+        echo_failure "environment variable 'LOG_FILE' is not set"
+	    return 1
+    fi
+}
+
 print_help() {
     echo -e "${YELOW_COLOR}Usage: $0 {agent|gateway|navi} [config_file] ${RES}"
 }
@@ -138,6 +152,12 @@ navi() {
    	local ret=$?
 	if [ $ret -eq 1 ]; then
         exit 2
+	fi
+
+	update_yaml_file $1
+	local ret=$?
+	if [ $ret -eq 1 ]; then
+	    exit 2
 	fi
 }
 
