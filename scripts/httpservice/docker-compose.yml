@@ -1,0 +1,13 @@
+version: '1'
+services:
+  web:
+    image: mytest_http
+    env_file: ../env.ini
+    port: "8081:8081"
+    volumes:
+      - /opt/golang/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
+    depends_on:
+      - zookeeper
+  zookeeper:
+    image: zookeeper
+    port: "2181:2181"
