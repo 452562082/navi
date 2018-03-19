@@ -116,6 +116,7 @@ update_yaml_file() {
     fi
 }
 
+
 update_ini_jaeger_host() {
         echo_warning "JAEGER_HOST = ${JAEGER_HOST}"
 
@@ -124,11 +125,25 @@ update_ini_jaeger_host() {
         echo_success "update jaeger.host to ${JAEGER_HOST}"
 		return 0
     else
-        echo_failure "environment variable 'ZK_HOSTS' is not set"
-	    return 1
+        echo_failure "environment variable 'JAEGER_HOST' is not set"
+
     fi
 }
 
+update_yaml_jaeger_addr() {
+
+    echo_warning "JAEGER_ADDR = ${JAEGER_ADDR}"
+
+    if [ "${JAEGER_ADDR}" != "" ];then
+        sed -i 's/\(jaeger_addr: \)\(.*\)/\1'"${JAEGER_ADDR}"'/g' $1
+        echo_success "update file to ${JAEGER_ADDR}"
+		return 0
+    else
+        echo_failure "environment variable 'JAEGER_ADDR' is not set"
+
+	    return 1
+    fi
+}
 
 print_help() {
     echo -e "${YELOW_COLOR}Usage: $0 {agent|gateway|navi} [config_file] ${RES}"
@@ -185,6 +200,12 @@ navi() {
 	fi
 
 	update_yaml_file $1
+	local ret=$?
+	if [ $ret -eq 1 ]; then
+	    exit 2
+	fi
+
+	update_yaml_jaeger_addr $1
 	local ret=$?
 	if [ $ret -eq 1 ]; then
 	    exit 2
