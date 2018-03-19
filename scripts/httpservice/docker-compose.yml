@@ -7,7 +7,7 @@ services:
     image: mytest_http:alpha
     #env_file: ../env.ini
     environment:
-      ZK_HOSTS: 192.168.1.17:2181
+      ZK_HOSTS: 192.168.1.17:2181;192.168.1.17:2182;192.168.1.17:2183
       SERVER_HOSTS: 192.168.1.16:8081
       KAFKA_HOSTS: 192.168.1.16:9092
       LOG_FILE: \/navi\/logs\/navi_web1.log
@@ -20,7 +20,7 @@ services:
   web2:
     image: mytest_http:alpha
     environment:
-      ZK_HOSTS: 192.168.1.17:2181
+      ZK_HOSTS: 192.168.1.17:2181;192.168.1.17:2182;192.168.1.17:2183
       SERVER_HOSTS: 192.168.1.16:8082
       KAFKA_HOSTS: 192.168.1.16:9092
       LOG_FILE: \/navi\/logs\/navi_web2.log
@@ -33,7 +33,7 @@ services:
   web3:
     image: mytest_http:alpha
     environment:
-      ZK_HOSTS: 192.168.1.17:2181
+      ZK_HOSTS: 192.168.1.17:2181;192.168.1.17:2182;192.168.1.17:2183
       SERVER_HOSTS: 192.168.1.16:8083
       KAFKA_HOSTS: 192.168.1.16:9092
       LOG_FILE: \/navi\/logs\/navi_web3.log
