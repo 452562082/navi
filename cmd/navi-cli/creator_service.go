@@ -264,7 +264,7 @@ func main() {
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:            true,
 			BufferFlushInterval: 1 * time.Second,
-			LocalAgentHostPort:  "localhost:6831",
+			LocalAgentHostPort: s.Config.JaegerAddr(),
 		},
 	}
 	jMetricsFactory := jmetrics.NullFactory

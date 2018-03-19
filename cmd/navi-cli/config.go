@@ -34,6 +34,7 @@ const (
 	turboLogPath                  = "turbo_log_path"
 	environment                   = "environment"
 	serviceRootPath               = "service_root_path"
+	jaegerAddr						= "jaeger_addr"
 
 	urlServiceMaps = "urlServiceMaps"
 	interceptors   = "interceptors"
@@ -196,6 +197,10 @@ func (c *Config) Env() string {
 // "service_root_path" can be either an absolute path, or the package path of the service, e.g. github.com/xxx/yyy
 func (c *Config) ServiceRootPath() string {
 	return c.configs[serviceRootPath]
+}
+
+func (c *Config) JaegerAddr() string {
+	return c.configs[jaegerAddr]
 }
 
 // ServiceRootPathAbsolute returns the absolute path to service's root,
