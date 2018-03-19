@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-var zkhosts []string = []string{"192.168.1.16:2181"}
+var zkhosts []string = []string{"192.168.1.17:2181","192.168.1.17:2182","192.168.1.17:2183"}
 
 const _ipFilterRules = `{
   "ip_filter_rules": [
