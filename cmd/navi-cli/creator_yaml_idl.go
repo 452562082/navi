@@ -35,6 +35,7 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   zookeeper_url_service_path: /navi/service
   zookeeper_http_service_path: /navi/httpservice
   zookeeper_rpc_service_path: /navi/rpcservice
+  jaeger_addr: 127.0.0.1:6831
 
 urlmapping:
   - POST /hello SayHello
