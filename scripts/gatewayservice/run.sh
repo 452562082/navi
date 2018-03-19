@@ -25,18 +25,12 @@ echo_failure() {
 }
 
 update_config() {
-    /rpc/update_config.sh agent /rpc/etc/cfg.json
+    /gateway/update_config.sh gateway /gateway/bin/conf/app.conf
 }
 
-start_rpc_server() {
-    export LD_LIBRARY_PATH=/usr/local/lib:/rpc/libs
-    echo_success "start mytest"
-    nohup /rpc/bin/mytest 9292 >/rpc/logs/mytest.log 2>&1 &
-}
-
-start_agent() {
-    echo_success "start navi-agent"
-    /rpc/bin/navi-agent -c /rpc/etc/cfg.json
+start_gateway() {
+    echo_success "gateway"
+    /gateway/bin/gateway
 }
 
 main () {
@@ -46,13 +40,7 @@ main () {
         echo_failure "update_config failed"
         exit 2
     fi
-
-    start_rpc_server
-
-    sleep 3
-
-    start_agent
-
+    start_gateway
 }
 
 main

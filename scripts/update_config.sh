@@ -28,6 +28,8 @@ ZOOKEEPER_HOSTS=$(echo $ZK_HOSTS)
 
 SERVER_HOSTS=$(echo $SERVER_HOSTS)
 
+JAEGER_HOST=$(echo $JAEGER_HOST)
+
 update_json_zookeeper_hosts() {
 
     echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
@@ -50,6 +52,20 @@ update_yaml_zookeeper_hosts() {
         #sed -i 's/\("zookeeper_hosts": "\).*/\1'"${ZOOKEEPER_HOSTS}"'",/g' $1
 		sed -i 's/\(zookeeper_servers_addr: \)\(.*\)/\1'"${ZOOKEEPER_HOSTS}"'/g' $1
         echo_success "update zookeeper_hosts to ${ZOOKEEPER_HOSTS}"
+		return 0
+    else
+        echo_failure "environment variable 'ZK_HOSTS' is not set"
+	    return 1
+    fi
+}
+
+update_ini_zookeeper_hosts() {
+
+    echo_warning "ZOOKEEPER_HOSTS = ${ZOOKEEPER_HOSTS}"
+
+    if [ "${ZOOKEEPER_HOSTS}" != "" ]; then
+		sed -i 's/\(zookeeper.hosts = \)\(.*\)/\1'"${ZOOKEEPER_HOSTS}"'/g' $1
+        echo_success "update zookeeper.hosts to ${ZOOKEEPER_HOSTS}"
 		return 0
     else
         echo_failure "environment variable 'ZK_HOSTS' is not set"
@@ -99,6 +115,20 @@ update_yaml_file() {
 	    return 1
     fi
 }
+
+update_ini_jaeger_host() {
+        echo_warning "JAEGER_HOST = ${JAEGER_HOST}"
+
+    if [ "${JAEGER_HOST}" != "" ]; then
+		sed -i 's/\(jaeger.host = \)\(.*\)/\1'"${JAEGER_HOST}"'/g' $1
+        echo_success "update jaeger.host to ${JAEGER_HOST}"
+		return 0
+    else
+        echo_failure "environment variable 'ZK_HOSTS' is not set"
+	    return 1
+    fi
+}
+
 
 print_help() {
     echo -e "${YELOW_COLOR}Usage: $0 {agent|gateway|navi} [config_file] ${RES}"
@@ -161,12 +191,37 @@ navi() {
 	fi
 }
 
+gateway() {
+        if [ "$1" == "" ];then
+       echo_failure "gateway config file does not be designated"
+       print_help
+       exit 2
+    fi
+
+    if [ "$1" == "-h" ];then
+       print_help
+       exit 0
+    fi
+
+    update_ini_zookeeper_hosts $1
+   	local ret=$?
+	if [ $ret -eq 1 ]; then
+        exit 2
+	fi
+
+	update_ini_jaeger_host $1
+   	local ret=$?
+	if [ $ret -eq 1 ]; then
+        exit 2
+	fi
+}
+
 case "$1" in
 	agent)
 		agent $2
 		;;
 	gateway)
-		agent $2
+		gateway $2
 		;;
 	navi)
 		navi $2

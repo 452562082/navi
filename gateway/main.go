@@ -24,13 +24,13 @@
 package main
 
 import (
+	"github.com/astaxie/beego"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/gateway/constants"
 	_ "kuaishangtong/navi/gateway/routers"
 	"kuaishangtong/navi/gateway/service"
 	"kuaishangtong/navi/ipfilter"
-	"github.com/astaxie/beego"
-	jaegercfg "github.com/uber/jaeger-client-go/config"
 	//jaegerlog "github.com/uber/jaeger-client-go/log"
 	"github.com/uber/jaeger-lib/metrics"
 
@@ -61,14 +61,11 @@ func main() {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:            true,
-			BufferFlushInterval: 1 * time.Second,
-			LocalAgentHostPort:  "192.168.1.16:6831",
+			BufferFlushInterval: time.Second,
+			LocalAgentHostPort:  beego.AppConfig.String("jaeger.host"),
 		},
 	}
 
-	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
-	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
-	// frameworks.
 	//jLogger := jaegerlog.StdLogger
 	jMetricsFactory := metrics.NullFactory
 
@@ -127,6 +124,4 @@ func main() {
 	//opentracing.InitGlobalTracer(tracer)
 
 	beego.Run()
-
-	//closer.Close()
 }
