@@ -8,42 +8,42 @@ services:
     #env_file: ../env.ini
     environment:
       ZK_HOSTS: 192.168.1.16:2181
-      SERVER_HOSTS: 192.168.1.16:9292
+      SERVER_HOSTS: 192.168.1.16:8081
       KAFKA_HOSTS: 192.168.1.16:9092
       LOG_FILE: \/navi\/logs\/navi_web1.log
     ports:
       - "8081:8081"
     volumes:
-      - /opt/golang/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
-    depends_on:
-      - zookeeper
+      - $GOPATH/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
+#    depends_on:
+#      - zookeeper
   web2:
     image: mytest_http:alpha
     environment:
       ZK_HOSTS: 192.168.1.16:2181
-      SERVER_HOSTS: 192.168.1.16:9293
+      SERVER_HOSTS: 192.168.1.16:8082
       KAFKA_HOSTS: 192.168.1.16:9092
       LOG_FILE: \/navi\/logs\/navi_web2.log
     ports:
       - "8082:8081"
     volumes:
-      - /opt/golang/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
-    depends_on:
-      - zookeeper
+      - $GOPATH/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
+#    depends_on:
+#      - zookeeper
   web3:
     image: mytest_http:alpha
     environment:
       ZK_HOSTS: 192.168.1.16:2181
-      SERVER_HOSTS: 192.168.1.16:9294
+      SERVER_HOSTS: 192.168.1.16:8083
       KAFKA_HOSTS: 192.168.1.16:9092
       LOG_FILE: \/navi\/logs\/navi_web3.log
     ports:
       - "8083:8081"
     volumes:
-      - /opt/golang/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
-    depends_on:
-      - zookeeper
-  zookeeper:
-    image: zookeeper
-    ports:
-      - "2181:2181"
+      - $GOPATH/src/kuaishangtong/navi/scripts/httpservice/navi:/navi
+#    depends_on:
+#      - zookeeper
+#  zookeeper:
+#    image: zookeeper
+#    ports:
+#      - "2181:2181"
