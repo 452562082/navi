@@ -29,7 +29,6 @@ const _ipFilterRules = `{
     }
   ]
 }
-
 `
 
 func TestAddIpFilterRule(t *testing.T) {
