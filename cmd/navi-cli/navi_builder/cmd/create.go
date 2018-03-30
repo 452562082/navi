@@ -10,7 +10,7 @@ import (
 var createCmd = &cobra.Command{
 
 	Use:     "create package_path",
-	Aliases: []string{"c","r"},
+	Aliases: []string{"c"},
 	Short:   "Create a project with runnable HTTP server and thrift server",
 
 	Example: "navi_builder create package/path/to/YourService\n" +
@@ -28,7 +28,7 @@ var createCmd = &cobra.Command{
 			return errors.New("[" + servicename + "] is not a CamelCase string")
 		}
 
-		//RpcType = "thrift"
+		RpcType = args[1]
 		g := navicli.Creator{
 			RpcType: RpcType,
 			PkgPath: args[0],
