@@ -175,7 +175,7 @@ func (c *{{.ServiceName}}) ServiceMode(ctx context.Context, req *proto.ServiceMo
 }
 
 func (c *{{.ServiceName}}) SayHello(ctx context.Context, req *proto.SayHelloRequest) (*proto.Response, error) {
-	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"name\": \"Hello, " + req.your_name + "\"}"}, nil
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"name\": \"Hello, " + req.YourName + "\"}"}, nil
 }
 
 func (c *{{.ServiceName}}) SaveWave(ctx context.Context, req *proto.SaveWaveRequest) (*proto.Response, error) {
