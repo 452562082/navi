@@ -177,7 +177,7 @@ message SaveWaveRequest {
 }
 
 // 这个结构体，定义了服务提供者的返回信息
-struct Response {
+message Response {
     // RESCODE 是处理状态代码，是一个int32型, 具体状态码参考文档;
     int32 responseCode = 1;
     // 返回的处理结果，同样使用JSON格式进行描述
