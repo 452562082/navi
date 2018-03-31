@@ -81,8 +81,8 @@ import (
 )
 
 // GrpcSwitcher is a runtime func with which a server starts.
-var GrpcSwitcher = func(s nacicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (rpcResponse interface{}, err error) {
-	callOptions, header, trailer, peer := nacicli.CallOptions(methodName, req)
+var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (rpcResponse interface{}, err error) {
+	callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
 	switch methodName { {{range $i, $MethodName := .MethodNames}}
 	case "{{$MethodName}}":
 		request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }

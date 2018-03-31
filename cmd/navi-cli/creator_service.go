@@ -157,9 +157,29 @@ func RegisterServer(s *grpc.Server) {
 type {{.ServiceName}} struct {
 }
 
-// SayHello is an example entry point
-func (s *{{.ServiceName}}) SayHello(ctx context.Context, req *proto.SayHelloRequest) (*proto.SayHelloResponse, error) {
-	return &proto.SayHelloResponse{Message: "[grpc server]Hello, " + req.YourName}, nil
+//// SayHello is an example entry point
+//func (s *{{.ServiceName}}) SayHello(ctx context.Context, req *proto.SayHelloRequest) (*proto.Response, error) {
+//	return &proto.SayHelloResponse{Message: "[grpc server]Hello, " + req.YourName}, nil
+//}
+
+func (c *{{.ServiceName}}) Ping(ctx context.Context, req *proto.PingRequest) (*proto.Response, error) {
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"ping\"}"}, nil
+}
+
+func (c *{{.ServiceName}}) ServiceName(ctx context.Context, req *proto.ServiceNameRequest) (*proto.Response, error) {
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"servicename\"}"}, nil
+}
+
+func (c *{{.ServiceName}}) ServiceMode(ctx context.Context, req *proto.ServiceModeRequest) (*proto.Response, error) {
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"servicemode\"}"}, nil
+}
+
+func (c *{{.ServiceName}}) SayHello(ctx context.Context, req *proto.SayHelloRequest) (*proto.Response, error) {
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"name\": \"Hello, " + req.your_name + "\"}"}, nil
+}
+
+func (c *{{.ServiceName}}) SaveWave(ctx context.Context, req *proto.SaveWaveRequest) (*proto.Response, error) {
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"savewave\"}"}, nil
 }
 `,
 	)
