@@ -16,19 +16,19 @@ var createCmd = &cobra.Command{
 	Example: "navi_builder create package/path/to/YourService\n" +
 		"'YourService' *MUST* be a CamelCase string",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
+		if len(args) < 2 {
 			return errors.New("invalid args")
 		}
-		//if navicli.IsNotCamelCase(args[1]) {
-		//	return errors.New("[" + args[1] + "] is not a CamelCase string")
-		//}
-		tempStr := strings.Trim(args[0],"/")
+
+		tempStr := strings.Trim(args[1],"/")
 		servicename := tempStr[strings.LastIndex(tempStr,"/") + 1:]
 		if navicli.IsNotCamelCase(servicename) {
 			return errors.New("[" + servicename + "] is not a CamelCase string")
 		}
 
-		RpcType = args[1]
+		if len(RpcType) == 0 || (RpcType != "grpc" && RpcType != "thrift") {
+			return errors.New("invalid value for -r, should be grpc or thrift")
+		}
 		g := navicli.Creator{
 			RpcType: RpcType,
 			PkgPath: args[0],

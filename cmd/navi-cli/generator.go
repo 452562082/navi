@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"strings"
 	"text/template"
+	"reflect"
+	"kuaishangtong/navi/lb"
 )
 
 // Generator generates proto/thrift code
