@@ -84,23 +84,6 @@ var cur_conn_num int
 
 // GrpcSwitcher is a runtime func with which a server starts.
 var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (rpcResponse interface{}, err error) {
-	//callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
-	//switch methodName { {{range $i, $MethodName := .MethodNames}}
-	//case "{{$MethodName}}":
-	//	request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
-	//	err = navicli.BuildRequest(s, request, req)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	rpcResponse, err = s.Service().(g.{{$.ServiceName}}Client).{{$MethodName}}(req.Context(), request, callOptions...){{end}}
-	//default:
-	//	return nil, errors.New("No such method[" + methodName + "]")
-	//}
-	//navicli.WithCallOptions(req, header, trailer, peer)
-	//return
-	//
-	//
-	///////
 	cur_conn_num++
 	defer func() {
 		cur_conn_num--
