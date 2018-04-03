@@ -165,7 +165,10 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 						}
 						return serviceResponse, nil
 			}
-	{{end}}
+		{{end}}
+		default:
+			return nil, errors.New("No such method[" + methodName + "]")
+	}
 }
 `)
 }
