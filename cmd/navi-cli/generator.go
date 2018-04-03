@@ -102,7 +102,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 				err = navicli.BuildRequest(s, request, req)
 				if err != nil {
 					return nil, err
-				}{{end}}
+				}
 
 				switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
 					case lb.Failover:
