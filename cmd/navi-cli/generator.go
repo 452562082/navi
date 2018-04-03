@@ -97,6 +97,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 	switch methodName {
 		{{range $i, $MethodName := .MethodNames}}
 			case "{{$MethodName}}":{{if index $.NotEmptyParameters $i }}
+				//params, err := navicli.BuildThriftRequest(s, &gen.{{$.ServiceName}}{{$MethodName}}Args{}, req, buildStructArg)
 				request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
 				err = navicli.BuildRequest(s, request, req)
 				if err != nil {
@@ -117,7 +118,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 							}
 
 							serviceResponse, err = g.New{{$.ServiceName}}Client(conn).{{$MethodName}}(req.Context(), request, callOptions...)
-							//rpcResponse, err = s.Service().(g.{{$.ServiceName}}Client).{{$MethodName}}(req.Context(), request, callOptions...){{end}}
+							//serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
 							if err == nil {
 								err = s.Service().(navicli.ConnPool).PutConn(conn)
 								if err != nil {
@@ -127,7 +128,6 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 							}
 
 							conn.(*engine.Conn).Reconnect()
-
 						}
 						return nil, err
 
@@ -148,7 +148,8 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 						}
 						return serviceResponse, nil
 			}
-		{{end}}
+	{{end}}
+
 	default:
 		return nil, errors.New("No such method[" + methodName + "]")
 	}
