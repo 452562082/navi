@@ -25,8 +25,6 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   http_port: 8081
   max_conn_num: 10
   grpc_service_name: {{.ServiceName}}
-  grpc_service_host: 127.0.0.1
-  grpc_service_port: 50051
   thrift_service_name: {{.ServiceName}}
   service_version_mode: dev
   service_version: 1.0

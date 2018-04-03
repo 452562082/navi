@@ -12,8 +12,8 @@ import (
 
 const (
 	grpcServiceName               = "grpc_service_name"
-	grpcServiceHost               = "grpc_service_host"
-	grpcServicePort               = "grpc_service_port"
+	//grpcServiceHost               = "grpc_service_host"
+	//grpcServicePort               = "grpc_service_port"
 	thriftServiceName             = "thrift_service_name"
 	isDocker						= "is_docker"
 	//thriftServiceHost             = "thrift_service_host"
@@ -222,13 +222,13 @@ func (c *Config) GrpcServiceName() string {
 	return c.configs[grpcServiceName]
 }
 
-func (c *Config) GrpcServiceHost() string {
-	return c.configs[grpcServiceHost]
-}
-
-func (c *Config) GrpcServicePort() string {
-	return c.configs[grpcServicePort]
-}
+//func (c *Config) GrpcServiceHost() string {
+//	return c.configs[grpcServiceHost]
+//}
+//
+//func (c *Config) GrpcServicePort() string {
+//	return c.configs[grpcServicePort]
+//}
 
 func (c *Config) ThriftServiceName() string {
 	return c.configs[thriftServiceName]

@@ -212,6 +212,7 @@ import (
 	"kuaishangtong/navi/cmd/navi-cli"
 	"{{.PkgPath}}/gen"
 	gcomponent "{{.PkgPath}}/grpcapi/component"
+	"{{.PkgPath}}/grpcapi/engine"
 	gimpl "{{.PkgPath}}/grpcservice/impl"
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/lb"

@@ -750,7 +750,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s.StartHTTPServer(component.GrpcClient, gen.GrpcSwitcher, engine.XConnCenter)
+	s.StartHTTPServer(gen.GrpcSwitcher, engine.XConnCenter)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
