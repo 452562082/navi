@@ -193,8 +193,8 @@ func (c *Creator) generateServiceMain(rpcType string) {
 	}
 	if rpcType == "grpc" {
 		writeFileWithTemplate(
-			c.c.ServiceRootPathAbsolute()+"/main.go",
-			rootMainValues{PkgPath: c.PkgPath, ConfigFilePath: c.c.ServiceRootPathAbsolute() + "/service.yaml"},
+			c.c.ServiceRootPathAbsolute() + "/" + c.c.GrpcServiceName() + ".go",
+			rootMainValues{PkgPath: c.PkgPath, ConfigFilePath: c.c.ServiceRootPathAbsolute() + "/service.yaml",ServiceName: c.c.GrpcServiceName()},
 			rootMainGrpc,
 		)
 	} else if rpcType == "thrift" {
@@ -407,7 +407,7 @@ var configFilePath = flag.String("path","{{.ConfigFilePath}}","set configFilePat
 func main() {
 	flag.Parse()
 	s := navicli.NewThriftServer(&tcomponent.ServiceInitializer{}, *configFilePath)
-	//err := engine.InitEngine(s.Config.ZookeeperRpcServicePath(), "{{.ServiceName}}/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 15, lb.Failover)
+
 	err := engine.InitConnCenter(s.Config.ZookeeperRpcServicePath(), "{{.ServiceName}}/" + s.Config.ServiceVersionMode(), s.Config.ZookeeperServersAddr(), 2, 1, 15, lb.Failover)
 	if err != nil {
 		log.Fatal(err)
