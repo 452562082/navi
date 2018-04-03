@@ -11,7 +11,7 @@ import (
 type ThriftServer struct {
 	*Server
 	connpool     ConnPool
-	thriftServer *thrift.TSimpleServer
+	//thriftServer *thrift.TSimpleServer
 }
 
 func NewThriftServer(initializer Initializable, configFilePath string) *ThriftServer {
@@ -90,5 +90,5 @@ func (s *ThriftServer) Service() interface{} {
 func (s *ThriftServer) ServerField() *Server { return s.Server }
 
 func (s *ThriftServer) Stop() {
-	stop(s, s.httpServer, nil, s.thriftServer)
+	stop(s, s.httpServer)
 }

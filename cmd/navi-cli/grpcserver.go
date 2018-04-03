@@ -13,7 +13,7 @@ type GrpcServer struct {
 	*Server
 	//gClient    *grpcClient
 	connpool     ConnPool
-	grpcServer *grpc.Server
+	//grpcServer *grpc.Server
 }
 
 func NewGrpcServer(initializer Initializable, configFilePath string) *GrpcServer {
@@ -40,7 +40,7 @@ type grpcClientCreator func(conn *grpc.ClientConn) interface{}
 func (s *GrpcServer) Start(sw switcher, registerServer func(s *grpc.Server)) {
 	log.Infof("Starting %s...", s.Config.GrpcServiceName())
 	s.Initializer.InitService(s)
-	s.grpcServer = s.startGrpcServiceInternal(registerServer, false)
+	//s.grpcServer = s.startGrpcServiceInternal(registerServer, false)
 	s.httpServer = s.startGrpcHTTPServerInternal(sw)
 	watchConfigReload(s)
 }
@@ -52,11 +52,11 @@ func (s *GrpcServer) StartHTTPServer(clientCreator grpcClientCreator, sw switche
 	watchConfigReload(s)
 }
 
-// StartGrpcService starts a GRPC service
-func (s *GrpcServer) StartGrpcService(registerServer func(s *grpc.Server)) {
-	s.Initializer.InitService(s)
-	s.grpcServer = s.startGrpcServiceInternal(registerServer, true)
-}
+//// StartGrpcService starts a GRPC service
+//func (s *GrpcServer) StartGrpcService(registerServer func(s *grpc.Server)) {
+//	s.Initializer.InitService(s)
+//	s.grpcServer = s.startGrpcServiceInternal(registerServer, true)
+//}
 
 func (s *GrpcServer) startGrpcHTTPServerInternal(sw switcher) *http.Server {
 	log.Info("Starting HTTP Server...")
@@ -95,5 +95,5 @@ func (s *GrpcServer) ServerField() *Server { return s.Server }
 
 func (s *GrpcServer) Stop() {
 	log.Info("Stop() invoked, Service is stopping...")
-	stop(s, s.httpServer, s.grpcServer, nil)
+	stop(s, s.httpServer)
 }
