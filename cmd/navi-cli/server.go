@@ -10,12 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"git.apache.org/thrift.git/lib/go/thrift"
 	"kuaishangtong/common/utils/log"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
-	"google.golang.org/grpc"
 )
 
 // TODO use dep
