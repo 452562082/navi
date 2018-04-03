@@ -770,13 +770,15 @@ func main() {
 func (c *Creator) generateGrpcConnPool() {
 	type EngineMainValues struct {
 		ServiceName string
+		ProtoServiceName string
 		PkgPath     string
 	}
 
 	writeFileWithTemplate(
 		c.c.ServiceRootPathAbsolute()+"/grpcapi/engine/engine.go",
 		EngineMainValues{
-			ServiceName: c.c.ThriftServiceName(),
+			ServiceName: c.c.GrpcServiceName(),
+			ProtoServiceName: strings.ToLower(c.c.GrpcServiceName()[:1]) + c.c.GrpcServiceName()[1:],
 			PkgPath:     c.PkgPath,
 		},
 		`package engine
@@ -804,7 +806,7 @@ type Conn struct {
 	scpool		*ServerConnPool
 	host     	string
 	interval 	int
-	*p.{{.ServiceName}}Client
+	*p.{{.ProtoServiceName}}Client
 	closed    	bool
 	available 	bool
 
@@ -822,7 +824,7 @@ func newConn(pool *ServerConnPool) (*Conn, error) {
 		reConnFlag: make(chan struct{}),
 	}
 
-	conn.{{.ServiceName}}Client, err = conn.connect()
+	conn.{{.ProtoServiceName}}Client, err = conn.connect()
 	if err != nil {
 		return nil, err
 	}
@@ -851,7 +853,7 @@ func (c *Conn) check() {
 						if err != nil {
 							log.Errorf("reconnect to %s err: %v", c.host, err)
 						} else {
-							c.{{.ServiceName}}Client = newClient
+							c.{{.ProtoServiceName}}Client = newClient
 							c.available = true
 							reconnectOK = true
 						}
@@ -859,7 +861,7 @@ func (c *Conn) check() {
 					ticker.Stop()
 				}
 			} else {
-				c.{{.ServiceName}}Client = newClient
+				c.{{.ProtoServiceName}}Client = newClient
 				c.available = true
 			}
 		}
@@ -870,8 +872,8 @@ func (c *Conn) GetServerConnPool() (*ServerConnPool) {
 	return c.scpool
 }
 
-func (c *Conn) connect() (*p.{{.ServiceName}}Client, error) {
-	conn, err := grpc.Dial(c.host，grpc.WithInsecure())
+func (c *Conn) connect() (*p.{{.ProtoServiceName}}Client, error) {
+	conn, err := grpc.Dial(c.host, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
@@ -892,8 +894,8 @@ func (c *Conn) Reconnect() {
 func (c *Conn) close() {
 	c.available = false
 
-	if c.{{.ServiceName}}Client != nil {
-		c.{{.ServiceName}}Client.cc.Close()
+	if c.{{.ProtoServiceName}}Client != nil {
+		c.{{.ProtoServiceName}}Client.cc.Close()
 	}
 }
 
