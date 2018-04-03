@@ -85,7 +85,7 @@ import (
 var cur_conn_num int
 
 // GrpcSwitcher is a runtime func with which a server starts.
-var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (rpcResponse interface{}, err error) {
+var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (serviceResponse interface{}, err error) {
 	cur_conn_num++
 	defer func() {
 		cur_conn_num--
