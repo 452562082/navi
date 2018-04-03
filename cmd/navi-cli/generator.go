@@ -118,7 +118,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 								return nil, err
 							}
 
-							serviceResponse, err = g.New{{$.ServiceName}}Client(conn.ClientConn).{{$MethodName}}(req.Context(), request, callOptions...)
+							serviceResponse, err = g.New{{$.ServiceName}}Client(conn.(*engine.Conn).ClientConn).{{$MethodName}}(req.Context(), request, callOptions...)
 							if err == nil {
 								err = s.Service().(navicli.ConnPool).PutConn(conn)
 								if err != nil {
@@ -140,7 +140,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 							return nil, err
 						}
 
-						serviceResponse, err = g.New{{$.ServiceName}}Client(conn.ClientConn).{{$MethodName}}(req.Context(), request, callOptions...)
+						serviceResponse, err = g.New{{$.ServiceName}}Client(conn.(*engine.Conn).ClientConn).{{$MethodName}}(req.Context(), request, callOptions...)
 						err = s.Service().(navicli.ConnPool).PutConn(conn)
 						if err != nil {
 							return serviceResponse, err
