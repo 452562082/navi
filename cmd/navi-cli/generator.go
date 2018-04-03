@@ -95,7 +95,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 		return nil, errors.New("the number of connections exceeds the limit.")
 	}
 
-	callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
+	callOptions, _, _, _ := navicli.CallOptions(methodName, req)
 	switch methodName {
 		{{range $i, $MethodName := .MethodNames}}
 			case "{{$MethodName}}":
