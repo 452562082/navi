@@ -11,7 +11,8 @@ import (
 
 type GrpcServer struct {
 	*Server
-	gClient    *grpcClient
+	//gClient    *grpcClient
+	connpool     ConnPool
 	grpcServer *grpc.Server
 }
 
@@ -26,7 +27,7 @@ func NewGrpcServer(initializer Initializable, configFilePath string) *GrpcServer
 			reloadConfig: make(chan bool),
 			Initializer:  initializer,
 		},
-		gClient: new(grpcClient),
+		//gClient: new(grpcClient),
 	}
 	s.initChans()
 	//initLogger(s.Config)
@@ -36,18 +37,18 @@ func NewGrpcServer(initializer Initializable, configFilePath string) *GrpcServer
 type grpcClientCreator func(conn *grpc.ClientConn) interface{}
 
 // Start starts both HTTP server and GRPC service
-func (s *GrpcServer) Start(clientCreator grpcClientCreator, sw switcher, registerServer func(s *grpc.Server)) {
-	log.Info("Starting Turbo...")
+func (s *GrpcServer) Start(sw switcher, registerServer func(s *grpc.Server)) {
+	log.Infof("Starting %s...", s.Config.GrpcServiceName())
 	s.Initializer.InitService(s)
 	s.grpcServer = s.startGrpcServiceInternal(registerServer, false)
-	s.httpServer = s.startGrpcHTTPServerInternal(clientCreator, sw)
+	s.httpServer = s.startGrpcHTTPServerInternal(sw)
 	watchConfigReload(s)
 }
 
 // StartHTTPServer starts a HTTP server which sends requests via grpc
 func (s *GrpcServer) StartHTTPServer(clientCreator grpcClientCreator, sw switcher) {
 	s.Initializer.InitService(s)
-	s.httpServer = s.startGrpcHTTPServerInternal(clientCreator, sw)
+	s.httpServer = s.startGrpcHTTPServerInternal(sw)
 	watchConfigReload(s)
 }
 
@@ -57,11 +58,11 @@ func (s *GrpcServer) StartGrpcService(registerServer func(s *grpc.Server)) {
 	s.grpcServer = s.startGrpcServiceInternal(registerServer, true)
 }
 
-func (s *GrpcServer) startGrpcHTTPServerInternal(clientCreator grpcClientCreator, sw switcher) *http.Server {
+func (s *GrpcServer) startGrpcHTTPServerInternal(sw switcher) *http.Server {
 	log.Info("Starting HTTP Server...")
 	switcherFunc = sw
 	//TODO register multi gClients
-	s.gClient.init(s.Config.GrpcServiceHost()+":"+s.Config.GrpcServicePort(), clientCreator)
+	//s.gClient.init(s.Config.GrpcServiceHost()+":"+s.Config.GrpcServicePort(), clientCreator)
 	return startHTTPServer(s)
 }
 
@@ -84,10 +85,11 @@ func (s *GrpcServer) startGrpcServiceInternal(registerServer func(s *grpc.Server
 // GrpcService returns a grpc client instance,
 // example: client := turbo.GrpcService().(proto.YourServiceClient)
 func (s *GrpcServer) Service() interface{} {
-	if s == nil || s.gClient == nil || s.gClient.grpcService == nil {
-		log.Fatal("grpc connection not initiated!")
-	}
-	return s.gClient.grpcService
+	//if s == nil || s.gClient == nil || s.gClient.grpcService == nil {
+	//	log.Fatal("grpc connection not initiated!")
+	//}
+	//return s.gClient.grpcService
+	return s.connpool
 }
 func (s *GrpcServer) ServerField() *Server { return s.Server }
 

@@ -34,21 +34,21 @@ func NewThriftServer(initializer Initializable, configFilePath string) *ThriftSe
 type thriftClientCreator func(trans thrift.TTransport, f thrift.TProtocolFactory) interface{}
 
 // Start starts both HTTP server and Thrift service
-func (s *ThriftServer) Start(clientCreator thriftClientCreator, sw switcher, connpool ConnPool,
+func (s *ThriftServer) Start(sw switcher, connpool ConnPool,
 	registerTProcessor func() thrift.TProcessor) {
 	log.Infof("Starting %s...", s.Config.ThriftServiceName())
 	s.Initializer.InitService(s)
 	//s.thriftServer = s.startThriftServiceInternal(registerTProcessor, false)
 	time.Sleep(time.Second * 1)
-	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
+	s.httpServer = s.startThriftHTTPServerInternal(sw)
 	s.connpool = connpool
 	watchConfigReload(s)
 }
 
 // StartHTTPServer starts a HTTP server which sends requests via Thrift
-func (s *ThriftServer) StartHTTPServer(clientCreator thriftClientCreator, sw switcher, connpool ConnPool) {
+func (s *ThriftServer) StartHTTPServer(sw switcher, connpool ConnPool) {
 	s.Initializer.InitService(s)
-	s.httpServer = s.startThriftHTTPServerInternal(clientCreator, sw)
+	s.httpServer = s.startThriftHTTPServerInternal(sw)
 	s.connpool = connpool
 	watchConfigReload(s)
 }
@@ -59,7 +59,7 @@ func (s *ThriftServer) StartHTTPServer(clientCreator thriftClientCreator, sw swi
 	s.thriftServer = s.startThriftServiceInternal(registerTProcessor, true)
 }*/
 
-func (s *ThriftServer) startThriftHTTPServerInternal(clientCreator thriftClientCreator, sw switcher) *http.Server {
+func (s *ThriftServer) startThriftHTTPServerInternal(sw switcher) *http.Server {
 	log.Info("Starting HTTP Server...")
 	switcherFunc = sw
 	return startHTTPServer(s)

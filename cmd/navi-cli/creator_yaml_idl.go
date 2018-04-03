@@ -163,7 +163,7 @@ message ServiceModeRequest {}
 //}
 
 message SayHelloRequest {
-    string your_name = 1;
+	string your_name = 1;
 }
 
 //message SayHelloResponse {
@@ -178,23 +178,23 @@ message SaveWaveRequest {
 
 // 这个结构体，定义了服务提供者的返回信息
 message Response {
-    // RESCODE 是处理状态代码，是一个int32型, 具体状态码参考文档;
-    int32 responseCode = 1;
-    // 返回的处理结果，同样使用JSON格式进行描述
-    string responseJSON = 2;
+	// RESCODE 是处理状态代码，是一个int32型, 具体状态码参考文档;
+	int32 responseCode = 1;
+	// 返回的处理结果，同样使用JSON格式进行描述
+	string responseJSON = 2;
 }
 
 service {{.ServiceName}} {
-    // rpc server必须实现的接口，返回字符串 "pong" 即可
-    rpc Ping(PingRequest) returns (Response) {}
+	// rpc server必须实现的接口，返回字符串 "pong" 即可
+	rpc Ping(PingRequest) returns (Response) {}
 
-    // rpc server必须实现的接口，返回服务名称，为首字母大写的驼峰格式，例如 "AsvService"
-    rpc ServiceName(ServiceNameRequest) returns (Response) {}
+	// rpc server必须实现的接口，返回服务名称，为首字母大写的驼峰格式，例如 "AsvService"
+	rpc ServiceName(ServiceNameRequest) returns (Response) {}
 
-    // rpc server必须实现的接口，说明该server是以什么模式运行，分为dev和prod；dev为开发版本，prod为生产版本
-    rpc ServiceMode(ServiceModeRequest) returns (Response) {}
+	// rpc server必须实现的接口，说明该server是以什么模式运行，分为dev和prod；dev为开发版本，prod为生产版本
+	rpc ServiceMode(ServiceModeRequest) returns (Response) {}
 
-    rpc SayHello (SayHelloRequest) returns (Response) {}
+	rpc SayHello (SayHelloRequest) returns (Response) {}
 
 	rpc SaveWave(SaveWaveRequest) returns (Response) {}
 }

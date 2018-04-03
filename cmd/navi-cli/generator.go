@@ -119,17 +119,6 @@ func (g *Generator) structFields(structName string) string {
 	return fieldStr
 }
 
-// GenerateProtobufStub generates protobuf stub codes
-func (g *Generator) GenerateProtobufStub() {
-	if _, err := os.Stat(g.c.ServiceRootPathAbsolute() + "/gen/proto"); os.IsNotExist(err) {
-		os.MkdirAll(g.c.ServiceRootPathAbsolute()+"/gen/proto", 0755)
-	}
-	cmd := "protoc " + g.Options + " --go_out=plugins=grpc:" + g.c.ServiceRootPathAbsolute() + "/gen/proto" +
-		" --buildfields_out=service_root_path=" + g.c.ServiceRootPathAbsolute() + ":" + g.c.ServiceRootPathAbsolute() + "/gen/proto"
-
-	executeCmd("bash", "-c", cmd)
-}
-
 // GenerateBuildThriftParameters generates "build.go"
 func (g *Generator) GenerateBuildThriftParameters() {
 	type buildThriftParametersValues struct {
@@ -485,6 +474,17 @@ func buildStructArg(s navicli.Servable, typeName string, req *http.Request) (v r
 	}
 }
 `
+
+// GenerateProtobufStub generates protobuf stub codes
+func (g *Generator) GenerateProtobufStub() {
+	if _, err := os.Stat(g.c.ServiceRootPathAbsolute() + "/gen/proto"); os.IsNotExist(err) {
+		os.MkdirAll(g.c.ServiceRootPathAbsolute()+"/gen/proto", 0755)
+	}
+	cmd := "protoc " + g.Options + " --go_out=plugins=grpc:" + g.c.ServiceRootPathAbsolute() + "/gen/proto" +
+		" --buildfields_out=service_root_path=" + g.c.ServiceRootPathAbsolute() + ":" + g.c.ServiceRootPathAbsolute() + "/gen/proto"
+
+	executeCmd("bash", "-c", cmd)
+}
 
 // GenerateThriftStub generates Thrift stub codes
 func (g *Generator) GenerateThriftStub() {
