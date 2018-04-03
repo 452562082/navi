@@ -76,6 +76,7 @@ package gen
 import (
 	g "{{.PkgPath}}/gen/proto"
 	"kuaishangtong/navi/cmd/navi-cli"
+	"{{.PkgPath}}/thriftapi/engine"
 	"net/http"
 	"errors"
 	"kuaishangtong/navi/lb"
