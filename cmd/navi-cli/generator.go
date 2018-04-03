@@ -96,7 +96,7 @@ var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.Respons
 	callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
 	switch methodName {
 		{{range $i, $MethodName := .MethodNames}}
-			case "{{$MethodName}}":{{if index $.NotEmptyParameters $i }}
+			case "{{$MethodName}}":
 				//params, err := navicli.BuildThriftRequest(s, &gen.{{$.ServiceName}}{{$MethodName}}Args{}, req, buildStructArg)
 				request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
 				err = navicli.BuildRequest(s, request, req)
