@@ -788,8 +788,6 @@ import (
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/lb"
 	"kuaishangtong/navi/registry"
-	//t "{{.PkgPath}}/gen/thrift/gen-go/gen"
-	p "{{.PkgPath}}/gen/proto"
 	"sync"
 	"time"
 )
@@ -803,7 +801,6 @@ type Conn struct {
 	scpool		*ServerConnPool
 	host     	string
 	interval 	int
-	//*p.{{.ServiceName}}Client
 	*grpc.ClientConn
 	closed    	bool
 	available 	bool
