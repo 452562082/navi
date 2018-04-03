@@ -78,6 +78,7 @@ import (
 	"kuaishangtong/navi/cmd/navi-cli"
 	"net/http"
 	"errors"
+	"kuaishangtong/navi/lb"
 )
 
 var cur_conn_num int
