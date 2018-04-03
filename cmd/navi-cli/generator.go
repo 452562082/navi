@@ -80,22 +80,92 @@ import (
 	"errors"
 )
 
+var cur_conn_num int
+
 // GrpcSwitcher is a runtime func with which a server starts.
 var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (rpcResponse interface{}, err error) {
-	callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
-	switch methodName { {{range $i, $MethodName := .MethodNames}}
-	case "{{$MethodName}}":
-		request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
-		err = navicli.BuildRequest(s, request, req)
-		if err != nil {
-			return nil, err
-		}
-		rpcResponse, err = s.Service().(g.{{$.ServiceName}}Client).{{$MethodName}}(req.Context(), request, callOptions...){{end}}
-	default:
-		return nil, errors.New("No such method[" + methodName + "]")
+	//callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
+	//switch methodName { {{range $i, $MethodName := .MethodNames}}
+	//case "{{$MethodName}}":
+	//	request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
+	//	err = navicli.BuildRequest(s, request, req)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	rpcResponse, err = s.Service().(g.{{$.ServiceName}}Client).{{$MethodName}}(req.Context(), request, callOptions...){{end}}
+	//default:
+	//	return nil, errors.New("No such method[" + methodName + "]")
+	//}
+	//navicli.WithCallOptions(req, header, trailer, peer)
+	//return
+	//
+	//
+	///////
+	cur_conn_num++
+	defer func() {
+		cur_conn_num--
+	}()
+
+	if cur_conn_num >= s.ServerField().Config.MaxConnNum() {
+		return nil, errors.New("the number of connections exceeds the limit.")
 	}
-	navicli.WithCallOptions(req, header, trailer, peer)
-	return
+
+	callOptions, header, trailer, peer := navicli.CallOptions(methodName, req)
+	switch methodName {
+		{{range $i, $MethodName := .MethodNames}}
+			case "{{$MethodName}}":{{if index $.NotEmptyParameters $i }}
+				request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
+				err = navicli.BuildRequest(s, request, req)
+				if err != nil {
+					return nil, err
+				}{{end}}
+
+				switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
+					case lb.Failover:
+						retries := s.Service().(navicli.ConnPool).GetRetries()
+						for retries > 0 {
+							retries--
+							conn, err := s.Service().(navicli.ConnPool).GetConn()
+							if err != nil {
+								if "conn is nil" == err.Error(){
+									s.Service().(navicli.ConnPool).SetServerConnPoolUnavailable(conn.(*engine.Conn).GetServerConnPool())
+								}
+								return nil, err
+							}
+
+							serviceResponse, err = g.New{{$.ServiceName}}Client(conn).{{$MethodName}}(req.Context(), request, callOptions...)
+							//rpcResponse, err = s.Service().(g.{{$.ServiceName}}Client).{{$MethodName}}(req.Context(), request, callOptions...){{end}}
+							if err == nil {
+								err = s.Service().(navicli.ConnPool).PutConn(conn)
+								if err != nil {
+									return serviceResponse, err
+								}
+								return serviceResponse, nil
+							}
+
+							conn.(*engine.Conn).Reconnect()
+
+						}
+						return nil, err
+
+					default: //Failfast
+						conn, err := s.Service().(navicli.ConnPool).GetConn()
+						if err != nil {
+							if "conn is nil" == err.Error(){
+								s.Service().(navicli.ConnPool).SetServerConnPoolUnavailable(conn.(*engine.Conn).GetServerConnPool())
+							}
+							return nil, err
+						}
+
+						serviceResponse, err = g.New{{$.ServiceName}}Client(conn).{{$MethodName}}(req.Context(), request, callOptions...)
+						//serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})
+						err = s.Service().(navicli.ConnPool).PutConn(conn)
+						if err != nil {
+							return serviceResponse, err
+						}
+						return serviceResponse, nil
+			}
+	{{end}}
 }
 `)
 }
@@ -388,29 +458,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 					return nil, err
 				}{{end}}
 		
-				//conn, err := s.Service().(navicli.ConnPool).GetConn()
-				//if err != nil {
-				//	return nil, err
-				//}
-		
-				/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-		
 				switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
-					//case lb.Failtry:
-					//	retries := c.Retries
-					//	conn, err := s.Service().(navicli.ConnPool).GetConn()
-					//	if err != nil {
-					//		return nil, err
-					//	}
-					//	for retries > 0 {
-					//		retries--
-					//
-					/*		serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-					//		if err == nil {
-					//			return
-					//		}
-					//		//重建连接
-					//	}
 					case lb.Failover:
 						retries := s.Service().(navicli.ConnPool).GetRetries()
 						for retries > 0 {
