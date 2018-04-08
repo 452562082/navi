@@ -30,15 +30,15 @@ func Version() string {
 }
 
 type AppFlags struct {
-	Daemon  bool
-	Version bool
-	Help    bool
-	Config  string
+	Daemon  *bool
+	Version *bool
+	Help    *bool
+	Config  *string
 }
 
 func usage() {
 	fmt.Printf("%s version: %s, %s\n", APP_NAME, Version(), APP_DESCRIPTION)
-	if _flags.Help {
+	if *_flags.Help {
 		fmt.Printf("\nusage:\n")
 		flag.PrintDefaults()
 	}
@@ -46,10 +46,10 @@ func usage() {
 
 func initializeFlags() bool {
 
-	&_flags.Config = kingpin.Flag("c", "specify config file").Default(__CONF_DEFAULT_PATH).String()
-	&_flags.Version = kingpin.Flag("v", "print version").Default("false").Bool()
-	&_flags.Help = kingpin.Flag("h", "print this message").Default("false").Bool()
-	&_flags.Daemon = kingpin.Flag("d", "run in daemon").Default("false").Bool()
+	_flags.Config = kingpin.Flag("c", "specify config file").Default(__CONF_DEFAULT_PATH).String()
+	_flags.Version = kingpin.Flag("v", "print version").Default("false").Bool()
+	_flags.Help = kingpin.Flag("h", "print this message").Default("false").Bool()
+	_flags.Daemon = kingpin.Flag("d", "run in daemon").Default("false").Bool()
 
 	kingpin.Version(version.Print("node_exporter"))
 	kingpin.HelpFlag.Short('h')
@@ -63,12 +63,12 @@ func initializeFlags() bool {
 	//flag.Usage = usage
 	//flag.Parse()
 
-	if _flags.Version || _flags.Help {
+	if *_flags.Version || *_flags.Help {
 		usage()
 		return false
 	}
 
-	if !exist(_flags.Config) {
+	if !exist(*_flags.Config) {
 		log.Errorf("can not find config file: %s", _flags.Config)
 		return false
 	}

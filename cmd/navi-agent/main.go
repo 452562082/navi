@@ -88,12 +88,12 @@ func main() {
 		return
 	}
 
-	err := initializeConfig(_flags.Config)
+	err := initializeConfig(*_flags.Config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if _flags.Daemon {
+	if *_flags.Daemon {
 		daemon.SetWorkerLogPath(defaultConfig.Log.File)
 		daemon.SetLogPath(defaultConfig.Log.File + ".monitor")
 		daemon.Exec(daemon.Daemon | daemon.Monitor)
@@ -104,7 +104,7 @@ func main() {
 	log.SetLogFuncCall(logSet.ShowLines)
 	log.SetColor(logSet.Coloured)
 	log.SetLevel(logSet.Level)
-	if _flags.Daemon || logSet.Enable || defaultConfig.Server.IsDocker {
+	if *_flags.Daemon || logSet.Enable || defaultConfig.Server.IsDocker {
 		log.SetLogFile(
 			logSet.File,
 			logSet.Level,
