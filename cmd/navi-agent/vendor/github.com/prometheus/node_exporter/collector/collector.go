@@ -71,6 +71,8 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Bool()
 	collectorState[collector] = flag
 
+	log.Debugf("%s: %v", collector, flag)
+
 	factories[collector] = factory
 }
 
@@ -94,7 +96,6 @@ func NewNodeCollector(filters ...string) (*nodeCollector, error) {
 	}
 	collectors := make(map[string]Collector)
 	for key, enabled := range collectorState {
-		log.Debugf(key)
 		if *enabled {
 			collector, err := factories[key]()
 			if err != nil {
