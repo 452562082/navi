@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"gopkg.in/alecthomas/kingpin.v2"
 	"kuaishangtong/common/utils/log"
+	"github.com/prometheus/common/version"
 )
 
 const (
@@ -44,13 +46,22 @@ func usage() {
 
 func initializeFlags() bool {
 
-	flag.BoolVar(&_flags.Version, "v", false, "print version")
-	flag.BoolVar(&_flags.Daemon, "d", false, "run in daemon")
-	flag.BoolVar(&_flags.Help, "h", false, "print this message")
-	flag.StringVar(&_flags.Config, "c", __CONF_DEFAULT_PATH, "specify config file")
+	&_flags.Config = kingpin.Flag("c", "specify config file").Default(__CONF_DEFAULT_PATH).String()
+	&_flags.Version = kingpin.Flag("v", "print version").Default("false").Bool()
+	&_flags.Help = kingpin.Flag("h", "print this message").Default("false").Bool()
+	&_flags.Daemon = kingpin.Flag("d", "run in daemon").Default("false").Bool()
 
-	flag.Usage = usage
-	flag.Parse()
+	kingpin.Version(version.Print("node_exporter"))
+	kingpin.HelpFlag.Short('h')
+	kingpin.Parse()
+
+	//flag.BoolVar(&_flags.Version, "v", false, "print version")
+	//flag.BoolVar(&_flags.Daemon, "d", false, "run in daemon")
+	//flag.BoolVar(&_flags.Help, "h", false, "print this message")
+	//flag.StringVar(&_flags.Config, "c", __CONF_DEFAULT_PATH, "specify config file")
+
+	//flag.Usage = usage
+	//flag.Parse()
 
 	if _flags.Version || _flags.Help {
 		usage()
