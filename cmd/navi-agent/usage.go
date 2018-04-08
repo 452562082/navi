@@ -15,14 +15,14 @@ const (
 	__CONF_DEFAULT_PATH = "/usr/local/navi-agent/etc/cfg.json"
 )
 
-var version = "1.0.0"
+var _version = "1.0.0"
 
 var _flags AppFlags
 
 func Version() string {
 
-	if version != "" {
-		return version
+	if _version != "" {
+		return _version
 	}
 	return _APP_VERSION
 }

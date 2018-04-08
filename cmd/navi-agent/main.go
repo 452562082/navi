@@ -36,7 +36,51 @@ import (
 	"kuaishangtong/navi/registry"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
+	"github.com/prometheus/node_exporter/collector"
+	"net/http"
 )
+
+func init() {
+	prometheus.MustRegister(version.NewCollector("node_exporter"))
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	filters := r.URL.Query()["collect[]"]
+	log.Debug("collect query:", filters)
+
+	nc, err := collector.NewNodeCollector(filters...)
+	if err != nil {
+		log.Warn("Couldn't create", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf("Couldn't create %s", err)))
+		return
+	}
+
+	registry := prometheus.NewRegistry()
+	err = registry.Register(nc)
+	if err != nil {
+		log.Error("Couldn't register collector:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Couldn't register collector: %s", err)))
+		return
+	}
+
+	gatherers := prometheus.Gatherers{
+		prometheus.DefaultGatherer,
+		registry,
+	}
+	// Delegate http serving to Prometheus client library, which will call collector.Collect.
+	h := promhttp.HandlerFor(gatherers,
+		promhttp.HandlerOpts{
+			ErrorLog:      new(log.ZeusLogger),
+			ErrorHandling: promhttp.ContinueOnError,
+		})
+	h.ServeHTTP(w, r)
+}
 
 func main() {
 	if !initializeFlags() {
@@ -153,5 +197,21 @@ func main() {
 		urlRegistry.Close()
 	}
 
-	select {}
+	nc, err := collector.NewNodeCollector()
+	if err != nil {
+		log.Fatalf("Couldn't create collector: %s", err)
+	}
+	log.Infof("Enabled collectors:")
+	for n := range nc.Collectors {
+		log.Infof(" - %s", n)
+	}
+
+	http.HandleFunc("", handler)
+
+	log.Info("Listening on", 9100)
+	err = http.ListenAndServe(":9100", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
