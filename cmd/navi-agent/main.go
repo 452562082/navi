@@ -74,11 +74,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		registry,
 	}
 	// Delegate http serving to Prometheus client library, which will call collector.Collect.
-	h := promhttp.HandlerFor(gatherers,
-		promhttp.HandlerOpts{
-			ErrorLog:      new(log.ZeusLogger),
-			ErrorHandling: promhttp.ContinueOnError,
-		})
+	// Delegate http serving to Prometheus client library, which will call collector.Collect.
+	h := promhttp.InstrumentMetricHandler(
+		registry,
+		promhttp.HandlerFor(gatherers,
+			promhttp.HandlerOpts{
+				ErrorLog:      &log.ZeusLogger{},
+				ErrorHandling: promhttp.ContinueOnError,
+			}),
+	)
+	h.ServeHTTP(w, r)
 	h.ServeHTTP(w, r)
 }
 
