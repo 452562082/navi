@@ -10,7 +10,7 @@ services:
       ZK_HOSTS: 192.168.1.17:2181;192.168.1.17:2182;192.168.1.17:2183
       SERVER_HOSTS: 192.168.1.16:8081
       KAFKA_HOSTS: 192.168.1.16:9092
-      JAEGER_ADDR: 127.0.0.1:6831
+      JAEGER_ADDR: 192.168.1.16:6831
       LOG_FILE: \/navi\/logs\/navi_web1.log
     ports:
       - "8081:8081"
@@ -24,7 +24,7 @@ services:
       ZK_HOSTS: 192.168.1.17:2181;192.168.1.17:2182;192.168.1.17:2183
       SERVER_HOSTS: 192.168.1.16:8082
       KAFKA_HOSTS: 192.168.1.16:9092
-      JAEGER_ADDR: 127.0.0.1:6831
+      JAEGER_ADDR: 192.168.1.16:6831
       LOG_FILE: \/navi\/logs\/navi_web2.log
     ports:
       - "8082:8081"
@@ -38,7 +38,7 @@ services:
       ZK_HOSTS: 192.168.1.17:2181;192.168.1.17:2182;192.168.1.17:2183
       SERVER_HOSTS: 192.168.1.16:8083
       KAFKA_HOSTS: 192.168.1.16:9092
-      JAEGER_ADDR: 127.0.0.1:6831
+      JAEGER_ADDR: 192.168.1.16:6831
       LOG_FILE: \/navi\/logs\/navi_web3.log
     ports:
       - "8083:8081"

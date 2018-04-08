@@ -76,26 +76,82 @@ package gen
 import (
 	g "{{.PkgPath}}/gen/proto"
 	"kuaishangtong/navi/cmd/navi-cli"
+	"{{.PkgPath}}/grpcapi/engine"
 	"net/http"
 	"errors"
+	"kuaishangtong/navi/lb"
 )
 
+var cur_conn_num int
+
 // GrpcSwitcher is a runtime func with which a server starts.
-var GrpcSwitcher = func(s nacicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (rpcResponse interface{}, err error) {
-	callOptions, header, trailer, peer := nacicli.CallOptions(methodName, req)
-	switch methodName { {{range $i, $MethodName := .MethodNames}}
-	case "{{$MethodName}}":
-		request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
-		err = navicli.BuildRequest(s, request, req)
-		if err != nil {
-			return nil, err
-		}
-		rpcResponse, err = s.Service().(g.{{$.ServiceName}}Client).{{$MethodName}}(req.Context(), request, callOptions...){{end}}
+var GrpcSwitcher = func(s navicli.Servable, methodName string, resp http.ResponseWriter, req *http.Request) (serviceResponse interface{}, err error) {
+	cur_conn_num++
+	defer func() {
+		cur_conn_num--
+	}()
+
+	if cur_conn_num >= s.ServerField().Config.MaxConnNum() {
+		return nil, errors.New("the number of connections exceeds the limit.")
+	}
+
+	callOptions, _, _, _ := navicli.CallOptions(methodName, req)
+	switch methodName {
+		{{range $i, $MethodName := .MethodNames}}
+			case "{{$MethodName}}":
+				request := &g.{{$MethodName}}Request{ {{index $.StructFields $i}} }
+				err = navicli.BuildRequest(s, request, req)
+				if err != nil {
+					return nil, err
+				}
+
+				switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
+					case lb.Failover:
+						retries := s.Service().(navicli.ConnPool).GetRetries()
+						for retries > 0 {
+							retries--
+							conn, err := s.Service().(navicli.ConnPool).GetConn()
+							if err != nil {
+								if "conn is nil" == err.Error(){
+									s.Service().(navicli.ConnPool).SetServerConnPoolUnavailable(conn.(*engine.Conn).GetServerConnPool())
+								}
+								return nil, err
+							}
+
+							serviceResponse, err = g.New{{$.ServiceName}}Client(conn.(*engine.Conn).ClientConn).{{$MethodName}}(req.Context(), request, callOptions...)
+							if err == nil {
+								err = s.Service().(navicli.ConnPool).PutConn(conn)
+								if err != nil {
+									return serviceResponse, err
+								}
+								return serviceResponse, nil
+							}
+
+							conn.(*engine.Conn).Reconnect()
+						}
+						return nil, err
+
+					default: //Failfast
+						conn, err := s.Service().(navicli.ConnPool).GetConn()
+						if err != nil {
+							if "conn is nil" == err.Error(){
+								s.Service().(navicli.ConnPool).SetServerConnPoolUnavailable(conn.(*engine.Conn).GetServerConnPool())
+							}
+							return nil, err
+						}
+
+						serviceResponse, err = g.New{{$.ServiceName}}Client(conn.(*engine.Conn).ClientConn).{{$MethodName}}(req.Context(), request, callOptions...)
+						err = s.Service().(navicli.ConnPool).PutConn(conn)
+						if err != nil {
+							return serviceResponse, err
+						}
+						return serviceResponse, nil
+			}
+	{{end}}
+
 	default:
 		return nil, errors.New("No such method[" + methodName + "]")
 	}
-	navicli.WithCallOptions(req, header, trailer, peer)
-	return
 }
 `)
 }
@@ -117,17 +173,6 @@ func (g *Generator) structFields(structName string) string {
 		fieldStr = fieldStr + name + ": &g." + typeName + "{" + g.structFields(typeName) + "},"
 	}
 	return fieldStr
-}
-
-// GenerateProtobufStub generates protobuf stub codes
-func (g *Generator) GenerateProtobufStub() {
-	if _, err := os.Stat(g.c.ServiceRootPathAbsolute() + "/gen/proto"); os.IsNotExist(err) {
-		os.MkdirAll(g.c.ServiceRootPathAbsolute()+"/gen/proto", 0755)
-	}
-	cmd := "protoc " + g.Options + " --go_out=plugins=grpc:" + g.c.ServiceRootPathAbsolute() + "/gen/proto" +
-		" --buildfields_out=service_root_path=" + g.c.ServiceRootPathAbsolute() + ":" + g.c.ServiceRootPathAbsolute() + "/gen/proto"
-
-	executeCmd("bash", "-c", cmd)
 }
 
 // GenerateBuildThriftParameters generates "build.go"
@@ -399,29 +444,7 @@ var ThriftSwitcher = func(s navicli.Servable, methodName string, resp http.Respo
 					return nil, err
 				}{{end}}
 		
-				//conn, err := s.Service().(navicli.ConnPool).GetConn()
-				//if err != nil {
-				//	return nil, err
-				//}
-		
-				/*return conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-		
 				switch s.Service().(navicli.ConnPool).GetFailMode().(lb.FailMode) {
-					//case lb.Failtry:
-					//	retries := c.Retries
-					//	conn, err := s.Service().(navicli.ConnPool).GetConn()
-					//	if err != nil {
-					//		return nil, err
-					//	}
-					//	for retries > 0 {
-					//		retries--
-					//
-					/*		serviceResponse, err = conn.(*engine.Conn).{{$.ServiceName}}Client.{{$MethodName}}({{index $.Parameters $i}})*/
-					//		if err == nil {
-					//			return
-					//		}
-					//		//重建连接
-					//	}
 					case lb.Failover:
 						retries := s.Service().(navicli.ConnPool).GetRetries()
 						for retries > 0 {
@@ -485,6 +508,17 @@ func buildStructArg(s navicli.Servable, typeName string, req *http.Request) (v r
 	}
 }
 `
+
+// GenerateProtobufStub generates protobuf stub codes
+func (g *Generator) GenerateProtobufStub() {
+	if _, err := os.Stat(g.c.ServiceRootPathAbsolute() + "/gen/proto"); os.IsNotExist(err) {
+		os.MkdirAll(g.c.ServiceRootPathAbsolute()+"/gen/proto", 0755)
+	}
+	cmd := "protoc " + g.Options + " --go_out=plugins=grpc:" + g.c.ServiceRootPathAbsolute() + "/gen/proto" +
+		" --buildfields_out=service_root_path=" + g.c.ServiceRootPathAbsolute() + ":" + g.c.ServiceRootPathAbsolute() + "/gen/proto"
+
+	executeCmd("bash", "-c", cmd)
+}
 
 // GenerateThriftStub generates Thrift stub codes
 func (g *Generator) GenerateThriftStub() {

@@ -10,12 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"git.apache.org/thrift.git/lib/go/thrift"
 	"kuaishangtong/common/utils/log"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
-	"google.golang.org/grpc"
 )
 
 // TODO use dep
@@ -175,7 +173,7 @@ func getComponentByName(s *Server, name string) interface{} {
 	return com
 }
 
-func stop(s Servable, httpServer *http.Server, grpcServer *grpc.Server, thriftServer *thrift.TSimpleServer) {
+func stop(s Servable, httpServer *http.Server) {
 	// if s.ServerField().exit is not closed, close it, return directly
 	if httpServer != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -183,16 +181,16 @@ func stop(s Servable, httpServer *http.Server, grpcServer *grpc.Server, thriftSe
 		httpServer.Shutdown(ctx)
 		log.Info("Http Server stopped")
 	}
-	if grpcServer != nil {
-		s.(*GrpcServer).gClient.close()
-		grpcServer.GracefulStop()
-		log.Info("Grpc Server stopped")
-	}
-	if thriftServer != nil {
-		thriftServer.Stop()
-		log.Info("Grpc Server stopped")
-		s.(*ThriftServer).connpool.Close()
-	}
+	//if grpcServer != nil {
+	//	s.(*GrpcServer).gClient.close()
+	//	grpcServer.GracefulStop()
+	//	log.Info("Grpc Server stopped")
+	//}
+	//if thriftServer != nil {
+	//	thriftServer.Stop()
+	//	log.Info("Grpc Server stopped")
+	//	s.(*ThriftServer).connpool.Close()
+	//}
 
 	s.ServerField().Initializer.StopService(s)
 }
