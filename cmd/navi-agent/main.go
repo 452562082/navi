@@ -42,6 +42,7 @@ import (
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
 	"net/http"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func init() {
@@ -197,6 +198,11 @@ func main() {
 		}
 		urlRegistry.Close()
 	}
+
+	//log.AddFlags(kingpin.CommandLine)
+	kingpin.Version(version.Print("node_exporter"))
+	kingpin.HelpFlag.Short('h')
+	kingpin.Parse()
 
 	log.Info("Starting node_exporter", version.Info())
 	log.Info("Build context", version.BuildContext())
