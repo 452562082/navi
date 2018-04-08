@@ -68,6 +68,7 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s).", collector, helpDefaultState)
 	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
 
+	log.Infof("%s: %v", "defaultValue", defaultValue)
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Bool()
 	collectorState[collector] = flag
 
