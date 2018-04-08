@@ -94,6 +94,7 @@ func NewNodeCollector(filters ...string) (*nodeCollector, error) {
 	}
 	collectors := make(map[string]Collector)
 	for key, enabled := range collectorState {
+		log.Debugf(key)
 		if *enabled {
 			collector, err := factories[key]()
 			if err != nil {
