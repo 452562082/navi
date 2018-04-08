@@ -206,7 +206,7 @@ func main() {
 		log.Infof(" - %s", n)
 	}
 
-	http.HandleFunc("", handler)
+	http.HandleFunc("/metrics", handler)
 
 	log.Info("Listening on", 9100)
 	err = http.ListenAndServe(":9100", nil)
