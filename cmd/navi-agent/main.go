@@ -24,7 +24,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
@@ -173,13 +172,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		//var urlRegister UrlRegister
-		//
-		//err = json.Unmarshal(data, &urlRegister)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 
 		urlRegistry, err := libkv.NewStore(store.ZK, zkServers, nil)
 		if err != nil {
