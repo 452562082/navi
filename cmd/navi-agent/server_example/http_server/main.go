@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	glog "kuaishangtong/common/utils/log"
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
+	glog "kuaishangtong/common/utils/log"
 	//jaegerlog "github.com/uber/jaeger-client-go/log"
 	"github.com/uber/jaeger-lib/metrics"
 
@@ -23,7 +23,7 @@ func main() {
 	r.HandleFunc("/servicename", serviceNameHandler)
 	r.HandleFunc("/servicemode", serviceModeHandler)
 	r.HandleFunc("/hello", helloHandler)
-	r.HandleFunc("/test/v1/hello",testHandler)
+	r.HandleFunc("/test/v1/hello", testHandler)
 	http.Handle("/", r)
 
 	// Recommended configuration for production.
@@ -73,10 +73,10 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "pong")
 }
 
-func testHandler(w http.ResponseWriter,r *http.Request){
+func testHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
-	fmt.Fprintf(w, "/test/v1/hello")
+	fmt.Fprintf(w, "%s", r.URL.String())
 }
 
 func serviceNameHandler(w http.ResponseWriter, r *http.Request) {
