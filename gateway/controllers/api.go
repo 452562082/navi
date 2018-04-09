@@ -28,11 +28,11 @@ func (this *ApiController) Proxy() {
 
 	srv := service.GlobalServiceManager.GetService(service_name)
 	if srv != nil {
-
 		if api_exist := srv.ExistApi(api_url, mode); !api_exist {
 			//respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
 			//this.Ctx.ResponseWriter.Write([]byte(respstr))
 			this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
+			log.Warnf("can not find %s", api_url)
 			return
 		}
 
