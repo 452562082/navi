@@ -1,12 +1,12 @@
 {
-  "api_urls":[
+  "api_urls": [
     {
-      "url":"hello",
-      "method":"post"
+      "url": "hello",
+      "method": "post"
     },
     {
-      "url":"test/v1/hello",
-      "method":"post"
+      "url": "test/v1/hello",
+      "method": "post"
     }
   ]
 }
