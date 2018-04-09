@@ -23,6 +23,7 @@ func main() {
 	r.HandleFunc("/servicename", serviceNameHandler)
 	r.HandleFunc("/servicemode", serviceModeHandler)
 	r.HandleFunc("/hello", helloHandler)
+	r.HandleFunc("/test/v1/hello",testHandler)
 	http.Handle("/", r)
 
 	// Recommended configuration for production.
@@ -70,6 +71,12 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
 	fmt.Fprintf(w, "pong")
+}
+
+func testHandler(w http.ResponseWriter,r *http.Request){
+	w.WriteHeader(http.StatusOK)
+	glog.Infof("req remoteAddr: %s for url /%s", r.RemoteAddr, r.URL.Path)
+	fmt.Fprintf(w, "/test/v1/hello")
 }
 
 func serviceNameHandler(w http.ResponseWriter, r *http.Request) {

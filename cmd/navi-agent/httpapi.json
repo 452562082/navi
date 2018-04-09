@@ -1,6 +1,12 @@
 {
   "api_urls":[
-    "hello",
-    "test1/xxx/as"
+    {
+      "url":"hello",
+      "method":"post"
+    },
+    {
+      "url":"test/v1/hello",
+      "method":"post"
+    }
   ]
 }

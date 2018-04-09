@@ -167,10 +167,6 @@ func main() {
 		}(i)
 	}
 
-	type apiUrl struct {
-		ApiUrls []string `json:"api_urls"`
-	}
-
 	// 为 http 服务添加url注册信息
 	if defaultConfig.Server.ServerType == "http" {
 		data, err := ioutil.ReadFile(defaultConfig.Server.ServerHttpApiJsonFile)
@@ -178,26 +174,25 @@ func main() {
 			log.Fatal(err)
 		}
 
-		var __apiUrl apiUrl
-
-		err = json.Unmarshal(data, &__apiUrl)
-		if err != nil {
-			log.Fatal(err)
-		}
+		//var urlRegister UrlRegister
+		//
+		//err = json.Unmarshal(data, &urlRegister)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
 
 		urlRegistry, err := libkv.NewStore(store.ZK, zkServers, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for _, url := range __apiUrl.ApiUrls {
-			key := fmt.Sprintf("%s/%s/%s/%s", strings.Trim(defaultConfig.Zookeeper.ZookeeperURLServicePath, "/"),
-				defaultConfig.Server.ServerName, defaultConfig.Server.ServerMode, url)
-			err = urlRegistry.Put(key, nil, nil)
-			if err != nil {
-				log.Fatal(err)
-			}
+		key := fmt.Sprintf("%s/%s/%s", strings.Trim(defaultConfig.Zookeeper.ZookeeperURLServicePath, "/"),
+			defaultConfig.Server.ServerName, defaultConfig.Server.ServerMode)
+		err = urlRegistry.Put(key, data, nil)
+		if err != nil {
+			log.Fatal(err)
 		}
+
 		urlRegistry.Close()
 	}
 
