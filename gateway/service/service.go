@@ -49,6 +49,7 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 	}
 
 	var urlInfo UrlInfo
+	log.Debugf("json string: %s", string(kv.Value))
 	err = json.Unmarshal(kv.Value, &urlInfo)
 	if err != nil {
 		log.Errorf("prodApiURLs json.Unmarshal err: %v", err)
@@ -230,7 +231,7 @@ func (this *Service) Close() {
 }
 
 type UrlInfo struct {
-	ApiUrls []*ApiUrl `json:"api_urls"`
+	ApiUrls []ApiUrl `json:"api_urls"`
 }
 
 type ApiUrl struct {
