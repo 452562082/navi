@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"kuaishangtong/common/utils/log"
-	"kuaishangtong/navi/gateway/httpproxy"
-	"kuaishangtong/navi/gateway/service"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
+	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/gateway/httpproxy"
+	"kuaishangtong/navi/gateway/service"
 	"net/http"
 )
 
@@ -20,6 +20,8 @@ func (this *ApiController) Init(ct *context.Context, controllerName, actionName 
 
 func (this *ApiController) Proxy() {
 	service_name := this.Ctx.Input.Param(":service")
+
+	log.Infof(this.Ctx.Input.URL())
 	api_url := this.Ctx.Input.Param(":api")
 	mode := this.Ctx.Input.Header("mode")
 
