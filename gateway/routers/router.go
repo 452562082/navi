@@ -43,7 +43,13 @@ func init() {
 
 	})
 
+	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)",
+		&controllers.ApiController{}, "*:Proxy")
 	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*",
+		&controllers.ApiController{}, "*:Proxy")
+	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*",
+		&controllers.ApiController{}, "*:Proxy")
+	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*",
 		&controllers.ApiController{}, "*:Proxy")
 
 }
