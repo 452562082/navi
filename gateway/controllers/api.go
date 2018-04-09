@@ -25,6 +25,7 @@ func (this *ApiController) Proxy() {
 	api_url := this.Ctx.Input.URL()[len(service_name)+8:]
 	log.Infof(api_url)
 	mode := this.Ctx.Input.Header("mode")
+	log.Warnf("mode: %s",mode)
 
 	srv := service.GlobalServiceManager.GetService(service_name)
 	if srv != nil {

@@ -1,12 +1,12 @@
 package routers
 
 import (
-	"kuaishangtong/navi/gateway/constants"
-	"kuaishangtong/navi/gateway/controllers"
-	"kuaishangtong/navi/ipfilter"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/plugins/cors"
+	"kuaishangtong/navi/gateway/constants"
+	"kuaishangtong/navi/gateway/controllers"
+	"kuaishangtong/navi/ipfilter"
 	"net"
 	"strings"
 )
@@ -21,7 +21,7 @@ func init() {
 		AllowCredentials: true,
 	}))
 
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*", beego.BeforeRouter, func(ctx *context.Context) {
+	filterFunc := func(ctx *context.Context) {
 
 		remoteIp := strings.Split(ctx.Request.RemoteAddr, ":")[0]
 		rip := net.ParseIP(remoteIp)
@@ -41,7 +41,13 @@ func init() {
 			ctx.Request.Header.Set("mode", constants.PROD_MODE)
 		}
 
-	})
+	}
+
+	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*", beego.BeforeRouter, filterFunc)
+	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*", beego.BeforeRouter, filterFunc)
+	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*", beego.BeforeRouter, filterFunc)
+	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*", beego.BeforeRouter, filterFunc)
+	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*/*", beego.BeforeRouter, filterFunc)
 
 	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)",
 		&controllers.ApiController{}, "*:Proxy")
@@ -50,6 +56,8 @@ func init() {
 	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*",
 		&controllers.ApiController{}, "*:Proxy")
 	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*",
+		&controllers.ApiController{}, "*:Proxy")
+	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*",
 		&controllers.ApiController{}, "*:Proxy")
 
 }
