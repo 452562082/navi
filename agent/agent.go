@@ -79,7 +79,7 @@ func (a *Agent) Serve() (err error) {
 
 	var service_active bool = true
 
-	pingTicker := time.NewTicker(time.Second)
+	pingTicker := time.NewTicker(3 * time.Second)
 	defer pingTicker.Stop()
 
 	serviceTicker := time.NewTicker(time.Minute)
