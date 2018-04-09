@@ -20,12 +20,8 @@ func (this *ApiController) Init(ct *context.Context, controllerName, actionName 
 
 func (this *ApiController) Proxy() {
 	service_name := this.Ctx.Input.Param(":service")
-
-	log.Infof(this.Ctx.Input.URL())
 	api_url := this.Ctx.Input.URL()[len(service_name)+8:]
-	log.Infof(api_url)
 	mode := this.Ctx.Input.Header("mode")
-	log.Warnf("mode: %s",mode)
 
 	srv := service.GlobalServiceManager.GetService(service_name)
 	if srv != nil {
@@ -33,7 +29,6 @@ func (this *ApiController) Proxy() {
 			//respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
 			//this.Ctx.ResponseWriter.Write([]byte(respstr))
 			this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
-			log.Warnf("can not find %s", api_url)
 			return
 		}
 
