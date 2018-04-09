@@ -22,7 +22,8 @@ func (this *ApiController) Proxy() {
 	service_name := this.Ctx.Input.Param(":service")
 
 	log.Infof(this.Ctx.Input.URL())
-	api_url := this.Ctx.Input.Param(":api")
+	api_url := this.Ctx.Input.URL()[len(service_name)+2:]
+	log.Infof(api_url)
 	mode := this.Ctx.Input.Header("mode")
 
 	srv := service.GlobalServiceManager.GetService(service_name)
