@@ -50,7 +50,6 @@ func init() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	filters := r.URL.Query()["collect[]"]
-	log.Debug("collect query:", filters)
 
 	nc, err := collector.NewNodeCollector(filters...)
 	if err != nil {
@@ -128,7 +127,11 @@ func main() {
 
 	for i := 0; i < serverCount; i++ {
 
-		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, serverhosts[i], defaultConfig.Server.ServerType, defaultConfig.Server.IsDocker)
+		agents[i], err = agent.NewAgent(defaultConfig.Server.ServerName, serverhosts[i],
+			defaultConfig.Server.ServerType,
+			defaultConfig.Server.IsDocker,
+			restart_server_in_docker)
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -198,14 +201,6 @@ func main() {
 		urlRegistry.Close()
 	}
 
-	//log.AddFlags(kingpin.CommandLine)
-	//kingpin.Version(version.Print("node_exporter"))
-	//kingpin.HelpFlag.Short('h')
-	//kingpin.Parse()
-
-	log.Info("Starting node_exporter", version.Info())
-	log.Info("Build context", version.BuildContext())
-
 	// This instance is only used to check collector creation and logging.
 	nc, err := collector.NewNodeCollector()
 	if err != nil {
@@ -213,7 +208,7 @@ func main() {
 	}
 	log.Infof("Enabled collectors:")
 	for n := range nc.Collectors {
-		log.Infof(" - %s", n)
+		log.Infof(" Collector - %s", n)
 	}
 
 	http.HandleFunc("/metrics", handler)

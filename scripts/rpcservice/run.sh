@@ -39,7 +39,7 @@ start_agent() {
     /rpc/bin/navi-agent -c /rpc/etc/cfg.json
 }
 
-main () {
+start () {
     update_config
 
     if [ $? != "0" ]; then
@@ -55,5 +55,19 @@ main () {
 
 }
 
-main
-exit 0
+#start
+#exit 0
+
+case "$1" in
+	start)
+		start
+		;;
+	restart)
+		start_rpc_server
+		;;
+	*)
+		echo -e "${YELOW_COLOR}Usage: $0 {start|restart} ${RES}"
+		exit 1
+esac
+
+exit $RETVAL

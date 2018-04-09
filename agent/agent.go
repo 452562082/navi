@@ -8,15 +8,17 @@ import (
 )
 
 type Agent struct {
-	Plugins    PluginContainer
-	agenter    Agenter
-	servername string
-	address    string
-	typ        string
+	Plugins           PluginContainer
+	agenter           Agenter
+	serverName        string
+	address           string
+	typ               string
+	isDocker          bool
+	restartServerFunc func() error
 }
 
 // NewServer returns a server.
-func NewAgent(servername, address string, typ string, is_docker bool) (*Agent, error) {
+func NewAgent(server_name, address string, typ string, is_docker bool, restartFunc func() error) (*Agent, error) {
 	var err error
 
 	fields := strings.Split(address, ":")
@@ -26,10 +28,12 @@ func NewAgent(servername, address string, typ string, is_docker bool) (*Agent, e
 	address = fmt.Sprintf("127.0.0.1:%s", fields[1])
 
 	a := &Agent{
-		Plugins:    &pluginContainer{},
-		servername: servername,
-		address:    address,
-		typ:        typ,
+		Plugins:           &pluginContainer{},
+		serverName:        server_name,
+		address:           address,
+		typ:               typ,
+		isDocker:          is_docker,
+		restartServerFunc: restartFunc,
 	}
 
 	switch typ {
@@ -66,12 +70,12 @@ func (a *Agent) Serve() (err error) {
 		return err
 	}
 
-	err = a.RegisterName(a.servername, serviceMode, nil, a.servername)
+	err = a.RegisterName(a.serverName, serviceMode, nil, a.serverName)
 	if err != nil {
 		return err
 	}
 
-	log.Infof("register service %s successful", a.servername)
+	log.Infof("register service %s successful", a.serverName)
 
 	var service_active bool = true
 
@@ -116,24 +120,24 @@ func (a *Agent) Serve() (err error) {
 				if err != nil {
 					if service_active {
 						service_active = false
-						err = a.UnRegisterName(a.servername, serviceMode)
+						err = a.UnRegisterName(a.serverName, serviceMode)
 						if err != nil {
 							log.Error(err)
 							continue
 						}
-						log.Infof("unregister %s service %s successful", a.typ, a.servername)
+						log.Infof("unregister %s service %s successful", a.typ, a.serverName)
 					}
 					continue
 				}
 
 				if !service_active {
-					err = a.RegisterName(a.servername, serviceMode, nil, a.servername)
+					err = a.RegisterName(a.serverName, serviceMode, nil, a.serverName)
 					if err != nil {
 						log.Error(err)
 						continue
 					} else {
 						service_active = true
-						log.Infof("register %s service %s successful", a.typ, a.servername)
+						log.Infof("register %s service %s successful", a.typ, a.serverName)
 					}
 				}
 			}

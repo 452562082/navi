@@ -38,7 +38,7 @@ cp -a /usr/local/lib/libthrift-0.10.0.so rpc/libs
 
 echo "FROM centos:7
 COPY rpc /rpc
-CMD [\"/rpc/run.sh\"]
+CMD [\"/rpc/run.sh\", \"start\"]
 " > Dockerfile
 #
 docker build -t mytest:alpha .

@@ -2,11 +2,12 @@
   // server 相关配置
   "server": {
     // server 服务节点
-    "server_hosts": "192.168.1.16:9595",
-    "server_type": "rpc",
+    "server_hosts": "192.168.1.16:8082",
+    "server_type": "http",
     "server_mode": "dev",
     "server_http_api_json_file": "httpapi.json",
     "server_name": "MyTest",
+    "server_restart_script": "./server_restart.sh",
     "is_docker": true
   },
   // zk 相关配置

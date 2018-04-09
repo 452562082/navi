@@ -32,7 +32,7 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 
 	var err error
 
-	/* 获取 生产版本 /prod  api url */
+	/* 获取 生产版本 /prod api url */
 	srv.prodApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
 	if err != nil {
 		return nil, err
