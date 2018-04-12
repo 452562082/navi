@@ -46,11 +46,12 @@ func (c *Creator) generateThriftServiceImpl() {
 	type thriftServiceImplValues struct {
 		PkgPath     string
 		ServiceName string
+		ServiceMode string
 	}
 	nameLower := strings.ToLower(c.c.ThriftServiceName())
 	writeFileWithTemplate(
 		c.c.ServiceRootPathAbsolute()+"/thriftservice/impl/"+nameLower+"impl.go",
-		thriftServiceImplValues{PkgPath: c.PkgPath, ServiceName: c.c.ThriftServiceName()},
+		thriftServiceImplValues{PkgPath: c.PkgPath, ServiceName: c.c.ThriftServiceName(), ServiceMode: c.c.ServiceVersionMode()},
 		`package impl
 
 import (
@@ -72,11 +73,11 @@ func (s {{.ServiceName}}) Ping() (str string, err error) {
 }
 
 func (s {{.ServiceName}}) ServiceName() (str string, err error) {
-	return "MyTest",nil
+	return "{{.ServiceName}}",nil
 }
 
 func (s {{.ServiceName}}) ServiceMode() (str string, err error) {
-	return "dev",nil
+	return "{{.ServiceMode}}",nil
 }
 
 // SayHello is an example entry point
@@ -135,11 +136,12 @@ func (c *Creator) generateGrpcServiceImpl() {
 	type serviceImplValues struct {
 		PkgPath     string
 		ServiceName string
+		ServiceMode string
 	}
 	nameLower := strings.ToLower(c.c.GrpcServiceName())
 	writeFileWithTemplate(
 		c.c.ServiceRootPathAbsolute()+"/grpcservice/impl/"+nameLower+"impl.go",
-		serviceImplValues{PkgPath: c.PkgPath, ServiceName: c.c.GrpcServiceName()},
+		serviceImplValues{PkgPath: c.PkgPath, ServiceName: c.c.GrpcServiceName(), ServiceMode: c.c.ServiceVersionMode()},
 		`package impl
 
 import (
@@ -167,11 +169,11 @@ func (c *{{.ServiceName}}) Ping(ctx context.Context, req *proto.PingRequest) (*p
 }
 
 func (c *{{.ServiceName}}) ServiceName(ctx context.Context, req *proto.ServiceNameRequest) (*proto.Response, error) {
-	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"servicename\"}"}, nil
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"{{.ServiceName}}\"}"}, nil
 }
 
 func (c *{{.ServiceName}}) ServiceMode(ctx context.Context, req *proto.ServiceModeRequest) (*proto.Response, error) {
-	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"servicemode\"}"}, nil
+	return &proto.Response{ResponseCode: 200, ResponseJSON: "{\"message\": \"{{.ServiceMode}}\"}"}, nil
 }
 
 func (c *{{.ServiceName}}) SayHello(ctx context.Context, req *proto.SayHelloRequest) (*proto.Response, error) {

@@ -36,6 +36,9 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   jaeger_addr: 127.0.0.1:6831
 
 urlmapping:
+  - GET /ping Ping
+  - GET /servicename ServiceName
+  - GET /servicemode ServiceMode
   - POST /hello SayHello
   - POST /savewave SaveWave
 
@@ -115,15 +118,15 @@ struct Response {
 service {{.ServiceName}} {
 
 		# rpc server必须实现的接口，返回字符串 "pong" 即可
-        string Ping(),
+		string Ping(),
 
 		# rpc server必须实现的接口，返回服务名称，为首字母大写的驼峰格式，例如 "AsvService"
-        string ServiceName(),
+		string ServiceName(),
 
 		# rpc server必须实现的接口，说明该server是以什么模式运行，分为dev和prod；dev为开发版本，prod为生产版本
-        string ServiceMode(),
+		string ServiceMode(),
 
-        Response SayHello(1:string yourName)
+		Response SayHello(1:string yourName)
 
 		Response SaveWave(1:string fileName, 2:string wavFormat, 3:binary data)
 }
