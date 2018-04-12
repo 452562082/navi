@@ -10,6 +10,10 @@
     "server_restart_script": "./server_restart.sh",
     "is_docker": true
   },
+  "prometheus_target": {
+    "host": "192.168.1.16",
+    "port": "9100"
+  },
   // zk 相关配置
   "zookeeper": {
     // zk 服务节点

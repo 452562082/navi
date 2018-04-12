@@ -145,11 +145,13 @@ func main() {
 			}
 
 			r := &registry.ZooKeeperRegister{
-				ServiceAddress:   serverhosts[index],
-				ZooKeeperServers: zkServers,
-				BasePath:         basePath,
-				Metrics:          metrics.NewRegistry(),
-				UpdateInterval:   2 * time.Second,
+				ServiceAddress:       serverhosts[index],
+				ZooKeeperServers:     zkServers,
+				BasePath:             basePath,
+				Metrics:              metrics.NewRegistry(),
+				UpdateInterval:       2 * time.Second,
+				PrometheusTargetHost: defaultConfig.PrometheusTarget.Host,
+				PrometheusTargetPort: defaultConfig.PrometheusTarget.Port,
 			}
 
 			err = r.Start()

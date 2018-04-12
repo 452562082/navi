@@ -21,6 +21,8 @@ type Config struct {
 	// server
 	Server serverConf `json:"server"`
 
+	// prometheus
+	PrometheusTarget PrometheusTargetConf `json:"prometheus_target"`
 	// zk
 	Zookeeper zookeeprConf `json:"zookeeper"`
 
@@ -37,6 +39,11 @@ type serverConf struct {
 	ServerHosts           string `json:"server_hosts"`
 	ServerRestartScript   string `json:"server_restart_script"`
 	IsDocker              bool   `json:"is_docker"`
+}
+
+type PrometheusTargetConf struct {
+	Host string `json:"host"`
+	Port string `json:"port"`
 }
 
 type zookeeprConf struct {
