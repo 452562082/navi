@@ -36,9 +36,9 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   jaeger_addr: 127.0.0.1:6831
 
 urlmapping:
-  - GET /Ping Ping
-  - GET /ServiceName ServiceName
-  - GET /ServiceMode ServiceMode
+  - GET /ping Ping
+  - GET /servicename ServiceName
+  - GET /servicemode ServiceMode
   - POST /hello SayHello
   - POST /savewave SaveWave
 
