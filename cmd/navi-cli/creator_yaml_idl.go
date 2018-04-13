@@ -34,6 +34,8 @@ func (c *Creator) createServiceYaml(serviceRootPath, serviceName, configFileName
   zookeeper_http_service_path: /navi/httpservice
   zookeeper_rpc_service_path: /navi/rpcservice
   jaeger_addr: 127.0.0.1:6831
+  prometheus_target_host: 192.168.1.16
+  prometheus_target_port: 9100
 
 urlmapping:
   - GET /ping Ping

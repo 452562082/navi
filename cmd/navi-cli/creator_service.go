@@ -499,6 +499,8 @@ func serviceRegistry(s *navicli.ThriftServer) {
 		Mode:				s.Config.ServiceVersionMode(),
 		Metrics:         	metrics.NewRegistry(),
 		UpdateInterval:   	2 * time.Second,
+		PrometheusTargetHost: s.Config.PrometheusTargetHost(),
+		PrometheusTargetPort: s.Config.PrometheusTargetPort(),
 	}
 
 	err := r.Start()
@@ -517,16 +519,18 @@ func serviceRegistry(s *navicli.ThriftServer) {
 		log.Fatal(err)
 	}
 
-	// 注册URL接口到zookeeper上，后续由admin后台手动管理，可删除该部分代码
-	for _, v := range s.Config.UrlMappings() {
-		path := strFirstToUpper(v[1])
+	//注册URL接口到zookeeper上，后续由admin后台手动管理，可删除该部分代码
+	//for _, v := range s.Config.UrlMappings() {
+	//	path := strFirstToUpper(v[1])
+	//
+	//}
+	data := urlMappings2urlJson(s.Config.UrlMappings())
+	key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/{{.ServiceName}}/" + s.Config.ServiceVersionMode()
+	log.Infof("register urls to registry in service {{.ServiceName}}")
+	err = kv.Put(key, data, nil)
 
-		key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/{{.ServiceName}}/" + s.Config.ServiceVersionMode() + path
-		log.Infof("register url %s to registry in service {{.ServiceName}}", key)
-		err = kv.Put(key, nil, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -545,5 +549,16 @@ func strFirstToUpper(str string) string {
 		}
 	}
 	return upperStr
+}
+
+func urlMappings2urlJson(urls [][3]string) string {
+	var urlStr string
+	for _, url := range urls {
+			urlStr += fmt.Sprintf("{\"url\": \"%s\",\"method\": \"%s\"},", url[1], url[0])
+	}
+	urlStr = urlStr[:len(urlStr)-1]
+	urlJson := fmt.Sprintf("{\"api_urls\": [%s]}", urlStr)
+
+	return urlJson
 }
 `

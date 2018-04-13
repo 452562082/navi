@@ -35,6 +35,8 @@ const (
 	environment                   = "environment"
 	serviceRootPath               = "service_root_path"
 	jaegerAddr						= "jaeger_addr"
+	prometheusTargetHost			= "prometheus_target_host"
+	prometheusTargetPort			= "prometheus_target_port"
 
 	urlServiceMaps = "urlServiceMaps"
 	interceptors   = "interceptors"
@@ -201,6 +203,14 @@ func (c *Config) ServiceRootPath() string {
 
 func (c *Config) JaegerAddr() string {
 	return c.configs[jaegerAddr]
+}
+
+func (c *Config) PrometheusTargetHost() string {
+	return c.configs[prometheusTargetHost]
+}
+
+func (c *Config) PrometheusTargetPort() string {
+	return c.configs[prometheusTargetPort]
 }
 
 // ServiceRootPathAbsolute returns the absolute path to service's root,
