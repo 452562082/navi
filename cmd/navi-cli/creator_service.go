@@ -527,7 +527,7 @@ func serviceRegistry(s *navicli.ThriftServer) {
 	data := urlMappings2urlJson(s.Config.UrlMappings())
 	key := strings.Trim(s.Config.ZookeeperURLServicePath(),"/") + "/{{.ServiceName}}/" + s.Config.ServiceVersionMode()
 	log.Infof("register urls to registry in service {{.ServiceName}}")
-	err = kv.Put(key, data, nil)
+	err = kv.Put(key, []byte(data), nil)
 
 	if err != nil {
 		log.Fatal(err)
