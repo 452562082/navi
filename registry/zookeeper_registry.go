@@ -93,7 +93,7 @@ func (p *ZooKeeperRegister) Start() error {
 
 					_, err := p.kv.Get(nodePath)
 					if err != nil {
-						log.Infof("can't get data of node: %s, because of %v", nodePath, err.Error())
+						log.Errorf("can't get data of node: %s, because of %v", nodePath, err.Error())
 
 						p.metasLock.RLock()
 						metadata := p.metas[name]
