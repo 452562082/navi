@@ -8,7 +8,7 @@
     "server_http_api_json_file": "httpapi.json",
     "server_name": "smart_customer_service",
     "server_restart_script": "./server_restart.sh",
-    "is_docker": true
+    "is_docker": false
   },
   "prometheus_target": {
     "host": "192.168.1.16",
