@@ -1,9 +1,9 @@
-
 package agent
 
 import (
 	"fmt"
 	"kuaishangtong/common/utils/httplib"
+	"kuaishangtong/common/utils/log"
 	"time"
 )
 
@@ -32,16 +32,19 @@ type httpAgenter struct {
 
 func (ha *httpAgenter) Ping() (string, error) {
 	url := fmt.Sprintf("http://%s/ping", ha.Address)
+	log.Debugf("url: %s", url)
 	return httplib.Get(url).String()
 }
 
 func (ha *httpAgenter) ServiceName() (string, error) {
 	url := fmt.Sprintf("http://%s/servicename", ha.Address)
+	log.Debugf("url: %s", url)
 	return httplib.Get(url).String()
 }
 
 func (ha *httpAgenter) ServiceMode() (string, error) {
 	url := fmt.Sprintf("http://%s/servicemode", ha.Address)
+	log.Debugf("url: %s", url)
 	return httplib.Get(url).String()
 }
 
