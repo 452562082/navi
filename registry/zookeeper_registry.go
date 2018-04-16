@@ -165,6 +165,7 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, data string)
 	}
 
 	nodePath := fmt.Sprintf("%s/%s", p.BasePath, name)
+	log.Debugf("nodePath: %s", nodePath)
 	err = p.kv.Put(nodePath, []byte(name), &store.WriteOptions{IsDir: true})
 	if err != nil {
 		log.Errorf("cannot create zk path %s: %v", nodePath, err)

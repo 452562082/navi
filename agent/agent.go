@@ -73,6 +73,8 @@ func (a *Agent) Serve() (err error) {
 		return err
 	}
 
+	log.Infof("service %s mode: [%s]", a.serverName, serviceMode)
+
 	_, err = a.agenter.Ping()
 	if err != nil {
 		return err
