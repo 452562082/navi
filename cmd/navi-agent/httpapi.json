@@ -1,11 +1,15 @@
 {
   "api_urls": [
     {
-      "url": "/hello",
+      "url": "/base/data/faq/faq",
       "method": "get"
     },
     {
-      "url": "/test/v1/hello",
+      "url": "/base/data/faq/question",
+      "method": "get"
+    },
+    {
+      "url": "/base/data/faq/faq/query",
       "method": "get"
     }
   ]
