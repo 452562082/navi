@@ -49,6 +49,12 @@ func NewAgent(server_name, address string, typ string, is_docker bool, restartFu
 			return nil, err
 		}
 
+	case "grpc":
+		a.agenter, err = a.NewGrpcAgenter()
+		if err != nil {
+			return nil, err
+		}
+
 	default:
 		return nil, fmt.Errorf("unknown server type")
 	}
