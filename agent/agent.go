@@ -68,6 +68,7 @@ func NewAgent(server_name, address string, typ string, is_docker bool, restartFu
 // Serve starts and listens RPC requests.
 func (a *Agent) Serve() (err error) {
 
+	log.Infof("ServiceMode, type: %s", a.typ)
 	serviceMode, err := a.agenter.ServiceMode()
 	if err != nil {
 		return err
