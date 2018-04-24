@@ -136,6 +136,7 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	if err != nil {
 		tracer.sp.Finish()
+		log.Error(err)
 		return resp, err
 	}
 	ext.HTTPStatusCode.Set(tracer.sp, uint16(resp.StatusCode))
