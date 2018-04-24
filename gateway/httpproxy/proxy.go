@@ -172,7 +172,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	//	//return err
 	//} else {
 	//	if len(data) == 0 {
-	//		outreq.ContentLength = 0
+	outreq.ContentLength = 0
 	//	}
 	//}
 

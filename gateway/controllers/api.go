@@ -1,15 +1,14 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
+	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"io/ioutil"
 	"kuaishangtong/common/utils/log"
+	"kuaishangtong/navi/gateway/httpproxy"
 	"kuaishangtong/navi/gateway/service"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 )
 
 type ApiController struct {
@@ -53,36 +52,36 @@ func (this *ApiController) Proxy() {
 		for retries := 0; (err != nil || firstCall) && retries < servercounts; retries++ {
 
 			firstCall = false
-			//director := func(req *http.Request) *http.Request {
-			//	req = this.Ctx.Request
-			//	req.URL.Scheme = "http"
-			//	// 由 mode 来决定请求时转发到prod的集群上或dev的集群上
-			//	host = srv.Cluster.Select(service_name+"/"+api_url, req.Method, host, mode)
-			//	req.URL.Host = host
-			//	req.URL.Path = "/" + api_url
-			//	req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
-			//	req.Header.Set("service", service_name)
-			//	log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
-			//		this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
-			//
-			//	return req
-			//}
-			//proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
-			//err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
-			//if err != nil {
-			//	log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
-			//		this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host, err)
-			//}
+			director := func(req *http.Request) *http.Request {
+				req = this.Ctx.Request
+				req.URL.Scheme = "http"
+				// 由 mode 来决定请求时转发到prod的集群上或dev的集群上
+				host = srv.Cluster.Select(service_name+"/"+api_url, req.Method, host, mode)
+				req.URL.Host = host
+				req.URL.Path = "/" + api_url
+				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
+				req.Header.Set("service", service_name)
+				log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
+					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
 
-			host = srv.Cluster.Select(service_name+"/"+api_url, this.Ctx.Request.Method, host, mode)
-			redirect := fmt.Sprintf("http://%s/%s", host, api_url)
-			remote, err := url.Parse(redirect)
-			if err != nil {
-				panic(err)
+				return req
 			}
-			proxy := httputil.NewSingleHostReverseProxy(remote)
+			proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
+			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
+			if err != nil {
+				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
+					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host, err)
+			}
 
-			proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
+			//host = srv.Cluster.Select(service_name+"/"+api_url, this.Ctx.Request.Method, host, mode)
+			//redirect := fmt.Sprintf("http://%s/%s", host, api_url)
+			//remote, err := url.Parse(redirect)
+			//if err != nil {
+			//	panic(err)
+			//}
+			//proxy := httputil.NewSingleHostReverseProxy(remote)
+			//
+			//proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 
 		}
 
