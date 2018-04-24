@@ -6,6 +6,7 @@ import (
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"
+	"io/ioutil"
 	"kuaishangtong/common/utils/log"
 	"net"
 	"net/http"
@@ -13,7 +14,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"io/ioutil"
 )
 
 // onExitFlushLoop is a callback set by tests to detect the state of the
@@ -165,6 +165,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	outreq = p.Director(outreq)
 	outreq.Close = false
 
+	log.Warn(req.MultipartForm != nil, outreq.MultipartForm != nil)
 	//var err error
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {

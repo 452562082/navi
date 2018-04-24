@@ -65,6 +65,7 @@ func (this *ApiController) Proxy() {
 				req.Header.Set("service", service_name)
 				log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
 					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
+
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
