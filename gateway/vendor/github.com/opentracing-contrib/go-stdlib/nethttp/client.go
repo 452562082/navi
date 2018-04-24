@@ -12,6 +12,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
+	kstlog "kuaishangtong/common/utils/log"
 )
 
 type contextKey int
@@ -136,7 +137,7 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	if err != nil {
 		tracer.sp.Finish()
-		log.Error(err)
+		kstlog.Error(err)
 		return resp, err
 	}
 	ext.HTTPStatusCode.Set(tracer.sp, uint16(resp.StatusCode))

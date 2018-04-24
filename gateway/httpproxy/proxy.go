@@ -6,6 +6,7 @@ import (
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"
+	"io/ioutil"
 	"kuaishangtong/common/utils/log"
 	"net"
 	"net/http"
@@ -154,8 +155,21 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	}
 
 	outreq := req.WithContext(ctx) // includes shallow copies of maps, but okay
+
 	if req.ContentLength == 0 {
 		outreq.Body = nil // Issue 16036: nil Body for http.Transport retries
+	}
+
+	//var err error
+	data, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Errorf("http: ReadAll err: %v", err)
+		//rw.WriteHeader(http.StatusBadGateway)
+		//return err
+	} else {
+		if len(data) == 0 {
+			outreq.ContentLength = 0
+		}
 	}
 
 	outreq.Header = cloneHeader(req.Header)
@@ -202,9 +216,9 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
 		log.Errorf("http: proxy error: %v", err)
-		if !strings.HasSuffix(err.Error(), "with Body length 0") {
-			return err
-		}
+
+		return err
+
 	}
 
 	// Remove hop-by-hop headers listed in the
