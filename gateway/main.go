@@ -26,13 +26,12 @@ package main
 import (
 	"github.com/astaxie/beego"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
+	"github.com/uber/jaeger-lib/metrics"
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/gateway/constants"
 	_ "kuaishangtong/navi/gateway/routers"
 	"kuaishangtong/navi/gateway/service"
 	"kuaishangtong/navi/ipfilter"
-	//jaegerlog "github.com/uber/jaeger-client-go/log"
-	"github.com/uber/jaeger-lib/metrics"
 
 	//jprom "github.com/uber/jaeger-lib/metrics/prometheus"
 	"github.com/uber/jaeger-client-go/rpcmetrics"

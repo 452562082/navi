@@ -22,7 +22,6 @@ func init() {
 	}))
 
 	filterFunc := func(ctx *context.Context) {
-
 		remoteIp := strings.Split(ctx.Request.RemoteAddr, ":")[0]
 		rip := net.ParseIP(remoteIp)
 		service_name := ctx.Input.Param(":service")
@@ -40,27 +39,13 @@ func init() {
 		} else {
 			ctx.Request.Header.Set("mode", constants.PROD_MODE)
 		}
-
 	}
 
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*", beego.BeforeRouter, filterFunc)
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*", beego.BeforeRouter, filterFunc)
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*", beego.BeforeRouter, filterFunc)
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*", beego.BeforeRouter, filterFunc)
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*/*", beego.BeforeRouter, filterFunc)
-	beego.InsertFilter("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*/*/*", beego.BeforeRouter, filterFunc)
+	pattern := "/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)"
 
-	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)",
-		&controllers.ApiController{}, "*:Proxy")
-	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*",
-		&controllers.ApiController{}, "*:Proxy")
-	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*",
-		&controllers.ApiController{}, "*:Proxy")
-	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*",
-		&controllers.ApiController{}, "*:Proxy")
-	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*",
-		&controllers.ApiController{}, "*:Proxy")
-	beego.Router("/kstAI/:service([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/:api([\\w|\u4e00-\u9fff|\\.\\-\\:\\_]+)/*/*/*/*/*",
-		&controllers.ApiController{}, "*:Proxy")
-
+	for index := 1; index <= 6; index++ {
+		pattern += "/*"
+		beego.InsertFilter(pattern, beego.BeforeRouter, filterFunc)
+		beego.Router(pattern, &controllers.ApiController{}, "*:Proxy")
+	}
 }

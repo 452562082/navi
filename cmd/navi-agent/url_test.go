@@ -2,6 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/docker/libkv"
+	"github.com/docker/libkv/store"
+	"io/ioutil"
 	"testing"
 )
 
@@ -23,4 +27,27 @@ func TestJson(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestRegistry(t *testing.T) {
+	zkServers := []string{"192.168.1.16:2181"}
+
+	data, err := ioutil.ReadFile("./httpapi.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	urlRegistry, err := libkv.NewStore(store.ZK, zkServers, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	key := fmt.Sprintf("%s/%s/%s", "navi/service",
+		"faceyou", "prod")
+	err = urlRegistry.Put(key, data, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	urlRegistry.Close()
 }

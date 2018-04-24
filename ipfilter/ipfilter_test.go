@@ -15,14 +15,27 @@ const _ipFilterRules = `{
       "service_name": "MyTest",
       "dev_ips": [
         "192.168.120.54/32",
+		"192.168.120.62/32",
+		"192.168.120.1/24",
 		"127.0.0.1/32"
       ],
       "deny_ips": [
       ]
     },
     {
-      "service_name": "test1",
-      "dev_ips": [
+      "service_name": "smart_customer_service",
+       "dev_ips": [
+        "192.168.120.54/32",
+		"192.168.120.62/32",
+		"192.168.120.1/24",
+		"127.0.0.1/32"
+      ],
+      "deny_ips": [
+      ]
+    },
+    {
+      "service_name": "faceyou",
+       "dev_ips": [
       ],
       "deny_ips": [
       ]
@@ -32,9 +45,7 @@ const _ipFilterRules = `{
 `
 
 func TestAddIpFilterRule(t *testing.T) {
-
 	zookeeper.Register()
-
 	ipfStore, err := libkv.NewStore(store.ZK, zkhosts, nil)
 	if err != nil {
 		t.Fatal(err)

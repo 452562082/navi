@@ -1,16 +1,16 @@
 {
   "api_urls": [
     {
-      "url": "/base/data/faq/faq",
-      "method": "get"
+      "url": "/faceyou/compare",
+      "method": "post"
     },
     {
-      "url": "/base/data/faq/question",
-      "method": "get"
+      "url": "/faceyou/detect",
+      "method": "post"
     },
     {
-      "url": "/base/data/faq/faq/query",
-      "method": "get"
+      "url": "/faceyou/ocr/detect",
+      "method": "post"
     }
   ]
 }
