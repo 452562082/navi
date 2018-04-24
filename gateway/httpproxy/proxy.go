@@ -160,7 +160,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	}
 
 	//var err error
-	data, err := ioutil.ReadAll(outreq.Body)
+	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		log.Errorf("http: ReadAll err: %v", err)
 		//rw.WriteHeader(http.StatusBadGateway)
