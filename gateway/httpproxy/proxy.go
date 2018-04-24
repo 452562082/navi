@@ -198,8 +198,10 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 			}
 		}
 		w.Close()
-
+		outreq.ContentLength = int64(b.Len())
 		outreq.Body = ioutil.NopCloser(&b)
+
+		outreq.Header.Set("ContentLength", fmt.Sprintf("%d", b.Len()))
 		outreq.Header.Set("Content-Type", w.FormDataContentType())
 	}
 
