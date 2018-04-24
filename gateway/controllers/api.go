@@ -24,6 +24,18 @@ func (this *ApiController) Proxy() {
 	api_url := this.Ctx.Input.URL()[len(service_name)+8:]
 	mode := this.Ctx.Input.Header("mode")
 
+
+	//var err error
+	data, err := ioutil.ReadAll(this.Ctx.Request.Body)
+	if err != nil {
+		log.Errorf("http: ReadAll err: %v", err)
+		//rw.WriteHeader(http.StatusBadGateway)
+		//return err
+	}
+
+	log.Debugf("length of data: %d", len(data))
+
+
 	srv := service.GlobalServiceManager.GetService(service_name)
 	if srv != nil {
 		if api_exist := srv.ExistApi(api_url, mode); !api_exist {
@@ -56,16 +68,6 @@ func (this *ApiController) Proxy() {
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
-
-			//var err error
-			data, err := ioutil.ReadAll(this.Ctx.Request.Body)
-			if err != nil {
-				log.Errorf("http: ReadAll err: %v", err)
-				//rw.WriteHeader(http.StatusBadGateway)
-				//return err
-			}
-
-			log.Debugf("length of data: %d", len(data))
 
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 			if err != nil {
