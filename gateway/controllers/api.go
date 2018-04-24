@@ -8,6 +8,7 @@ import (
 	"kuaishangtong/navi/gateway/httpproxy"
 	"kuaishangtong/navi/gateway/service"
 	"net/http"
+	"io/ioutil"
 )
 
 type ApiController struct {
@@ -55,6 +56,17 @@ func (this *ApiController) Proxy() {
 				return req
 			}
 			proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
+
+			//var err error
+			data, err := ioutil.ReadAll(this.Ctx.Request.Body)
+			if err != nil {
+				log.Errorf("http: ReadAll err: %v", err)
+				//rw.WriteHeader(http.StatusBadGateway)
+				//return err
+			}
+
+			log.Debugf("length of data: %d", len(data))
+
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 			if err != nil {
 				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
