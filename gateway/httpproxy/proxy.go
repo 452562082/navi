@@ -213,7 +213,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
 
-	requestBodyString := req.Form.Encode()
+	requestBodyString := req.PostForm.Encode()
 	log.Warn(requestBodyString)
 	outreq.Body = ioutil.NopCloser(strings.NewReader(requestBodyString))
 	//outreq.Body  = ioutil.NopCloser(req.Body)
