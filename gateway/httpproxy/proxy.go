@@ -6,7 +6,6 @@ import (
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"
-	"io/ioutil"
 	"kuaishangtong/common/utils/log"
 	"net"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"io/ioutil"
 )
 
 // onExitFlushLoop is a callback set by tests to detect the state of the
@@ -160,6 +160,11 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		outreq.Body = nil // Issue 16036: nil Body for http.Transport retries
 	}
 
+	outreq.Header = cloneHeader(req.Header)
+
+	outreq = p.Director(outreq)
+	outreq.Close = false
+
 	//var err error
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -171,11 +176,6 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 			outreq.ContentLength = 0
 		}
 	}
-
-	outreq.Header = cloneHeader(req.Header)
-
-	outreq = p.Director(outreq)
-	outreq.Close = false
 
 	// Remove hop-by-hop headers listed in the "Connection" header.
 	// See RFC 2616, section 14.10.
