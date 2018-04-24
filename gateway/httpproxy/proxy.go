@@ -202,8 +202,9 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
 		log.Errorf("http: proxy error: %v", err)
-		//rw.WriteHeader(http.StatusBadGateway)
-		return err
+		if !strings.HasSuffix(err.Error(), "with Body length 0") {
+			return err
+		}
 	}
 
 	// Remove hop-by-hop headers listed in the
