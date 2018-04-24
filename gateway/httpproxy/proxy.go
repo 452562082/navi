@@ -6,6 +6,7 @@ import (
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"
+	"io/ioutil"
 	"kuaishangtong/common/utils/log"
 	"net"
 	"net/http"
@@ -159,12 +160,12 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	}
 
 	//var err error
-	outreq.Body = req.Body
-	//if err != nil {
-	//	log.Errorf("http: GetBody err: %v", err)
-	//	//rw.WriteHeader(http.StatusBadGateway)
-	//	return err
-	//}
+	_, err := ioutil.ReadAll(outreq.Body)
+	if err != nil {
+		log.Errorf("http: ReadAll err: %v", err)
+		//rw.WriteHeader(http.StatusBadGateway)
+		return err
+	}
 
 	outreq.Header = cloneHeader(req.Header)
 
