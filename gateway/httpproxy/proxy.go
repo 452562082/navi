@@ -166,16 +166,16 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	outreq.Close = false
 
 	//var err error
-	data, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		log.Errorf("http: ReadAll err: %v", err)
-		//rw.WriteHeader(http.StatusBadGateway)
-		//return err
-	} else {
-		if len(data) == 0 {
-			outreq.ContentLength = 0
-		}
-	}
+	//data, err := ioutil.ReadAll(req.Body)
+	//if err != nil {
+	//	log.Errorf("http: ReadAll err: %v", err)
+	//	//rw.WriteHeader(http.StatusBadGateway)
+	//	//return err
+	//} else {
+	//	if len(data) == 0 {
+	//		outreq.ContentLength = 0
+	//	}
+	//}
 
 	// Remove hop-by-hop headers listed in the "Connection" header.
 	// See RFC 2616, section 14.10.
@@ -213,7 +213,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
 
-	log.Warn(req.MultipartForm != nil, outreq.MultipartForm != nil)
+	outreq.Body  = ioutil.NopCloser(req.Body)
 
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
