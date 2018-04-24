@@ -1,15 +1,15 @@
 {
   "api_urls": [
     {
-      "url": "/faceyou/compare",
+      "url": "/compare",
       "method": "post"
     },
     {
-      "url": "/faceyou/detect",
+      "url": "/detect",
       "method": "post"
     },
     {
-      "url": "/faceyou/ocr/detect",
+      "url": "/ocr/detect",
       "method": "post"
     }
   ]

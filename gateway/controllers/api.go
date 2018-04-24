@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
-	"io/ioutil"
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/navi/gateway/httpproxy"
 	"kuaishangtong/navi/gateway/service"
@@ -24,21 +23,9 @@ func (this *ApiController) Proxy() {
 	api_url := this.Ctx.Input.URL()[len(service_name)+8:]
 	mode := this.Ctx.Input.Header("mode")
 
-	//var err error
-	data, err := ioutil.ReadAll(this.Ctx.Request.Body)
-	if err != nil {
-		log.Errorf("http: ReadAll err: %v", err)
-		//rw.WriteHeader(http.StatusBadGateway)
-		//return err
-	}
-
-	log.Debugf("length of data: %d", len(data))
-
 	srv := service.GlobalServiceManager.GetService(service_name)
 	if srv != nil {
 		if api_exist := srv.ExistApi(api_url, mode); !api_exist {
-			//respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
-			//this.Ctx.ResponseWriter.Write([]byte(respstr))
 			this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
 			return
 		}
@@ -72,17 +59,6 @@ func (this *ApiController) Proxy() {
 				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
 					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host, err)
 			}
-
-			//host = srv.Cluster.Select(service_name+"/"+api_url, this.Ctx.Request.Method, host, mode)
-			//redirect := fmt.Sprintf("http://%s/%s", host, api_url)
-			//remote, err := url.Parse(redirect)
-			//if err != nil {
-			//	panic(err)
-			//}
-			//proxy := httputil.NewSingleHostReverseProxy(remote)
-			//
-			//proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
-
 		}
 
 		if err != nil || servercounts == 0 {
@@ -94,8 +70,6 @@ func (this *ApiController) Proxy() {
 		return
 	}
 
-	//respstr := "{\"responseCode\":404,\"responseJSON\":\"\"}"
-	//this.Ctx.ResponseWriter.Write([]byte(respstr))
 	this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
 	return
 }
