@@ -6,7 +6,6 @@ import (
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"
-	"io/ioutil"
 	"kuaishangtong/common/utils/log"
 	"net"
 	"net/http"
@@ -213,9 +212,9 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
 
-	requestBodyString := req.PostForm.Encode()
-	log.Warn(requestBodyString)
-	outreq.Body = ioutil.NopCloser(strings.NewReader(requestBodyString))
+	//requestBodyString := req.MultipartForm.File
+	log.Warn("MultipartForm:", *outreq.MultipartForm)
+	//outreq.Body = ioutil.NopCloser(strings.NewReader(requestBodyString))
 	//outreq.Body  = ioutil.NopCloser(req.Body)
 
 	res, err := transport.RoundTrip(outreq)
