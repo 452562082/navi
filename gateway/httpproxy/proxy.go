@@ -156,7 +156,14 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	outreq := req.WithContext(ctx) // includes shallow copies of maps, but okay
 	if req.ContentLength == 0 {
 		outreq.Body = nil // Issue 16036: nil Body for http.Transport retries
-		log.Debug("Body is nil")
+	}
+
+	var err error
+	outreq.Body, err = req.GetBody()
+	if err != nil {
+		log.Errorf("http: GetBody err: %v", err)
+		//rw.WriteHeader(http.StatusBadGateway)
+		return err
 	}
 
 	outreq.Header = cloneHeader(req.Header)
