@@ -165,7 +165,6 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	outreq = p.Director(outreq)
 	outreq.Close = false
 
-	log.Warn(req.MultipartForm != nil, outreq.MultipartForm != nil)
 	//var err error
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -213,6 +212,8 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		nethttp.OperationName(fmt.Sprintf("Addr: [%s] %s [/%s%s]", outreq.RemoteAddr, outreq.Method, outreq.Header.Get("service"), outreq.URL.Path)),
 		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
+
+	log.Warn(req.MultipartForm != nil, outreq.MultipartForm != nil)
 
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
