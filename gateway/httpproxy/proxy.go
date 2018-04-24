@@ -158,13 +158,13 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		outreq.Body = nil // Issue 16036: nil Body for http.Transport retries
 	}
 
-	var err error
-	outreq.Body, err = req.GetBody()
-	if err != nil {
-		log.Errorf("http: GetBody err: %v", err)
-		//rw.WriteHeader(http.StatusBadGateway)
-		return err
-	}
+	//var err error
+	outreq.Body = req.Body
+	//if err != nil {
+	//	log.Errorf("http: GetBody err: %v", err)
+	//	//rw.WriteHeader(http.StatusBadGateway)
+	//	return err
+	//}
 
 	outreq.Header = cloneHeader(req.Header)
 
