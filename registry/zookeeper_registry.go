@@ -76,11 +76,7 @@ func (p *ZooKeeperRegister) Start() error {
 
 			// refresh service TTL
 			for range ticker.C {
-				//var data []byte
-				//if p.Metrics != nil {
-				//	clientMeter := metrics.GetOrRegisterMeter("clientMeter", p.Metrics)
-				//	data = []byte(strconv.FormatInt(clientMeter.Count()/60, 10))
-				//}
+
 				//set this same metrics for all services at this server
 				for _, name := range p.Services {
 
@@ -108,10 +104,6 @@ func (p *ZooKeeperRegister) Start() error {
 							log.Errorf("cannot re-create zookeeper path %s: %v", nodePath, err)
 						}
 					} else {
-						//v, _ := url.ParseQuery(string(kvPaire.Value))
-						//v.Set("tps", string(data))
-						//p.kv.Put(nodePath, []byte(v.Encode()), &store.WriteOptions{TTL: p.UpdateInterval * 3})
-
 						var metadata string
 						if len(p.PrometheusTargetHost) > 0 && len(p.PrometheusTargetPort) > 0 {
 							metadata = fmt.Sprintf(serverset, p.PrometheusTargetHost, p.PrometheusTargetPort)
