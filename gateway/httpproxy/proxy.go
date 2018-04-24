@@ -1,12 +1,15 @@
 package httpproxy
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/opentracing/opentracing-go"
 	"io"
+	"io/ioutil"
 	"kuaishangtong/common/utils/log"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"net/url"
@@ -164,17 +167,43 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 	outreq = p.Director(outreq)
 	outreq.Close = false
 
-	//var err error
-	//data, err := ioutil.ReadAll(req.Body)
-	//if err != nil {
-	//	log.Errorf("http: ReadAll err: %v", err)
-	//	//rw.WriteHeader(http.StatusBadGateway)
-	//	//return err
-	//} else {
-	//	if len(data) == 0 {
-	outreq.ContentLength = 0
-	//	}
-	//}
+	/*#######################################################################*/
+
+	if req.MultipartForm != nil && req.MultipartForm.File != nil && len(req.MultipartForm.File) > 0 {
+
+		var b bytes.Buffer
+		w := multipart.NewWriter(&b)
+
+		for name, _ := range req.MultipartForm.File {
+			file, _, err := req.FormFile(name)
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+			defer file.Close()
+
+			filedata, err := ioutil.ReadAll(file)
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+
+			fw1, err := w.CreateFormFile(name, name)
+			if err != nil {
+				return err
+			}
+
+			if _, err = fw1.Write(filedata); err != nil {
+				return err
+			}
+		}
+		w.Close()
+
+		outreq.Body = ioutil.NopCloser(&b)
+		outreq.Header.Set("Content-Type", w.FormDataContentType())
+	}
+
+	/*#######################################################################*/
 
 	// Remove hop-by-hop headers listed in the "Connection" header.
 	// See RFC 2616, section 14.10.
@@ -211,11 +240,6 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 		nethttp.OperationName(fmt.Sprintf("Addr: [%s] %s [/%s%s]", outreq.RemoteAddr, outreq.Method, outreq.Header.Get("service"), outreq.URL.Path)),
 		nethttp.ComponentName("gateway"))
 	defer ht.Finish()
-
-	//requestBodyString := req.MultipartForm.File
-	log.Warn("MultipartForm:", *outreq.MultipartForm)
-	//outreq.Body = ioutil.NopCloser(strings.NewReader(requestBodyString))
-	//outreq.Body  = ioutil.NopCloser(req.Body)
 
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
