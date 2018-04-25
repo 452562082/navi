@@ -11,6 +11,10 @@
     {
       "url": "/ocr/detect",
       "method": "post"
+    },
+    {
+      "url": "/asr/detect",
+      "method": "post"
     }
   ]
 }
