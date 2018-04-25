@@ -43,6 +43,13 @@ func TestRegistry(t *testing.T) {
 	}
 
 	key := fmt.Sprintf("%s/%s/%s", "navi/service",
+		"faceyou", "prod")
+	err = urlRegistry.Put(key, data, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	key = fmt.Sprintf("%s/%s/%s", "navi/service",
 		"faceyou", "dev")
 	err = urlRegistry.Put(key, data, nil)
 	if err != nil {
