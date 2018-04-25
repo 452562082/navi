@@ -44,7 +44,7 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 
 	kv, err := srv.prodApiURLs.Get(fmt.Sprintf("%s/%s", constants.URLServicePath, name+"/prod"))
 	if err != nil {
-		log.Errorf("prodApiURLs cannot get kv err: %v", err)
+		log.Errorf("prodApiURLs cannot get kv %s err: %v", fmt.Sprintf("%s/%s", constants.URLServicePath, name+"/prod"), err)
 		return nil, err
 	}
 

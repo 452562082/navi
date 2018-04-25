@@ -1,11 +1,11 @@
 {
   "api_urls": [
     {
-      "url": "/compare",
+      "url": "/face/compare",
       "method": "post"
     },
     {
-      "url": "/detect",
+      "url": "/face/detect",
       "method": "post"
     },
     {

@@ -29,7 +29,6 @@ func (this *ApiController) Proxy() {
 			this.Ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
 			return
 		}
-
 		servercounts := srv.GetServerCount(mode)
 
 		var err error
