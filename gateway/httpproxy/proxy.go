@@ -169,34 +169,48 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 
 	/*#######################################################################*/
 
-	if req.MultipartForm != nil && req.MultipartForm.File != nil && len(req.MultipartForm.File) > 0 {
+	if req.MultipartForm != nil &&
+		((req.MultipartForm.File != nil && len(req.MultipartForm.File) > 0) || (req.MultipartForm.Value != nil && len(req.MultipartForm.Value) > 0)) {
 
 		var b bytes.Buffer
 		w := multipart.NewWriter(&b)
 
-		for name, _ := range req.MultipartForm.File {
-			file, _, err := req.FormFile(name)
-			if err != nil {
-				log.Error(err)
-				return err
-			}
-			defer file.Close()
+		if req.MultipartForm.File != nil && len(req.MultipartForm.File) > 0 {
+			for name, _ := range req.MultipartForm.File {
+				file, _, err := req.FormFile(name)
+				if err != nil {
+					log.Error(err)
+					return err
+				}
+				defer file.Close()
 
-			filedata, err := ioutil.ReadAll(file)
-			if err != nil {
-				log.Error(err)
-				return err
-			}
+				filedata, err := ioutil.ReadAll(file)
+				if err != nil {
+					log.Error(err)
+					return err
+				}
 
-			fw1, err := w.CreateFormFile(name, name)
-			if err != nil {
-				return err
-			}
+				fw1, err := w.CreateFormFile(name, name)
+				if err != nil {
+					return err
+				}
 
-			if _, err = fw1.Write(filedata); err != nil {
-				return err
+				if _, err = fw1.Write(filedata); err != nil {
+					return err
+				}
 			}
 		}
+
+		if req.MultipartForm.Value != nil && len(req.MultipartForm.Value) > 0 {
+			for name, _ := range req.MultipartForm.Value {
+				value := req.FormValue(name)
+				err := w.WriteField(name, value)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		w.Close()
 		outreq.ContentLength = int64(b.Len())
 		outreq.Body = ioutil.NopCloser(&b)

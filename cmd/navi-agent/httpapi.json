@@ -15,6 +15,10 @@
     {
       "url": "/asr/detect",
       "method": "post"
+    },
+    {
+      "url": "/similarity/detect",
+      "method": "post"
     }
   ]
 }
