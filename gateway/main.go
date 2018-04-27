@@ -123,9 +123,9 @@ func main() {
 	//opentracing.InitGlobalTracer(tracer)
 
 	beego.BConfig.Listen.EnableHTTPS = true
-
-	//beego.BConfig.Listen.HTTPSCertFile = "server.crt"
-	//beego.BConfig.Listen.HTTPSKeyFile = "server.key"
+	//beego.BConfig.Listen.HTTPSPort =
+	beego.BConfig.Listen.HTTPSCertFile = "conf/server.crt"
+	beego.BConfig.Listen.HTTPSKeyFile = "conf/server.key"
 
 	beego.Run()
 }
