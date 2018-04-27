@@ -48,4 +48,8 @@ func init() {
 		beego.InsertFilter(pattern, beego.BeforeRouter, filterFunc)
 		beego.Router(pattern, &controllers.ApiController{}, "*:Proxy")
 	}
+
+	beego.Get("/", func(ctx *context.Context) {
+		ctx.Output.Body([]byte("hello world"))
+	})
 }
