@@ -19,6 +19,10 @@
     {
       "url": "/similarity/detect",
       "method": "post"
+    },
+    {
+      "url": "/vpr/detect",
+      "method": "post"
     }
   ]
 }
