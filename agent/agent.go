@@ -136,7 +136,7 @@ LOOP:
 				_, err = a.agenter.Ping()
 				if err != nil {
 					if service_active {
-						log.Infof("unregister %s service %s successful", a.typ, a.serverName)
+						log.Infof("unregister %s service %s", a.typ, a.serverName)
 						service_active = false
 						err = a.UnRegisterName(a.serverName, serviceMode)
 						if err != nil {
