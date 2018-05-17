@@ -70,6 +70,7 @@ func (a *Agent) Serve() (err error) {
 	var service_active bool = true
 	serviceMode, err := a.agenter.ServiceMode()
 	if err != nil {
+		log.Error(err)
 		service_active = false
 		goto LOOP
 	}
@@ -80,12 +81,14 @@ func (a *Agent) Serve() (err error) {
 
 	_, err = a.agenter.Ping()
 	if err != nil {
+		log.Error(err)
 		service_active = false
 		goto LOOP
 	}
 
 	err = a.RegisterName(a.serverName, serviceMode, nil, a.serverName)
 	if err != nil {
+		log.Error(err)
 		service_active = false
 		goto LOOP
 	}
