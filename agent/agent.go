@@ -130,7 +130,7 @@ LOOP:
 
 				_serviceMode, err := a.agenter.ServiceMode()
 				if err == nil {
-					serviceMode = _serviceMode
+					serviceMode = strings.Trim(_serviceMode, "\"")
 				}
 
 				_, err = a.agenter.Ping()
