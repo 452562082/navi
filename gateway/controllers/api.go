@@ -8,6 +8,7 @@ import (
 	"kuaishangtong/navi/gateway/httpproxy"
 	"kuaishangtong/navi/gateway/service"
 	"net/http"
+	"time"
 )
 
 type ApiController struct {
@@ -47,17 +48,21 @@ func (this *ApiController) Proxy() {
 				req.URL.Path = "/" + api_url
 				req.Header.Set("RemoteAddr", this.Ctx.Request.RemoteAddr)
 				req.Header.Set("service", service_name)
-				log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
-					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
+				//log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s",
+				//	this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host)
 
 				return req
 			}
+			starttime := time.Now()
 			proxy := &httpproxy.ReverseProxy{Director: director, Transport: &nethttp.Transport{}}
 			err = proxy.ServeHTTP(this.Ctx.ResponseWriter, this.Ctx.Request)
 			if err != nil {
 				log.Errorf("remote addr %s, proxy service [%s] %s api /%s to host %s err: %v",
 					this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host, err)
 			}
+			timeconsumer := time.Now().Sub(starttime)
+			log.Infof("remote addr %s, proxy service [%s] %s api /%s to host %s success | %s",
+				this.Ctx.Request.RemoteAddr, service_name, mode, api_url, host, timeconsumer.String())
 		}
 
 		if err != nil || servercounts == 0 {
