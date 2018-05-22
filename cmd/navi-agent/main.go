@@ -190,22 +190,26 @@ func main() {
 		urlRegistry.Close()
 	}
 
-	// This instance is only used to check collector creation and logging.
-	nc, err := collector.NewNodeCollector()
-	if err != nil {
-		log.Fatalf("Couldn't create collector: %s", err)
-	}
-	log.Infof("Enabled collectors:")
-	for n := range nc.Collectors {
-		log.Infof(" Collector - %s", n)
-	}
+	if defaultConfig.PrometheusTarget.Enable {
 
-	http.HandleFunc("/metrics", handler)
+		// This instance is only used to check collector creation and logging.
+		nc, err := collector.NewNodeCollector()
+		if err != nil {
+			log.Fatalf("Couldn't create collector: %s", err)
+		}
+		log.Infof("Enabled collectors:")
+		for n := range nc.Collectors {
+			log.Infof(" Collector - %s", n)
+		}
 
-	log.Info("Listening on", 9100)
-	err = http.ListenAndServe(":9100", nil)
-	if err != nil {
-		log.Fatal(err)
+		http.HandleFunc("/metrics", handler)
+
+		log.Info("Listening on", defaultConfig.PrometheusTarget.AgentPort)
+		err = http.ListenAndServe(":"+defaultConfig.PrometheusTarget.AgentPort, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+	select {}
 
 }

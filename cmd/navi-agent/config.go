@@ -42,8 +42,10 @@ type serverConf struct {
 }
 
 type PrometheusTargetConf struct {
-	Host string `json:"host"`
-	Port string `json:"port"`
+	Enable    bool   `json:"enable"`
+	AgentPort string `json:"agent_port"`
+	Host      string `json:"host"`
+	Port      string `json:"port"`
 }
 
 type zookeeprConf struct {
