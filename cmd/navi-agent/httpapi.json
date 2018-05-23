@@ -1,15 +1,7 @@
 {
   "api_urls": [
     {
-      "url": "/base/data/faq/faq",
-      "method": "post"
-    },
-    {
-      "url": "/base/data/faq/question",
-      "method": "post"
-    },
-    {
-      "url": "/base/data/faq/faq/query",
+      "url": "/base/nlp-s/naive-sim/similarity",
       "method": "post"
     }
   ]

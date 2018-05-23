@@ -29,6 +29,22 @@ const _ipFilterRules = `{
       ],
       "deny_ips": [
       ]
+    }, 
+    {
+      "service_name": "chatbot",
+       "dev_ips": [
+		"0.0.0.0/0"
+      ],
+      "deny_ips": [
+      ]
+    },
+   {
+      "service_name": "nlp",
+       "dev_ips": [
+		"0.0.0.0/0"
+      ],
+      "deny_ips": [
+      ]
     },
     {
       "service_name": "faceyou",
