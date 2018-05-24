@@ -67,10 +67,12 @@ func NewAgent(server_name, address string, typ string, is_docker bool, restartFu
 
 // Serve starts and listens RPC requests.
 func (a *Agent) Serve() (err error) {
-
+	var service_active bool = true
 	serviceMode, err := a.agenter.ServiceMode()
 	if err != nil {
-		return err
+		log.Error(err)
+		service_active = false
+		goto LOOP
 	}
 
 	serviceMode = strings.Trim(serviceMode, "\"")
@@ -79,18 +81,21 @@ func (a *Agent) Serve() (err error) {
 
 	_, err = a.agenter.Ping()
 	if err != nil {
-		return err
+		log.Error(err)
+		service_active = false
+		goto LOOP
 	}
 
 	err = a.RegisterName(a.serverName, serviceMode, nil, a.serverName)
 	if err != nil {
-		return err
+		log.Error(err)
+		service_active = false
+		goto LOOP
 	}
 
 	log.Infof("register service %s successful", a.serverName)
 
-	var service_active bool = true
-
+LOOP:
 	pingTicker := time.NewTicker(3 * time.Second)
 	defer pingTicker.Stop()
 
@@ -125,12 +130,13 @@ func (a *Agent) Serve() (err error) {
 
 				_serviceMode, err := a.agenter.ServiceMode()
 				if err == nil {
-					serviceMode = _serviceMode
+					serviceMode = strings.Trim(_serviceMode, "\"")
 				}
 
 				_, err = a.agenter.Ping()
 				if err != nil {
 					if service_active {
+						log.Infof("unregister %s service %s", a.typ, a.serverName)
 						service_active = false
 						err = a.UnRegisterName(a.serverName, serviceMode)
 						if err != nil {

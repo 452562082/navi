@@ -30,7 +30,7 @@ func TestJson(t *testing.T) {
 }
 
 func TestRegistry(t *testing.T) {
-	zkServers := []string{"192.168.1.16:2181"}
+	zkServers := []string{"47.104.11.15:2181"}
 
 	data, err := ioutil.ReadFile("./httpapi.json")
 	if err != nil {
@@ -43,14 +43,14 @@ func TestRegistry(t *testing.T) {
 	}
 
 	key := fmt.Sprintf("%s/%s/%s", "navi/service",
-		"faceyou", "prod")
+		"nlp", "prod")
 	err = urlRegistry.Put(key, data, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	key = fmt.Sprintf("%s/%s/%s", "navi/service",
-		"faceyou", "dev")
+		"nlp", "dev")
 	err = urlRegistry.Put(key, data, nil)
 	if err != nil {
 		t.Fatal(err)

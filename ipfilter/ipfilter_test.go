@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-var zkhosts []string = []string{"192.168.1.16:2181"}
+var zkhosts []string = []string{"47.104.11.15:2181"}
 
 const _ipFilterRules = `{
   "ip_filter_rules": [
@@ -25,10 +25,23 @@ const _ipFilterRules = `{
     {
       "service_name": "smart_customer_service",
        "dev_ips": [
-        "192.168.120.54/32",
-		"192.168.120.62/32",
-		"192.168.120.1/24",
-		"127.0.0.1/32"
+		"0.0.0.0/0"
+      ],
+      "deny_ips": [
+      ]
+    }, 
+    {
+      "service_name": "chatbot",
+       "dev_ips": [
+		"0.0.0.0/0"
+      ],
+      "deny_ips": [
+      ]
+    },
+   {
+      "service_name": "nlp",
+       "dev_ips": [
+		"0.0.0.0/0"
       ],
       "deny_ips": [
       ]

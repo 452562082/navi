@@ -100,7 +100,7 @@ func (p *ZooKeeperRegister) Start() error {
 							metadata = fmt.Sprintf(serverset, p.PrometheusTargetHost, p.PrometheusTargetPort)
 						}
 
-						err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: p.UpdateInterval * 3})
+						err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: 1})
 						if err != nil {
 							log.Errorf("cannot re-create zookeeper path %s: %v", nodePath, err)
 						}
@@ -110,7 +110,7 @@ func (p *ZooKeeperRegister) Start() error {
 							metadata = fmt.Sprintf(serverset, p.PrometheusTargetHost, p.PrometheusTargetPort)
 						}
 
-						p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: p.UpdateInterval * 3})
+						p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: 1})
 					}
 				}
 
@@ -185,7 +185,7 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, data string)
 		metadata = data
 	}
 
-	err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: p.UpdateInterval * 2})
+	err = p.kv.Put(nodePath, []byte(metadata), &store.WriteOptions{TTL: 1})
 	if err != nil {
 		log.Errorf("cannot create zk path %s: %v", nodePath, err)
 		return err

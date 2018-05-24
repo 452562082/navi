@@ -1,27 +1,7 @@
 {
   "api_urls": [
     {
-      "url": "/face/compare",
-      "method": "post"
-    },
-    {
-      "url": "/face/detect",
-      "method": "post"
-    },
-    {
-      "url": "/ocr/detect",
-      "method": "post"
-    },
-    {
-      "url": "/asr/detect",
-      "method": "post"
-    },
-    {
-      "url": "/similarity/detect",
-      "method": "post"
-    },
-    {
-      "url": "/vpr/detect",
+      "url": "/base/nlp-s/naive-sim/similarity",
       "method": "post"
     }
   ]

@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"kuaishangtong/common/utils/log"
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
 	"github.com/docker/libkv/store/zookeeper"
+	"kuaishangtong/common/utils/log"
 )
 
 func init() {
@@ -167,13 +167,13 @@ func (d *ZookeeperDiscovery) watch() {
 					go func() {
 						defer func() {
 							if r := recover(); r != nil {
-
+								log.Error(r)
 							}
 						}()
 						select {
 						case ch <- pairs:
 						case <-time.After(time.Minute):
-							log.Warn("chan is full and new change has ben dropped")
+							//log.Warn("chan is full and new change has ben dropped")
 						}
 					}()
 				}
