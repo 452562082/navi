@@ -9,6 +9,10 @@ import (
 	"kuaishangtong/navi/ipfilter"
 	"net"
 	"strings"
+	"net/http"
+	"fmt"
+	"encoding/json"
+	"io/ioutil"
 )
 
 func init() {
@@ -20,6 +24,18 @@ func init() {
 		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin"},
 		AllowCredentials: true,
 	}))
+
+	//beego.InsertFilter("*", beego.BeforeRouter, func(ctx *context.Context) {
+	//	access_token := ctx.Request.Header.Get("access_token")
+	//	client_id, scope, err := GetSessionClient(access_token)
+	//	if err != nil {
+	//		//TODO
+	//		//token无效
+	//	}
+	//
+	//	//TODO
+	//	//scope权限相关
+	//})
 
 	filterFunc := func(ctx *context.Context) {
 		remoteIp := strings.Split(ctx.Request.RemoteAddr, ":")[0]
@@ -52,4 +68,26 @@ func init() {
 	beego.Get("/", func(ctx *context.Context) {
 		ctx.Output.Body([]byte("hello world"))
 	})
+}
+
+func GetSessionClient(token string) (string, string, error) {
+	res, err := http.Get(fmt.Sprintf("http://%s/restricted?token=%s",beego.AppConfig.String("oauth_host"),token))
+	defer res.Body.Close()
+	if err != nil {
+		return "","",err
+	}
+	client_data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "","",err
+	}
+
+	var client_json map[string]interface{}
+	err = json.Unmarshal(client_data,&client_json)
+	if err != nil {
+		return "","",err
+	}
+
+	client_id := client_json["ClientID"].(string)
+	scope := client_json["Scope"].(string)
+	return client_id, scope, nil
 }
