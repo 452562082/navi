@@ -26,6 +26,8 @@ type ServiceCluster struct {
 
 	prodSelector lb.Selector
 	devSelector  lb.Selector
+	hash_prodSelector lb.Selector
+	hash_devSelector  lb.Selector
 
 	closed bool
 }
@@ -48,6 +50,10 @@ func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
 
 	sc.prodServerIps = servers
 	sc.prodSelector = s
+
+	prodselecter := lb.NewSelector(lb.ConsistentHash, nil)
+	prodselecter.UpdateServer(servers)
+	sc.hash_prodSelector = prodselecter
 	return sc
 }
 
@@ -60,6 +66,10 @@ func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
 
 	sc.devServerIps = servers
 	sc.devSelector = s
+
+	devselecter := lb.NewSelector(lb.ConsistentHash, nil)
+	devselecter.UpdateServer(servers)
+	sc.hash_devSelector = devselecter
 	return sc
 }
 
@@ -82,11 +92,17 @@ func (sc *ServiceCluster) Commit() error {
 	return nil
 }
 
-func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode string) string {
+func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode string, is_hash_select bool, key string) string {
 	if strings.EqualFold(mode, constants.DEV_MODE) {
+		if is_hash_select {
+			return sc.hash_devSelector.Select(context.Background(), servicePath, serviceMethod, last_select, key)
+		}
 		return sc.devSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
 	}
 
+	if is_hash_select {
+		return sc.hash_prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, key)
+	}
 	return sc.prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
 }
 
@@ -129,6 +145,7 @@ func (sc *ServiceCluster) srverDiscovery() {
 
 			if sc.prodSelector != nil {
 				sc.prodSelector.UpdateServer(prodServerIps)
+				sc.hash_prodSelector.UpdateServer(prodServerIps)
 				log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, ips)
 			}
 
@@ -145,6 +162,7 @@ func (sc *ServiceCluster) srverDiscovery() {
 
 			if sc.devSelector != nil {
 				sc.devSelector.UpdateServer(devServerIps)
+				sc.hash_devSelector.UpdateServer(devServerIps)
 				log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, ips)
 			}
 		case <-ticker.C:
