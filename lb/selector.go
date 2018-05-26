@@ -31,6 +31,8 @@ func NewSelector(selectMode SelectMode, servers map[string]string) Selector {
 		return NewConsistentHashSelector(servers)
 	case SelectByUser:
 		return nil
+	case RandomOrHash:
+		return NewRandomOrHashSelector(servers)
 	default:
 		return NewRandomSelector(servers)
 	}
@@ -277,4 +279,47 @@ func (s *consistentHashSelector) UpdateServer(servers map[string]string) {
 // weightedICMPSelector selects servers with ping result.
 type weightedICMPSelector struct {
 	servers []*Weighted
+}
+
+type randomOrHashSelector struct {
+	servers []string
+}
+
+func NewRandomOrHashSelector(servers map[string]string) Selector {
+	var ss = make([]string, 0, len(servers))
+	for k, _ := range servers {
+		ss = append(ss, k)
+	}
+
+	return &consistentHashSelector{servers: ss}
+}
+
+func (s randomOrHashSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
+	ss := s.servers
+	length := len(ss)
+	if length == 0 {
+		return ""
+	}
+
+	if args == "" {
+		i := fastrand.Uint32n(uint32(len(ss)))
+
+		if ss[i] == last_select {
+			return ss[(int)(i+1)%length]
+		}
+
+		return ss[i]
+	}
+
+	i := JumpConsistentHash(len(ss), servicePath, serviceMethod, args)
+	return ss[i]
+}
+
+func (s *randomOrHashSelector) UpdateServer(servers map[string]string) {
+	var ss = make([]string, 0, len(servers))
+	for k, _ := range servers {
+		ss = append(ss, k)
+	}
+
+	s.servers = ss
 }

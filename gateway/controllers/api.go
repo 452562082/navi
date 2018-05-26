@@ -43,16 +43,8 @@ func (this *ApiController) Proxy() {
 				req = this.Ctx.Request
 				req.URL.Scheme = "http"
 				// 由 mode 来决定请求时转发到prod的集群上或dev的集群上
-				var is_hash_select bool
-				var key string
-				if this.Ctx.Request.URL.Query().Get("key") != ""{
-					is_hash_select = true
-					key = this.Ctx.Request.URL.Query().Get("key")
-				}else {
-					is_hash_select = false
-				}
-
-				host = srv.Cluster.Select(service_name+"/"+api_url, req.Method, host, mode, is_hash_select, key)
+				key := this.Ctx.Request.URL.Query().Get("navi_lb_key")
+				host = srv.Cluster.Select(service_name+"/"+api_url, req.Method, host, mode, key)
 				log.Infof("host:%v",host)
 				req.URL.Host = host
 				req.URL.Path = "/" + api_url

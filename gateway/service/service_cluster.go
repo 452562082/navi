@@ -50,10 +50,6 @@ func (sc *ServiceCluster) SetProdSelector(s lb.Selector) *ServiceCluster {
 
 	sc.prodServerIps = servers
 	sc.prodSelector = s
-
-	prodselecter := lb.NewSelector(lb.ConsistentHash, nil)
-	prodselecter.UpdateServer(servers)
-	sc.hash_prodSelector = prodselecter
 	return sc
 }
 
@@ -66,10 +62,6 @@ func (sc *ServiceCluster) SetDevSelector(s lb.Selector) *ServiceCluster {
 
 	sc.devServerIps = servers
 	sc.devSelector = s
-
-	devselecter := lb.NewSelector(lb.ConsistentHash, nil)
-	devselecter.UpdateServer(servers)
-	sc.hash_devSelector = devselecter
 	return sc
 }
 
@@ -92,18 +84,12 @@ func (sc *ServiceCluster) Commit() error {
 	return nil
 }
 
-func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode string, is_hash_select bool, key string) string {
+func (sc *ServiceCluster) Select(servicePath, serviceMethod, last_select, mode string, key string) string {
 	if strings.EqualFold(mode, constants.DEV_MODE) {
-		if is_hash_select {
-			return sc.hash_devSelector.Select(context.Background(), servicePath, serviceMethod, last_select, key)
-		}
-		return sc.devSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
+		return sc.devSelector.Select(context.Background(), servicePath, serviceMethod, last_select, key)
 	}
 
-	if is_hash_select {
-		return sc.hash_prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, key)
-	}
-	return sc.prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, nil)
+	return sc.prodSelector.Select(context.Background(), servicePath, serviceMethod, last_select, key)
 }
 
 func (sc *ServiceCluster) getProdServers() map[string]string {
