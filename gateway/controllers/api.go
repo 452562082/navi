@@ -43,6 +43,8 @@ func (this *ApiController) Proxy() {
 				req = this.Ctx.Request
 				req.URL.Scheme = "http"
 				// 由 mode 来决定请求时转发到prod的集群上或dev的集群上
+				log.Infof("111111111111111:%v",this.Ctx.Request.Header.Get("which_one"))
+
 				host = srv.Cluster.Select(service_name+"/"+api_url, req.Method, host, mode)
 				req.URL.Host = host
 				req.URL.Path = "/" + api_url
