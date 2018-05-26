@@ -41,6 +41,7 @@ var selectModeStrs = [...]string{
 	"WeightedICMP",
 	"ConsistentHash",
 	"Closest",
+	"RandomOrHash",
 }
 
 func (s SelectMode) String() string {
