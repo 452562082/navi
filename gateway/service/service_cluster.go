@@ -26,8 +26,6 @@ type ServiceCluster struct {
 
 	prodSelector lb.Selector
 	devSelector  lb.Selector
-	hash_prodSelector lb.Selector
-	hash_devSelector  lb.Selector
 
 	closed bool
 }
@@ -131,7 +129,6 @@ func (sc *ServiceCluster) srverDiscovery() {
 
 			if sc.prodSelector != nil {
 				sc.prodSelector.UpdateServer(prodServerIps)
-				sc.hash_prodSelector.UpdateServer(prodServerIps)
 				log.Infof("service [%s] cluster update prod servers %v", sc.service.Name, ips)
 			}
 
@@ -148,7 +145,6 @@ func (sc *ServiceCluster) srverDiscovery() {
 
 			if sc.devSelector != nil {
 				sc.devSelector.UpdateServer(devServerIps)
-				sc.hash_devSelector.UpdateServer(devServerIps)
 				log.Infof("service [%s] cluster update dev servers %v", sc.service.Name, ips)
 			}
 		case <-ticker.C:
