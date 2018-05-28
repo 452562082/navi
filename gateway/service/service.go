@@ -61,17 +61,6 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 		log.Infof("service [%s] add prod api url [/%s]", name, url)
 	}
 
-	//srv.prodApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/prod", constants.ZookeeperHosts, nil)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//pairs := srv.prodApiURLs.GetServices()
-	//for _, kv := range pairs {
-	//	srv.prodApiUrlMap[kv.Key] = struct{}{}
-	//	log.Infof("service [%s] add prod api url [/%s]", name, kv.Key)
-	//}
-
 	/* 获取 开发版本 /dev api url */
 	srv.devApiURLs, err = libkv.NewStore(store.ZK, constants.ZookeeperHosts, nil)
 	if err != nil {
@@ -96,17 +85,6 @@ func NewService(name string, lbmode lb.SelectMode) (*Service, error) {
 		srv.devApiUrlMap[url] = struct{}{}
 		log.Infof("service [%s] add dev api url [/%s]", name, url)
 	}
-
-	//srv.devApiURLs, err = registry.NewZookeeperDiscovery(constants.URLServicePath, name+"/dev", constants.ZookeeperHosts, nil)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//pairs = srv.devApiURLs.GetServices()
-	//for _, kv := range pairs {
-	//	srv.devApiUrlMap[kv.Key] = struct{}{}
-	//	log.Infof("service [%s] add dev api url [/%s]", name, kv.Key)
-	//}
 
 	srv.Cluster = NewServiceCluster(name, srv)
 

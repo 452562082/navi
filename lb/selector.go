@@ -31,8 +31,8 @@ func NewSelector(selectMode SelectMode, servers map[string]string) Selector {
 		return NewConsistentHashSelector(servers)
 	case SelectByUser:
 		return nil
-	case RandomOrHash:
-		return NewRandomOrHashSelector(servers)
+	case RoundRobinOrHash:
+		return NewRoundRobinOrHashSelector(servers)
 	default:
 		return NewRandomSelector(servers)
 	}
@@ -281,11 +281,12 @@ type weightedICMPSelector struct {
 	servers []*Weighted
 }
 
-type randomOrHashSelector struct {
+type roundRobinOrHashSelector struct {
 	servers []string
+	i       int
 }
 
-func NewRandomOrHashSelector(servers map[string]string) Selector {
+func NewRoundRobinOrHashSelector(servers map[string]string) Selector {
 	var ss = make([]string, 0, len(servers))
 	for k, _ := range servers {
 		ss = append(ss, k)
@@ -294,7 +295,7 @@ func NewRandomOrHashSelector(servers map[string]string) Selector {
 	return &consistentHashSelector{servers: ss}
 }
 
-func (s randomOrHashSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
+func (s roundRobinOrHashSelector) Select(ctx context.Context, servicePath, serviceMethod, last_select string, args interface{}) string {
 	ss := s.servers
 	length := len(ss)
 	if length == 0 {
@@ -302,11 +303,12 @@ func (s randomOrHashSelector) Select(ctx context.Context, servicePath, serviceMe
 	}
 
 	if args == "" {
-		i := fastrand.Uint32n(uint32(len(ss)))
-
+		i := s.i
+		i = i % len(ss)
 		if ss[i] == last_select {
-			return ss[(int)(i+1)%length]
+			i = (i + 1) % len(ss)
 		}
+		s.i = i + 1
 
 		return ss[i]
 	}
@@ -315,7 +317,7 @@ func (s randomOrHashSelector) Select(ctx context.Context, servicePath, serviceMe
 	return ss[i]
 }
 
-func (s *randomOrHashSelector) UpdateServer(servers map[string]string) {
+func (s *roundRobinOrHashSelector) UpdateServer(servers map[string]string) {
 	var ss = make([]string, 0, len(servers))
 	for k, _ := range servers {
 		ss = append(ss, k)

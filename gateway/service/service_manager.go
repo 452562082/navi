@@ -50,7 +50,7 @@ func (this *ServiceManager) init() error {
 	pairs := this.serviceDiscovery.GetServices()
 
 	for _, kv := range pairs {
-		api, err := NewService(kv.Key, lb.RandomOrHash)
+		api, err := NewService(kv.Key, lb.RoundRobinOrHash)
 		if err != nil {
 			return err
 		}
@@ -87,7 +87,7 @@ func (this *ServiceManager) watch() {
 			}
 
 			for key, _ := range newmap {
-				api, err := NewService(key, lb.RandomOrHash)
+				api, err := NewService(key, lb.RoundRobinOrHash)
 				if err != nil {
 					log.Error(err)
 					continue

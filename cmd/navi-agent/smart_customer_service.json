@@ -1,0 +1,16 @@
+{
+  "api_urls": [
+    {
+      "url": "/base/data/faq/faq",
+      "method": "post"
+    },
+    {
+      "url": "/base/data/faq/question",
+      "method": "post"
+    },
+    {
+      "url": "/base/data/faq/faq/query",
+      "method": "post"
+    }
+  ]
+}

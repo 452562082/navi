@@ -29,7 +29,7 @@ const (
 	//Closest is selecting the closest server
 	Closest
 
-	RandomOrHash
+	RoundRobinOrHash
 	// SelectByUser is selecting by implementation of users
 	SelectByUser = 1000
 )
