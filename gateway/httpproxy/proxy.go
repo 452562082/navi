@@ -177,7 +177,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 
 		if req.MultipartForm.File != nil && len(req.MultipartForm.File) > 0 {
 			for name, _ := range req.MultipartForm.File {
-				file, _, err := req.FormFile(name)
+				file, fi, err := req.FormFile(name)
 				if err != nil {
 					log.Error(err)
 					return err
@@ -190,7 +190,7 @@ func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) erro
 					return err
 				}
 
-				fw1, err := w.CreateFormFile(name, name)
+				fw1, err := w.CreateFormFile(name, fi.Filename)
 				if err != nil {
 					return err
 				}
