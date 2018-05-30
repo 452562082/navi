@@ -11,6 +11,8 @@
     "is_docker": false
   },
   "prometheus_target": {
+    "enable": false,
+    "agent_port": "9100",
     "host": "192.168.1.16",
     "port": "9100"
   },
