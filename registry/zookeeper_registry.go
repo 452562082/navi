@@ -191,12 +191,15 @@ func (p *ZooKeeperRegister) Register(name string, rcvr interface{}, data string)
 		return err
 	}
 
-	p.Services = append(p.Services, name)
-
 	p.metasLock.Lock()
 	if p.metas == nil {
 		p.metas = make(map[string]string)
 	}
+
+	if _, ok := p.metas[name]; !ok {
+		p.Services = append(p.Services, name)
+	}
+
 	p.metas[name] = metadata
 	p.metasLock.Unlock()
 	return
