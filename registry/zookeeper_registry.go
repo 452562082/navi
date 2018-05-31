@@ -241,18 +241,15 @@ func (p *ZooKeeperRegister) UnRegister(name string) (err error) {
 		return err
 	}
 
-	log.Debugf("Services: %v, len: %d", p.Services, len(p.Services))
-
+	p.metasLock.Lock()
+	if p.metas != nil {
+		delete(p.metas, name)
+	}
 	for i, v := range p.Services {
 		if v == name {
 			p.Services[i] = p.Services[len(p.Services)-1]
 			p.Services = p.Services[:len(p.Services)-1]
 		}
-	}
-
-	p.metasLock.Lock()
-	if p.metas != nil {
-		delete(p.metas, name)
 	}
 	p.metasLock.Unlock()
 	return
