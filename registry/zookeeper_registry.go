@@ -238,6 +238,8 @@ func (p *ZooKeeperRegister) UnRegister(name string) (err error) {
 		return err
 	}
 
+	log.Debugf("Services: %v, len: %d", p.Services, len(p.Services))
+
 	for i, v := range p.Services {
 		if v == name {
 			p.Services[i] = p.Services[len(p.Services)-1]
